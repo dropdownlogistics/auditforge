@@ -75,11 +75,6 @@ export default function AuditForgeApp() {
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "#4a6080", flex: 1 }}>Search...</span>
             <kbd style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "#4a6080", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 4, padding: "1px 5px" }}>?K</kbd>
           </div>
-          <div onClick={() => setSearchOpen(true)} style={{ margin: "0 12px 8px", display: "flex", alignItems: "center", gap: 8, padding: "7px 12px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(245,241,235,0.08)", cursor: "pointer" }}>
-            <span style={{ color: "#4a6080", fontSize: 13 }}>?</span>
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "#4a6080", flex: 1 }}>Search...</span>
-            <kbd style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "#4a6080", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 4, padding: "1px 5px" }}>?K</kbd>
-          </div>
           <div style={{ padding: "16px 12px 8px", fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.slate, letterSpacing: "0.1em" }}>NAVIGATION</div>
           {NAV.map(n => (
             <div key={n.id} onClick={() => n.id === "import" ? window.location.href = "/import" : setView(n.id)} style={{
@@ -119,7 +114,6 @@ export default function AuditForgeApp() {
         )}
 
         {view === "dashboard" && <DashboardView controls={controls} risks={risks} processes={processes} audits={audits} loading={loading} />}
-        {view === "analytics" && <AnalyticsView controls={controls} risks={risks} loading={loading} />}
         {view === "analytics" && <AnalyticsView controls={controls} risks={risks} loading={loading} />}
         {view === "controls" && <ControlsView controls={controls} loading={loading} />}
         {view === "risks" && <RisksView risks={risks} controls={controls} loading={loading} />}
@@ -1139,3 +1133,6 @@ function GlobalSearch({ controls, risks, processes, open, setOpen, query, setQue
 // ── GlobalSearch Component ────────────────────────────────────────────────────
 // Drop this entire block into page.js (before the closing export or after AnalyticsView)
 // Then wire into AuditForgeApp (instructions at bottom)
+
+
+
