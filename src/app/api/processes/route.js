@@ -10,8 +10,11 @@ export async function GET(request) {
   const companyId = searchParams.get("companyId");
   if (!companyId) return NextResponse.json({ error: "companyId required" }, { status: 400 });
 
+  const resolved = await resolveCompanyId(companyId);
+  if (!resolved) return NextResponse.json({ error: "Company not found" }, { status: 404 });
+
   const processes = await prisma.process.findMany({
-    where: { companyId },
+    where: { companyId: resolved },
     include: {
       controls: {
         select: { controlId: true, keyControl: true, lifecycle: true, reviewStatus: true },
