@@ -208,7 +208,7 @@ export default function LandingPage() {
         <div className="nav-right">
           <span className="nav-tag">System of Structure</span>
           <div className="nav-badge">v0.2 Live</div>
-          <button className="btn-signin" onClick={() => router.push("/")}>Sign In</button>
+          <button className="btn-signin" onClick={() => router.push("/sign-in")}>Sign In</button>
         </div>
       </nav>
 
@@ -223,7 +223,7 @@ export default function LandingPage() {
             The auditor issues the opinion. AuditForge produces the evidence package.
           </p>
           <div className="cta-row">
-            <button className="btn-primary" onClick={() => router.push("/")}>Sign In to AuditForge</button>
+            <button className="btn-primary" onClick={() => router.push("/sign-in")}>Sign In to AuditForge</button>
             <a href="/llms.txt" className="btn-secondary">OperatorManifest →</a>
           </div>
         </div>
