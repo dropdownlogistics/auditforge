@@ -29,7 +29,7 @@ function GateModal({ onClose }) {
           Sign In / Create Account
         </button>
         <button onClick={onClose}
-          style={{background:"transparent", color:C.steel, border:1px solid , borderRadius:6, padding:"10px 28px", fontFamily:"JetBrains Mono,monospace", fontSize:11, cursor:"pointer", width:"100%"}}>
+          style={{background:"transparent", color:C.steel, border:"1px solid rgba(245,241,235,0.07)", borderRadius:6, padding:"10px 28px", fontFamily:"JetBrains Mono,monospace", fontSize:11, cursor:"pointer", width:"100%"}}>
           Continue Browsing Demo
         </button>
       </div>
@@ -75,7 +75,7 @@ export default function DemoPage() {
             <circle cx="170" cy="100" r="2" fill="#C49A3C"/>
           </svg>
           <span style={{fontWeight:700, fontSize:16, letterSpacing:"-0.02em"}}>Audit<span style={{color:C.crimson}}>Forge</span></span>
-          <span style={{fontFamily:"JetBrains Mono,monospace", fontSize:10, color:C.steel, background:"rgba(178,53,49,0.1)", border:1px solid rgba(178,53,49,0.2), borderRadius:4, padding:"2px 8px", letterSpacing:"0.06em"}}>DEMO</span>
+          <span style={{fontFamily:"JetBrains Mono,monospace", fontSize:10, color:C.steel, background:"rgba(178,53,49,0.1)", border:"1px solid rgba(178",53,49,0.2), borderRadius:4, padding:"2px 8px", letterSpacing:"0.06em"}}>DEMO</span>
         </div>
         <button onClick={() => setShowGate(true)}
           style={{background:C.crimson, color:C.cream, border:"none", borderRadius:6, padding:"8px 20px", fontWeight:700, fontSize:12, cursor:"pointer", letterSpacing:"0.06em"}}>
@@ -93,7 +93,7 @@ export default function DemoPage() {
         ) : (
           <>
             {/* Stat cards */}
-            <div style={{display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:1, background:C.border, border:1px solid , borderRadius:12, overflow:"hidden", marginBottom:32}}>
+            <div style={{display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:1, background:C.border, border:"1px solid rgba(245,241,235,0.07)", borderRadius:12, overflow:"hidden", marginBottom:32}}>
               {[
                 {label:"Total Controls", val:controls.length, color:C.crimson},
                 {label:"Key Controls", val:keyControls, color:C.amber},
@@ -108,10 +108,10 @@ export default function DemoPage() {
             </div>
 
             {/* Controls table */}
-            <div style={{background:C.card, border:1px solid , borderRadius:10, marginBottom:24, overflow:"hidden"}}>
+            <div style={{background:C.card, border:"1px solid rgba(245,241,235,0.07)", borderRadius:10, marginBottom:24, overflow:"hidden"}}>
               <div style={{padding:"16px 20px", borderBottom:1px solid , display:"flex", justifyContent:"space-between", alignItems:"center"}}>
                 <div style={{fontWeight:600, fontSize:14}}>Controls</div>
-                <button onClick={() => setShowGate(true)} style={{background:"transparent", color:C.crimson, border:1px solid rgba(178,53,49,0.3), borderRadius:4, padding:"4px 12px", fontFamily:"JetBrains Mono,monospace", fontSize:10, cursor:"pointer"}}>+ Add Control</button>
+                <button onClick={() => setShowGate(true)} style={{background:"transparent", color:C.crimson, border:"1px solid rgba(178",53,49,0.3), borderRadius:4, padding:"4px 12px", fontFamily:"JetBrains Mono,monospace", fontSize:10, cursor:"pointer"}}>+ Add Control</button>
               </div>
               <div style={{overflowX:"auto"}}>
                 <table style={{width:"100%", borderCollapse:"collapse", fontSize:13}}>
@@ -144,7 +144,7 @@ export default function DemoPage() {
 
             {/* Risks preview */}
             <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:16, marginBottom:24}}>
-              <div style={{background:C.card, border:1px solid , borderRadius:10, overflow:"hidden"}}>
+              <div style={{background:C.card, border:"1px solid rgba(245,241,235,0.07)", borderRadius:10, overflow:"hidden"}}>
                 <div style={{padding:"14px 20px", borderBottom:1px solid , fontWeight:600, fontSize:14}}>Risk Registry</div>
                 {risks.slice(0,5).map((r,i) => (
                   <div key={i} style={{padding:"10px 20px", borderBottom:1px solid , display:"flex", justifyContent:"space-between", alignItems:"center"}}>
@@ -160,7 +160,7 @@ export default function DemoPage() {
                 </div>
               </div>
 
-              <div style={{background:C.card, border:1px solid , borderRadius:10, overflow:"hidden"}}>
+              <div style={{background:C.card, border:"1px solid rgba(245,241,235,0.07)", borderRadius:10, overflow:"hidden"}}>
                 <div style={{padding:"14px 20px", borderBottom:1px solid , fontWeight:600, fontSize:14}}>Process Areas</div>
                 {[...new Set(processes.map(p => p.processArea))].map((area,i) => {
                   const count = processes.filter(p => p.processArea === area).length;
@@ -177,7 +177,7 @@ export default function DemoPage() {
 
             {/* CTA */}
             <div style={{background:
-gba(178,53,49,0.06), border:1px solid rgba(178,53,49,0.2), borderRadius:10, padding:"32px", textAlign:"center", marginBottom:48}}>
+gba(178,53,49,0.06), border:"1px solid rgba(178",53,49,0.2), borderRadius:10, padding:"32px", textAlign:"center", marginBottom:48}}>
               <div style={{fontFamily:"JetBrains Mono,monospace", fontSize:10, color:C.crimson, letterSpacing:"0.12em", textTransform:"uppercase", marginBottom:10}}>This is live DDL data</div>
               <h2 style={{fontSize:"1.4rem", fontWeight:700, letterSpacing:"-0.02em", marginBottom:10}}>Ready to govern your own controls?</h2>
               <p style={{fontFamily:"JetBrains Mono,monospace", fontSize:11, color:C.steel, marginBottom:24, lineHeight:1.8}}>Import your control environment, generate an RCM in seconds, and track your audit progress in a governed star schema.</p>
