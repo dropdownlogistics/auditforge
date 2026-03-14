@@ -1,26 +1,55 @@
-@import "tailwindcss";
+/* ============================================================
+   AuditForge — CottageHumble Design System
+   DDL Standard CSS
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --navy: #0D1B2A;
+  --navy-deep: #0B1C2F;
+  --card: #10202f;
+  --card-hover: #152536;
+  --cream: #F5F1EB;
+  --cream-dim: rgba(245, 241, 235, 0.7);
+  --crimson: #B23531;
+  --crimson-af: #9B111E;
+  --copper: #C49A3C;
+  --amber: #E6B17E;
+  --green: #22C55E;
+  --green-dim: #4A9E6B;
+  --slate: #4A5568;
+  --steel: #6B7B8D;
+  --border: rgba(245, 241, 235, 0.06);
+  --border-hover: rgba(245, 241, 235, 0.12);
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-data: 'JetBrains Mono', monospace;
+  --font-body: 'Source Serif 4', Georgia, serif;
+  /* Risk colors */
+  --risk-critical: #FCA5A5;
+  --risk-high: #FECACA;
+  --risk-medium: #FEF3C7;
+  --risk-low: #D1FAE5;
+  /* Status colors */
+  --status-draft: #FEF3C7;
+  --status-prepared: #DBEAFE;
+  --status-reviewed: #E0E7FF;
+  --status-approved: #D1FAE5;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+html, body { height: 100%; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--navy);
+  color: var(--cream);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
 }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--navy); }
+::-webkit-scrollbar-thumb { background: var(--slate); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--steel); }

@@ -1,0 +1,651 @@
+// ============================================================
+// AuditForge — Prisma Schema v0.4
+// Council Review: CR-AUDITFORGE-001 + CR-AUDITFORGE-004
+// 
+// v0.3 base:
+//   1. Effective dating on bridge tables
+//   2. Dim_ControlType dimension
+//   3. Workflow state machine + ControlStatusLog
+//   4. AuditTrail table
+//   5. Template snapshot on GeneratedDocument
+//
+// v0.4 additions (CR-AUDITFORGE-004 ratified):
+//   6. Dim_Auditor
+//   7. Fact_Audit (planning layer)
+//   8. Bridge_Audit_Control (audit scope)
+//   9. AuditType, AuditStatus, ScopeDecision enums
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// DIMENSION TABLES
+// ============================================================
+
+model Company {
+  id             String       @id @default(cuid())
+  companyId      String       @unique @map("company_id")
+  name           String
+  industry       String
+  size           CompanySize  @default(MEDIUM)
+  publicPrivate  PublicPrivate @default(PRIVATE) @map("public_private")
+  fiscalYearEnd  String       @map("fiscal_year_end")
+  address        String?
+  notes          String?
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  controls  Control[]
+  processes Process[]
+  risks     Risk[]
+  owners    Owner[]
+  periods   Period[]
+  scopes    Scope[]
+  auditors  Auditor[]
+  audits    Audit[]
+
+  @@map("dim_company")
+}
+
+model Process {
+  id                String   @id @default(cuid())
+  processId         String   @map("process_id")
+  companyId         String   @map("company_id")
+  processArea       String   @map("process_area")
+  processName       String   @map("process_name")
+  subprocessName    String?  @map("subprocess_name")
+  processOwner      String?  @map("process_owner")
+  description       String?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  controls  Control[]
+
+  @@unique([companyId, processId])
+  @@map("dim_process")
+}
+
+model Risk {
+  id                   String       @id @default(cuid())
+  riskId               String       @map("risk_id")
+  companyId            String       @map("company_id")
+  description          String
+  category             RiskCategory @default(OPERATIONAL)
+  likelihood           RiskRating   @default(MEDIUM)
+  impact               RiskRating   @default(MEDIUM)
+  inherentRiskRating   RiskRating   @map("inherent_risk_rating") @default(MEDIUM)
+  residualRiskRating   RiskRating?  @map("residual_risk_rating")
+  riskResponse         String?      @map("risk_response")
+  createdAt            DateTime     @default(now()) @map("created_at")
+  updatedAt            DateTime     @updatedAt @map("updated_at")
+
+  company   Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  controls  ControlRisk[]
+
+  @@unique([companyId, riskId])
+  @@map("dim_risk")
+}
+
+model Framework {
+  id                     String   @id @default(cuid())
+  frameworkName           String   @map("framework_name")
+  frameworkVersion        String?  @map("framework_version")
+  domain                 String?
+  requirementId          String   @map("requirement_id")
+  requirementDescription String   @map("requirement_description")
+  createdAt              DateTime @default(now()) @map("created_at")
+
+  controls  ControlFramework[]
+
+  @@unique([frameworkName, requirementId])
+  @@map("dim_framework")
+}
+
+model Period {
+  id          String     @id @default(cuid())
+  companyId   String     @map("company_id")
+  periodLabel String     @map("period_label")
+  periodStart DateTime   @map("period_start")
+  periodEnd   DateTime   @map("period_end")
+  periodType  PeriodType @default(ANNUAL) @map("period_type")
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  controls  Control[]
+  audits    Audit[]
+
+  @@unique([companyId, periodLabel])
+  @@map("dim_period")
+}
+
+model Assertion {
+  id               String            @id @default(cuid())
+  assertionName    String            @unique @map("assertion_name")
+  category         AssertionCategory
+  description      String
+
+  controls  ControlAssertion[]
+
+  @@map("dim_assertion")
+}
+
+model Owner {
+  id         String   @id @default(cuid())
+  companyId  String   @map("company_id")
+  ownerName  String   @map("owner_name")
+  title      String?
+  department String?
+  email      String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  controls  Control[]
+
+  @@unique([companyId, ownerName])
+  @@map("dim_owner")
+}
+
+model Scope {
+  id             String    @id @default(cuid())
+  companyId      String    @map("company_id")
+  scopeType      ScopeType @map("scope_type")
+  entity         String
+  businessUnit   String?   @map("business_unit")
+  location       String?
+  description    String?
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  controls  Control[]
+
+  @@unique([companyId, entity, businessUnit, location])
+  @@map("dim_scope")
+}
+
+// ============================================================
+// Dim_ControlType — Nature/Automation/Domain dimension
+// CR-AUDITFORGE-001 Item 2
+// ============================================================
+
+model ControlTypeDim {
+  id          String              @id @default(cuid())
+  nature      ControlTypeNature
+  automation  ControlAutomation
+  domain      ControlDomain       @default(BUSINESS)
+  label       String              @unique
+  createdAt   DateTime            @default(now()) @map("created_at")
+
+  controls    Control[]
+
+  @@unique([nature, automation, domain])
+  @@map("dim_control_type")
+}
+
+// ============================================================
+// v0.4: Dim_Auditor — CR-AUDITFORGE-004 (Unanimous LOCK)
+// Auditors ≠ control owners. Segregation requires separation.
+// ============================================================
+
+model Auditor {
+  id              String   @id @default(cuid())
+  auditorId       String   @unique @map("auditor_id")
+  companyId       String   @map("company_id")
+  auditorName     String   @map("auditor_name")
+  title           String?
+  department      String?
+  email           String?
+  certifications  String?  // comma-separated: CPA, CIA, CISA
+  independence    String   @default("INTERNAL") // INTERNAL, EXTERNAL, REGULATORY
+  firm            String?
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  company          Company             @relation(fields: [companyId], references: [id])
+  ledAudits        Audit[]             @relation("LeadAuditor")
+  scopeAssignments AuditControlScope[] @relation("ScopeAssignee")
+
+  @@index([companyId])
+  @@map("dim_auditor")
+}
+
+// ============================================================
+// FACT TABLE — v0.4
+// ============================================================
+
+model Control {
+  id                     String              @id @default(cuid())
+  controlId              String              @map("control_id")
+  companyId              String              @map("company_id")
+  processId              String              @map("process_id")
+  periodId               String              @map("period_id")
+  ownerId                String?             @map("owner_id")
+  scopeId                String?             @map("scope_id")
+  controlTypeDimId       String?             @map("control_type_dim_id")
+  description            String              @map("control_description")
+  objective              String?             @map("control_objective")
+  // Legacy flat enums retained for backward compat + quick filter
+  controlType            ControlType         @map("control_type") @default(PREVENTIVE)
+  controlNature          ControlNature       @map("control_nature") @default(MANUAL)
+  controlFrequency       ControlFrequency    @map("control_frequency") @default(MONTHLY)
+  keyControl             Boolean             @default(false) @map("key_control")
+  designEffectiveness    EffectivenessStatus @default(NOT_TESTED) @map("design_effectiveness")
+  operatingEffectiveness EffectivenessStatus @default(NOT_TESTED) @map("operating_effectiveness")
+
+  // Lifecycle
+  lifecycle              ControlLifecycle    @default(DRAFT) @map("lifecycle_status")
+  supersededById         String?             @map("superseded_by_id")
+
+  // Review workflow
+  reviewStatus           ReviewStatus        @default(DRAFT) @map("review_status")
+
+  // Versioning
+  version                Int                 @default(1)
+  changeReason           String?             @map("change_reason")
+
+  evidenceDescription    String?             @map("evidence_description")
+  testProcedure          String?             @map("test_procedure")
+  createdAt              DateTime            @default(now()) @map("created_at")
+  updatedAt              DateTime            @updatedAt @map("updated_at")
+
+  // Dimension relations
+  company        Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  process        Process         @relation(fields: [processId], references: [id])
+  period         Period          @relation(fields: [periodId], references: [id])
+  owner          Owner?          @relation(fields: [ownerId], references: [id])
+  scope          Scope?          @relation(fields: [scopeId], references: [id])
+  controlTypeDim ControlTypeDim? @relation(fields: [controlTypeDimId], references: [id])
+  supersededBy   Control?        @relation("ControlSupersedes", fields: [supersededById], references: [id])
+  supersedes     Control[]       @relation("ControlSupersedes")
+
+  // Bridge relations (M:M)
+  risks       ControlRisk[]
+  frameworks  ControlFramework[]
+  assertions  ControlAssertion[]
+
+  // Status log
+  statusLogs  ControlStatusLog[]
+
+  // v0.4: Audit scope
+  auditScope  AuditControlScope[]
+
+  @@unique([companyId, controlId, periodId, version])
+  @@index([companyId])
+  @@index([processId])
+  @@index([reviewStatus])
+  @@index([lifecycle])
+  @@index([controlTypeDimId])
+  @@map("fact_control")
+}
+
+// ============================================================
+// v0.4: Fact_Audit — CR-AUDITFORGE-004 (Planning Layer)
+// State machine: PLANNING → FIELDWORK → REPORTING → COMPLETED
+// Any → CANCELLED (requires rationale)
+// COMPLETED = immutable
+// ============================================================
+
+model Audit {
+  id              String      @id @default(cuid())
+  auditId         String      @unique @map("audit_id")
+  companyId       String      @map("company_id")
+  periodId        String      @map("period_id")
+  auditName       String      @map("audit_name")
+  auditType       AuditType   @default(INTERNAL) @map("audit_type")
+  status          AuditStatus @default(PLANNING)
+  leadAuditorId   String      @map("lead_auditor_id")
+  startDate       DateTime?   @map("start_date")
+  endDate         DateTime?   @map("end_date")
+  reportDate      DateTime?   @map("report_date")
+  scope           String?     // narrative scope description
+  methodology     String?
+  cancelReason    String?     @map("cancel_reason")
+  version         Int         @default(1)
+  changeReason    String?     @map("change_reason")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  company         Company     @relation(fields: [companyId], references: [id])
+  period          Period      @relation(fields: [periodId], references: [id])
+  leadAuditor     Auditor     @relation("LeadAuditor", fields: [leadAuditorId], references: [id])
+  controlScope    AuditControlScope[]
+
+  @@index([companyId])
+  @@index([periodId])
+  @@index([status])
+  @@map("fact_audit")
+}
+
+// ============================================================
+// v0.4: Bridge_Audit_Control — Audit Scope with rationale
+// CR-AUDITFORGE-004 (Strong consensus, 8/9 seats)
+// ============================================================
+
+model AuditControlScope {
+  id              String        @id @default(cuid())
+  auditId         String        @map("audit_id")
+  controlId       String        @map("control_id")
+  inScope         Boolean       @default(true) @map("in_scope")
+  scopeDecision   ScopeDecision @default(IN_SCOPE) @map("scope_decision")
+  scopeRationale  String?       @map("scope_rationale")
+  assignedToId    String?       @map("assigned_to_id")
+  targetDate      DateTime?     @map("target_date")
+  validFrom       DateTime      @default(now()) @map("valid_from")
+  validTo         DateTime?     @map("valid_to")
+  createdAt       DateTime      @default(now()) @map("created_at")
+
+  audit           Audit         @relation(fields: [auditId], references: [id])
+  control         Control       @relation(fields: [controlId], references: [id])
+  assignedTo      Auditor?      @relation("ScopeAssignee", fields: [assignedToId], references: [id])
+
+  @@unique([auditId, controlId, validFrom])
+  @@index([auditId])
+  @@index([controlId])
+  @@map("bridge_audit_control")
+}
+
+// ============================================================
+// BRIDGE TABLES — Effective dating (CR-AUDITFORGE-001 Item 1)
+// ============================================================
+
+model ControlRisk {
+  controlId  String    @map("control_id")
+  riskId     String    @map("risk_id")
+  validFrom  DateTime  @default(now()) @map("valid_from")
+  validTo    DateTime? @map("valid_to")
+
+  control    Control @relation(fields: [controlId], references: [id], onDelete: Cascade)
+  risk       Risk    @relation(fields: [riskId], references: [id], onDelete: Cascade)
+
+  @@id([controlId, riskId])
+  @@index([validTo])
+  @@map("bridge_control_risk")
+}
+
+model ControlFramework {
+  controlId    String    @map("control_id")
+  frameworkId  String    @map("framework_id")
+  validFrom    DateTime  @default(now()) @map("valid_from")
+  validTo      DateTime? @map("valid_to")
+
+  control      Control   @relation(fields: [controlId], references: [id], onDelete: Cascade)
+  framework    Framework @relation(fields: [frameworkId], references: [id], onDelete: Cascade)
+
+  @@id([controlId, frameworkId])
+  @@index([validTo])
+  @@map("bridge_control_framework")
+}
+
+model ControlAssertion {
+  controlId    String    @map("control_id")
+  assertionId  String    @map("assertion_id")
+  validFrom    DateTime  @default(now()) @map("valid_from")
+  validTo      DateTime? @map("valid_to")
+
+  control      Control   @relation(fields: [controlId], references: [id], onDelete: Cascade)
+  assertion    Assertion @relation(fields: [assertionId], references: [id], onDelete: Cascade)
+
+  @@id([controlId, assertionId])
+  @@index([validTo])
+  @@map("bridge_control_assertion")
+}
+
+// ============================================================
+// Workflow State Machine — ControlStatusLog
+// CR-AUDITFORGE-001 Item 3
+// ============================================================
+
+model ControlStatusLog {
+  id          String   @id @default(cuid())
+  controlId   String   @map("control_id")
+  fromStatus  String   @map("from_status")
+  toStatus    String   @map("to_status")
+  statusType  String   @map("status_type")   // "REVIEW" or "LIFECYCLE"
+  changedBy   String   @map("changed_by")
+  changedAt   DateTime @default(now()) @map("changed_at")
+  comment     String?
+
+  control     Control  @relation(fields: [controlId], references: [id], onDelete: Cascade)
+
+  @@index([controlId])
+  @@index([changedAt])
+  @@map("sys_control_status_log")
+}
+
+// ============================================================
+// Audit Trail — Silent Fix Prevention
+// CR-AUDITFORGE-001 Item 4
+// ============================================================
+
+model AuditTrail {
+  id             String   @id @default(cuid())
+  entityType     String   @map("entity_type")
+  entityId       String   @map("entity_id")
+  action         String
+  field          String?
+  previousValues Json?    @map("previous_values")
+  newValues      Json?    @map("new_values")
+  previousValue  String?  @map("previous_value")
+  newValue       String?  @map("new_value")
+  userId         String   @map("user_id")
+  timestamp      DateTime @default(now())
+  rationale      String?
+
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([timestamp])
+  @@map("sys_audit_trail")
+}
+
+// ============================================================
+// TEMPLATE + DOCUMENT SYSTEM
+// CR-AUDITFORGE-001 Item 5: Template snapshot
+// ============================================================
+
+model Template {
+  id              String         @id @default(cuid())
+  templateId      String         @unique @map("template_id")
+  name            String
+  templateType    TemplateType   @map("template_type")
+  description     String?
+  outputFormat    OutputFormat   @map("output_format")
+  version         String         @default("1.0.0")
+  definition      Json
+  isActive        Boolean        @default(true) @map("is_active")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  generatedDocs   GeneratedDocument[]
+
+  @@map("sys_template")
+}
+
+model GeneratedDocument {
+  id                String         @id @default(cuid())
+  templateId        String         @map("template_id")
+  companyId         String         @map("company_id")
+  periodLabel       String         @map("period_label")
+  fileName          String         @map("file_name")
+  fileFormat        OutputFormat   @map("file_format")
+  templateVersion   String         @map("template_version")
+  templateSnapshot  Json?          @map("template_snapshot")
+  draftVersion      Int            @default(1) @map("draft_version")
+  docStatus         DocStatus      @default(DRAFT) @map("doc_status")
+  dataHash          String?        @map("data_hash")
+  frozenAt          DateTime?      @map("frozen_at")
+  generatedBy       String?        @map("generated_by")
+  generatedAt       DateTime       @default(now()) @map("generated_at")
+  filePath          String?        @map("file_path")
+  metadata          Json?
+
+  template  Template @relation(fields: [templateId], references: [id])
+
+  @@index([companyId, periodLabel])
+  @@index([docStatus])
+  @@map("sys_generated_document")
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum CompanySize {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+enum PublicPrivate {
+  PUBLIC
+  PRIVATE
+}
+
+enum RiskCategory {
+  FINANCIAL
+  OPERATIONAL
+  COMPLIANCE
+  STRATEGIC
+  TECHNOLOGY
+}
+
+enum RiskRating {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// Legacy flat enums on Fact_Control
+enum ControlType {
+  PREVENTIVE
+  DETECTIVE
+  CORRECTIVE
+}
+
+enum ControlNature {
+  MANUAL
+  AUTOMATED
+  IT_DEPENDENT_MANUAL
+}
+
+// Dim_ControlType enums
+enum ControlTypeNature {
+  PREVENTIVE
+  DETECTIVE
+  CORRECTIVE
+}
+
+enum ControlAutomation {
+  MANUAL
+  AUTOMATED
+  IT_DEPENDENT
+}
+
+enum ControlDomain {
+  BUSINESS
+  IT
+  HYBRID
+}
+
+enum ControlFrequency {
+  REAL_TIME
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  ANNUALLY
+  AD_HOC
+}
+
+enum EffectivenessStatus {
+  EFFECTIVE
+  INEFFECTIVE
+  NOT_TESTED
+  PARTIALLY_EFFECTIVE
+}
+
+enum ReviewStatus {
+  DRAFT
+  PREPARED
+  REVIEWED
+  APPROVED
+}
+
+enum ControlLifecycle {
+  DRAFT
+  ACTIVE
+  SUPERSEDED
+  RETIRED
+}
+
+enum DocStatus {
+  DRAFT
+  FINAL
+  ARCHIVED
+}
+
+enum ScopeType {
+  ENTITY
+  BUSINESS_UNIT
+  LOCATION
+}
+
+enum AssertionCategory {
+  TRANSACTION
+  BALANCE
+  DISCLOSURE
+}
+
+enum TemplateType {
+  RCM
+  MCL
+  WALKTHROUGH
+  RISK_ASSESSMENT
+  FRAMEWORK_MAP
+  GAP_ANALYSIS
+  CONTROL_DESCRIPTION
+  TESTING_PLAN
+  AUDIT_PLAN
+}
+
+enum OutputFormat {
+  DOCX
+  XLSX
+  PDF
+}
+
+enum PeriodType {
+  ANNUAL
+  QUARTERLY
+  CUSTOM
+}
+
+// v0.4 enums — CR-AUDITFORGE-004
+
+enum AuditType {
+  INTERNAL
+  EXTERNAL
+  REGULATORY
+}
+
+enum AuditStatus {
+  PLANNING
+  FIELDWORK
+  REPORTING
+  COMPLETED
+  CANCELLED
+}
+
+enum ScopeDecision {
+  IN_SCOPE
+  OUT_OF_SCOPE
+  DEFERRED
+}
