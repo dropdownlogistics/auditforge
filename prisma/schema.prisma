@@ -29,6 +29,79 @@ datasource db {
 // DIMENSION TABLES
 // ============================================================
 
+// ============================================================
+// AuditForge — Auth Schema Additions
+// Add these models to prisma/schema.prisma
+// Place BEFORE the existing Company model
+// ============================================================
+
+// ── Enums ────────────────────────────────────────────────────
+
+enum UserRole {
+  ADMIN      // Company admin — full access, can invite users
+  PREPARER   // Can create/edit controls, prepare for review
+  REVIEWER   // Can review and advance controls to REVIEWED
+  APPROVER   // Can give final APPROVED status
+  VIEWER     // Read-only access
+  
+  @@map("user_role")
+}
+
+// ── User ─────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  passwordHash  String    @map("password_hash")
+  role          UserRole  @default(PREPARER)
+  companyId     String?   @map("company_id")
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  lastLoginAt   DateTime? @map("last_login_at")
+
+  company     Company?       @relation(fields: [companyId], references: [id])
+  sessions    Session[]
+  invites     Invite[]       @relation("InvitedBy")
+  
+  @@map("dim_user")
+}
+
+// ── Session ───────────────────────────────────────────────────
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("auth_session")
+}
+
+// ── Invite ────────────────────────────────────────────────────
+
+model Invite {
+  id          String    @id @default(cuid())
+  email       String
+  companyId   String    @map("company_id")
+  role        UserRole  @default(PREPARER)
+  token       String    @unique @default(cuid())
+  invitedById String    @map("invited_by_id")
+  expiresAt   DateTime  @map("expires_at")
+  acceptedAt  DateTime? @map("accepted_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  company     Company @relation(fields: [companyId], references: [id])
+  invitedBy   User    @relation("InvitedBy", fields: [invitedById], references: [id])
+
+  @@map("auth_invite")
+}
+
+
 model Company {
   id             String       @id @default(cuid())
   companyId      String       @unique @map("company_id")
