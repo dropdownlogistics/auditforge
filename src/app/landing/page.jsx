@@ -134,6 +134,8 @@ export default function LandingPage() {
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(178,53,49,0.3); }
         .btn-secondary { background: transparent; color: var(--steel); font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 13px 20px; border-radius: 6px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; }
         .btn-secondary:hover { border-color: var(--border-crimson); color: var(--cream); }
+        .btn-ghost { background: transparent; color: var(--steel); font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 13px 0; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; transition: color 0.2s; }
+        .btn-ghost:hover { color: var(--cream); }
         .stamp-col { opacity: 0; animation: fadeUp 0.9s 0.25s ease forwards; }
 
         .divider-strip { position: relative; z-index: 1; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 12px 0; overflow: hidden; background: rgba(16,32,47,0.6); }
@@ -225,6 +227,7 @@ export default function LandingPage() {
           <div className="cta-row">
             <button className="btn-primary" onClick={() => router.push("/sign-in")}>Sign In to AuditForge</button>
             <a href="/llms.txt" className="btn-secondary">OperatorManifest →</a>
+            <a href="/api/auth/demo" className="btn-ghost">Enter as Guest →</a>
           </div>
         </div>
         <div className="stamp-col">
