@@ -213,7 +213,7 @@ export default function LandingPage() {
         <div className="nav-right">
           <span className="nav-tag">System of Structure</span>
           <div className="nav-badge">v0.2 Live</div>
-          <button className="btn-signin" onClick={() => router.push("/sign-in")}>Sign In</button>
+          <button className="btn-signin" onClick={() => router.push("/coming-soon")}>Sign In</button>
         </div>
       </nav>
 
@@ -229,7 +229,7 @@ export default function LandingPage() {
           </p>
           <div className="cta-row">
             <a href="/api/auth/demo" className="btn-guest">Enter as Guest →</a>
-            <button className="btn-primary" onClick={() => router.push("/sign-in")}>Sign In</button>
+            <button className="btn-primary" onClick={() => router.push("/coming-soon")}>Sign In</button>
           </div>
           <div className="cta-sub">
             <a href="/llms.txt" className="btn-manifest">OperatorManifest →</a>
