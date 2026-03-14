@@ -65,7 +65,7 @@ export default function DemoPage() {
       {showGate && <GateModal onClose={() => setShowGate(false)} />}
 
       {/* Nav */}
-      <nav style={{position:"sticky", top:0, zIndex:100, padding:"16px 40px", display:"flex", justifyContent:"space-between", alignItems:"center", background:"rgba(13,27,42,0.95)", borderBottom:1px solid , backdropFilter:"blur(12px)"}}>
+      <nav style={{position:"sticky", top:0, zIndex:100, padding:"16px 40px", display:"flex", justifyContent:"space-between", alignItems:"center", background:"rgba(13,27,42,0.95)", borderBottom:"1px solid ", backdropFilter:"blur(12px)"}}>
         <div style={{display:"flex", alignItems:"center", gap:10}}>
           <svg width="28" height="28" viewBox="0 0 200 200">
             <circle cx="100" cy="100" r="90" fill="none" stroke="#F5F1EB" strokeWidth="2"/>
@@ -109,14 +109,14 @@ export default function DemoPage() {
 
             {/* Controls table */}
             <div style={{background:C.card, border:"1px solid rgba(245,241,235,0.07)", borderRadius:10, marginBottom:24, overflow:"hidden"}}>
-              <div style={{padding:"16px 20px", borderBottom:1px solid , display:"flex", justifyContent:"space-between", alignItems:"center"}}>
+              <div style={{padding:"16px 20px", borderBottom:"1px solid ", display:"flex", justifyContent:"space-between", alignItems:"center"}}>
                 <div style={{fontWeight:600, fontSize:14}}>Controls</div>
                 <button onClick={() => setShowGate(true)} style={{background:"transparent", color:C.crimson, border:"1px solid rgba(178",53,49,0.3), borderRadius:4, padding:"4px 12px", fontFamily:"JetBrains Mono,monospace", fontSize:10, cursor:"pointer"}}>+ Add Control</button>
               </div>
               <div style={{overflowX:"auto"}}>
                 <table style={{width:"100%", borderCollapse:"collapse", fontSize:13}}>
                   <thead>
-                    <tr style={{borderBottom:1px solid }}>
+                    <tr style={{borderBottom:"1px solid "}}>
                       {["Control ID","Description","Type","Process Area","Status"].map(h => (
                         <th key={h} style={{padding:"10px 16px", textAlign:"left", fontFamily:"JetBrains Mono,monospace", fontSize:10, color:C.steel, letterSpacing:"0.06em", fontWeight:400}}>{h}</th>
                       ))}
@@ -124,7 +124,7 @@ export default function DemoPage() {
                   </thead>
                   <tbody>
                     {controls.slice(0,8).map((ctrl,i) => (
-                      <tr key={i} style={{borderBottom:1px solid }}>
+                      <tr key={i} style={{borderBottom:"1px solid "}}>
                         <td style={{padding:"10px 16px", color:C.crimson, fontFamily:"JetBrains Mono,monospace", fontSize:11}}>{ctrl.controlId}</td>
                         <td style={{padding:"10px 16px", color:C.cream, maxWidth:320}}><div style={{overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap"}}>{ctrl.description}</div></td>
                         <td style={{padding:"10px 16px"}}><span style={{fontFamily:"JetBrains Mono,monospace", fontSize:10, color:ctrl.controlType==="PREVENTIVE"?C.green:C.amber, background:ctrl.controlType==="PREVENTIVE"?"rgba(74,158,107,0.1)":"rgba(196,154,60,0.1)", padding:"2px 8px", borderRadius:3}}>{ctrl.controlType}</span></td>
@@ -136,7 +136,7 @@ export default function DemoPage() {
                 </table>
               </div>
               {controls.length > 8 && (
-                <div style={{padding:"12px 16px", borderTop:1px solid , fontFamily:"JetBrains Mono,monospace", fontSize:11, color:C.steel, textAlign:"center"}}>
+                <div style={{padding:"12px 16px", borderTop:"1px solid ", fontFamily:"JetBrains Mono,monospace", fontSize:11, color:C.steel, textAlign:"center"}}>
                   +{controls.length - 8} more controls · <button onClick={() => setShowGate(true)} style={{background:"none", border:"none", color:C.crimson, cursor:"pointer", fontFamily:"JetBrains Mono,monospace", fontSize:11}}>Sign in to see all</button>
                 </div>
               )}
@@ -145,9 +145,9 @@ export default function DemoPage() {
             {/* Risks preview */}
             <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:16, marginBottom:24}}>
               <div style={{background:C.card, border:"1px solid rgba(245,241,235,0.07)", borderRadius:10, overflow:"hidden"}}>
-                <div style={{padding:"14px 20px", borderBottom:1px solid , fontWeight:600, fontSize:14}}>Risk Registry</div>
+                <div style={{padding:"14px 20px", borderBottom:"1px solid ", fontWeight:600, fontSize:14}}>Risk Registry</div>
                 {risks.slice(0,5).map((r,i) => (
-                  <div key={i} style={{padding:"10px 20px", borderBottom:1px solid , display:"flex", justifyContent:"space-between", alignItems:"center"}}>
+                  <div key={i} style={{padding:"10px 20px", borderBottom:"1px solid ", display:"flex", justifyContent:"space-between", alignItems:"center"}}>
                     <div>
                       <div style={{fontFamily:"JetBrains Mono,monospace", fontSize:10, color:C.crimson, marginBottom:2}}>{r.riskId}</div>
                       <div style={{fontSize:12, color:C.cream, maxWidth:220, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap"}}>{r.description}</div>
@@ -161,12 +161,12 @@ export default function DemoPage() {
               </div>
 
               <div style={{background:C.card, border:"1px solid rgba(245,241,235,0.07)", borderRadius:10, overflow:"hidden"}}>
-                <div style={{padding:"14px 20px", borderBottom:1px solid , fontWeight:600, fontSize:14}}>Process Areas</div>
+                <div style={{padding:"14px 20px", borderBottom:"1px solid ", fontWeight:600, fontSize:14}}>Process Areas</div>
                 {[...new Set(processes.map(p => p.processArea))].map((area,i) => {
                   const count = processes.filter(p => p.processArea === area).length;
                   const ctrlCount = controls.filter(c => c.process?.processArea === area).length;
                   return (
-                    <div key={i} style={{padding:"10px 20px", borderBottom:1px solid , display:"flex", justifyContent:"space-between", alignItems:"center"}}>
+                    <div key={i} style={{padding:"10px 20px", borderBottom:"1px solid ", display:"flex", justifyContent:"space-between", alignItems:"center"}}>
                       <div style={{fontSize:12, color:C.cream}}>{area}</div>
                       <div style={{fontFamily:"JetBrains Mono,monospace", fontSize:10, color:C.steel}}>{ctrlCount} controls</div>
                     </div>
