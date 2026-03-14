@@ -2,7 +2,7 @@
 // app/api/processes/route.js
 
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma, resolveCompanyId } from "@/lib/prisma";
 import { validateProcess, createAuditEntry, computeDiffs, TRACKED_FIELDS } from "@/lib/middleware/validation";
 
 export async function GET(request) {

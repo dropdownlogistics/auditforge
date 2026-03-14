@@ -2,7 +2,7 @@
 // app/api/risks/route.js
 
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma, resolveCompanyId } from "@/lib/prisma";
 import { validateRisk, createAuditEntry, computeDiffs, TRACKED_FIELDS } from "@/lib/middleware/validation";
 
 export async function GET(request) {
@@ -10,7 +10,10 @@ export async function GET(request) {
   const companyId = searchParams.get("companyId");
   if (!companyId) return NextResponse.json({ error: "companyId required" }, { status: 400 });
 
-  const where = { companyId };
+  const resolved = await resolveCompanyId(companyId);
+  if (!resolved) return NextResponse.json({ error: "Company not found" }, { status: 404 });
+
+  const where = { companyId: resolved };
   const search = searchParams.get("search");
   if (search) {
     where.OR = [
