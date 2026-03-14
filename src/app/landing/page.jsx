@@ -162,6 +162,7 @@ export default function LandingPage() {
         .cta-sub { margin-top: 14px; opacity: 0; animation: fadeUp 0.7s 0.6s ease forwards; }
         .btn-manifest { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--steel); text-decoration: none; letter-spacing: 0.08em; transition: color 0.2s; }
         .btn-manifest:hover { color: var(--cream); }
+        .cta-hint { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #1a2e42; letter-spacing: 0.06em; margin-top: 14px; }
         .stamp-col { opacity: 0; animation: fadeUp 0.9s 0.25s ease forwards; }
 
         .divider-strip { position: relative; z-index: 1; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 12px 0; overflow: hidden; background: rgba(16,32,47,0.6); }
@@ -254,6 +255,7 @@ export default function LandingPage() {
             <a href="#" className="btn-guest" onClick={handleGuest}>{guestLoading ? "Signing in..." : "Enter as Guest →"}</a>
             <button className="btn-primary" onClick={() => router.push("/coming-soon")}>Sign In</button>
           </div>
+          <div className="cta-hint">demo@auditforge.dev &nbsp;·&nbsp; DDLogistics!9*6</div>
           <div className="cta-sub">
             <a href="/llms.txt" className="btn-manifest">OperatorManifest →</a>
           </div>
