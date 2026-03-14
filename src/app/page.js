@@ -1,5 +1,7 @@
 ﻿"use client";
 
+import { LayoutDashboard, BarChart2, Shield, AlertTriangle, Network, BookOpen, FileOutput, Upload } from "lucide-react";
+
 import { useState, useEffect } from "react";
 
 // ── CottageHumble Tokens ──
@@ -49,13 +51,14 @@ export default function AuditForgeApp() {
   }, []);
 
   const NAV = [
-    { id: "dashboard", icon: "◉", label: "Dashboard" },
-    { id: "controls", icon: "⬡", label: "Controls" },
-    { id: "risks", icon: "△", label: "Risks" },
-    { id: "processes", icon: "◫", label: "Processes" },
-    { id: "audits", icon: "◈", label: "Audits" },
-    { id: "generate", icon: "⬢", label: "Generate" },
-    { id: "import", icon: "⬆", label: "Import" },
+    { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
+    { id: "analytics", icon: BarChart2, label: "Analytics" },
+    { id: "controls", icon: Shield, label: "Controls" },
+    { id: "risks", icon: AlertTriangle, label: "Risks" },
+    { id: "processes", icon: Network, label: "Processes" },
+    { id: "audits", icon: BookOpen, label: "Audits" },
+    { id: "generate", icon: FileOutput, label: "Generate" },
+    { id: "import", icon: Upload, label: "Import" },
   ];
 
   const draftCount = controls.filter(c => c.reviewStatus === "DRAFT").length;
@@ -85,7 +88,7 @@ export default function AuditForgeApp() {
               background: view === n.id ? "rgba(196,154,60,0.1)" : "transparent",
               borderLeft: view === n.id ? `2px solid ${C.copper}` : "2px solid transparent",
             }}>
-              <span style={{ fontSize: 16, width: 20, textAlign: "center" }}>{n.icon}</span>
+              <n.icon size={16} style={{ minWidth: 16 }} />
               {n.label}
               {n.id === "audits" && audits.length > 0 && <span style={{ marginLeft: "auto", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.copper }}>{audits.length}</span>}
             </div>
