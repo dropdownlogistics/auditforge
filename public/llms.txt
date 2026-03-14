@@ -1,0 +1,445 @@
+## AuditForge OperatorManifest
+## Version: 0.2
+## Date: 2026-03-14
+## Operator: Dave Kitchens
+## URL: https://auditforge.dev
+## Status: Live — Production
+## Parent ecosystem: Dropdown Logistics (dropdownlogistics.com)
+## Council ratification: CR-AUDITFORGE-001, CR-AUDITFORGE-002, CR-AUDITFORGE-003
+
+
+## IDENTITY
+
+Product:        AuditForge
+Operator:       Dave Kitchens
+Studio:         Dropdown Logistics (DDL)
+URL:            https://auditforge.dev
+Repo:           github.com/dropdownlogistics/auditforge
+Version:        0.2 (v0.3 in build)
+Status:         Live. Production. Auto-deploy from GitHub main.
+Purpose:        Governed audit document generation from structured control and risk data.
+
+One sentence:
+AuditForge takes structured control, risk, process, and framework data
+and produces governed audit deliverables — RCMs, MCLs, walkthroughs,
+and audit plans — as XLSX and DOCX files.
+
+
+## WHAT THIS PRODUCT IS
+
+AuditForge is a SYSTEM OF STRUCTURE.
+
+It does:
+- Define what controls ARE
+- Generate governed documentation from structured data
+- Enforce review workflows and lifecycle state machines
+- Log every mutation to an immutable audit trail
+- Map controls to risks, frameworks, and assertions
+- Produce client-ready deliverables in seconds from live data
+- Import controls, risks, and processes via CSV with validation
+- Provide analytics on control coverage, risk exposure, and program health
+- Support global search across controls, risks, and processes (Cmd+K)
+
+It does NOT:
+- Test whether controls WORK
+- Issue audit opinions
+- Store evidence artifacts
+- Replace the auditor's judgment
+- Make assertions about control effectiveness without human input
+
+The auditor issues the opinion.
+AuditForge produces the evidence package.
+That line does not move.
+
+Architectural identity: System of Structure
+Target market: Internal audit teams, consulting firms, SOX compliance departments
+
+
+## METHODOLOGY
+
+Built with: Chaos → Structured → Automated
+Philosophy: Cottage first (simple working system). Cathedral later (scalable architecture).
+
+Build sequence (executed, not planned):
+  Schema → Middleware → CRUD → Generators → Import → UI → Analytics → Search → Mobile
+
+Governance philosophy:
+  Silent Fix Prevention — every mutation requires rationale
+  AuditTrail — every mutation logged, field-level diffs
+  State machine — controls move through lifecycle via explicit transitions
+  Snapshot integrity — generated documents capture data state at generation time
+
+The product demos itself governing itself.
+Seed data is DDL's own Control Audit Engine (CAE) — AI-native governance domains.
+AcceptableArrogance: the system's first client is the company that built it.
+
+
+## TECH STACK
+
+Framework:      Next.js 16.1.6 (App Router, Turbopack)
+Database:       PostgreSQL 17 on Neon (AWS US-East-1)
+ORM:            Prisma 6.19.2
+Generators:     ExcelJS (XLSX), docx npm (DOCX)
+Icons:          Lucide React
+Deployment:     Vercel (auto-deploy from GitHub main)
+Runtime:        Node 24.14
+Local port:     3001 (3000 reserved for DDL site)
+Domain:         auditforge.dev (Cloudflare, registered March 2026, expires March 2029)
+
+
+## DATA MODEL
+
+Star schema. Fact_Control at center.
+Grain: One control instance per company per period.
+
+DIMENSION TABLES:
+  Dim_Company        — multi-company scoping, indexed
+  Dim_Process        — 3-level hierarchy (Area → Process → Subprocess)
+  Dim_Risk           — risk inventory with ratings
+  Dim_Owner          — first-class dimension
+  Dim_Framework      — 3-level (Framework → Domain → Requirement)
+                       Seeded: COSO 2013 (17), SOX/PCAOB (15), COBIT 2019 (13)
+  Dim_Assertion      — PCAOB assertions (9 seeded)
+  Dim_ControlType    — 9 profiles (preventive/detective, manual/automated, etc.)
+
+BRIDGE TABLES (all M:M with effective dating):
+  Bridge_ControlRisk
+  Bridge_ControlFramework
+  Bridge_ControlAssertion
+
+WORKFLOW TABLES:
+  ControlStatusLog   — state machine, full lifecycle
+  AuditTrail         — every mutation logged (Silent Fix Prevention)
+  Template           — versioned document templates (3 seeded)
+  GeneratedDocument  — immutable snapshot at generation time
+
+ENUMS (all typed):
+  ControlLifecycle: DRAFT → ACTIVE → DEPRECATED → ARCHIVED
+  ReviewStatus: DRAFT → PREPARED → REVIEWED → APPROVED
+  ControlType: PREVENTIVE | DETECTIVE | CORRECTIVE
+  ControlNature: MANUAL | AUTOMATED | IT_DEPENDENT_MANUAL
+  RiskRating: CRITICAL | HIGH | MEDIUM | LOW
+  RiskCategory: OPERATIONAL | FINANCIAL | COMPLIANCE | STRATEGIC | TECHNOLOGY
+
+NATURAL IDs:
+  All entities use human-readable natural IDs (CTRL-GOV-001, RSK-HAB-002)
+  resolveCompanyId() resolves natural IDs to internal cuids
+  All API routes accept either format
+
+FORWARD COMPATIBILITY (designed in, not bolted on):
+  Natural IDs on all entities — entity extraction ready
+  Explicit relationship tables — graph-traversable
+  Description fields on everything — vector-searchable
+  RESTful API — documented and stable
+  Validation middleware on every mutation
+  Classification metadata on generated documents
+
+
+## SEED DATA (live on Neon)
+
+Company:   Dropdown Logistics (CO-DDL) · FY2025
+Controls:  11 DDL CAE controls + 4 test imports = 15 total
+Domains:   Context Integrity (AI-NATIVE)
+           Governance & Oversight (TRADITIONAL)
+           Human-AI Boundary (AI-NATIVE)
+           Prompt Governance (AI-NATIVE)
+Risks:     14 risks, bridge-mapped to COSO 2013
+Processes: 7 processes across 4 domains
+Owners:    3 (CSO, CEO, CTO — role-based)
+Templates: 3 (RCM, MCL, Walkthrough)
+
+
+## API ROUTES
+
+All routes live at auditforge.dev/api/
+
+CONTROLS:
+  GET  /api/controls?companyId=CO-DDL       — list with full star schema joins
+  POST /api/controls                         — create with validation
+  PUT  /api/controls/[id]                   — update with AuditTrail
+  DELETE /api/controls/[id]                 — soft delete
+  POST /api/controls/[id]/transition        — lifecycle state machine
+  POST /api/controls/[id]/mappings          — bridge table management
+
+RISKS:
+  GET/POST/PUT/DELETE /api/risks
+
+PROCESSES:
+  GET/POST/PUT/DELETE /api/processes
+
+OWNERS:
+  GET/POST/PUT /api/owners
+
+AUDITS (v0.4):
+  GET/POST /api/audits
+  POST /api/audits/[id]/scope
+
+AUDITORS:
+  GET/POST /api/auditors
+
+GENERATION:
+  POST /api/generate                         — generate document by type
+  GET  /api/generate?companyId=CO-DDL       — list last 50 generated
+  GET  /api/generate/download               — stream file download
+
+IMPORT:
+  POST /api/import                           — bulk control import (preview/execute)
+  POST /api/import/risks                     — bulk risk import
+  POST /api/import/processes                 — bulk process import
+
+All import routes accept { companyId, [entities], mode: "preview" | "execute" }
+Preview validates without writing. Execute upserts valid rows, logs all to AuditTrail.
+
+
+## GENERATORS
+
+RCM (XLSX):
+  Cover sheet, matrix tab, summary tab
+  Conditional formatting: risk ratings, effectiveness, key controls
+  DDL standards: 6px frame (Row 1 / Col A spacer), grid lines off,
+  footer (Dropdown Logistics / Chaos→Structured→Automated / Page X of N),
+  frozen panes, sheet protection (password: auditforge), print area,
+  branded cover sheet, DDL logo top-left
+
+MCL (XLSX):
+  Full control catalog, alternating rows, status and effectiveness color coding
+
+Walkthrough Narrative (DOCX):
+  Process overview, numbered control points, risk summary table,
+  gap analysis section, sign-off block. One per process area.
+
+Audit Plan (XLSX):
+  Cover, scope matrix, timeline, assignments, target dates
+
+GENERATED DOCUMENTS (confirmed from live data):
+  DL_RCM_FY2025_v1.0.xlsx
+  DL_MCL_FY2025_v1.0.xlsx
+  DL_WLK_Govern_FY2025_v1.0.docx
+  DL_WLK_Human-_FY2025_v1.0.docx
+  DL_WLK_Prompt_FY2025_v1.0.docx
+  DL_WLK_Contex_FY2025_v1.0.docx
+  DL_ADP_AUD-2025-001_FY2025_v1.0.xlsx
+
+
+## UI VIEWS
+
+Dashboard:   Live stats, type breakdown, process area breakdown,
+             review status, risk heat map, DRAFT governance warning banner
+
+Analytics:   Council-ratified KPIs (CR-AUDITFORGE-003 — unanimous LOCK):
+             Unmitigated Critical/High risks (crimson action card),
+             Risk Coverage Rate, Key Controls Not Tested,
+             Awaiting Review count, Control Health Heatmap (risk × effectiveness),
+             Workflow Status Funnel, Key Control Effectiveness,
+             Control Mix Nature × Type matrix, Process Area Density,
+             Unmapped Risks table
+
+Controls:    Live table, search, type/status filters, full star schema joins
+
+Risks:       Live table, rating filter, control count per risk
+
+Processes:   Grouped by area, control counts per process
+
+Audits:      Scope matrix, lead auditor, methodology, audit plan download
+
+Generate:    Document type selector, walkthrough per process area,
+             DDL standards checklist, all downloads wired to live API
+
+Import:      Three-step flow (Upload → Map → Preview → Execute),
+             type selector (Controls / Risks / Processes),
+             auto column mapping, per-row validation, upsert logic
+
+Search:      Cmd+K / Ctrl+K modal, searches controls/risks/processes simultaneously,
+             grouped results, highlight matching text, quick nav shortcuts,
+             floating amber button on mobile
+
+Nav:         Lucide React icons (uniform weight):
+             Dashboard, Analytics, Controls, Risks, Processes,
+             Audits, Generate, Import
+
+Mobile:      Bottom tab bar on ≤768px, floating search button,
+             stacked stat grids, horizontal scroll on tables
+
+
+## DESIGN SYSTEM
+
+CottageHumble: "Humble surface. Cathedral underneath."
+
+COLORS:
+  Navy:     #0D1B2A  (background)
+  Card:     #10202f  (surface)
+  Cream:    #F5F1EB  (text)
+  Crimson:  #B23531  (brand primary, risk alerts)
+  Amber:    #C49A3C  (accent, interactive)
+  Green:    #4A9E6B  (positive, effective)
+  Blue:     #6B9DC2  (info, processes)
+  Warn:     #F59E0B  (draft state warnings)
+
+TYPOGRAPHY:
+  Space Grotesk   — display, UI labels, headings
+  JetBrains Mono  — data, IDs, badges, monospace
+  Source Serif 4  — body, descriptions, narrative
+
+RULES:
+  No white backgrounds. No Inter. No light mode.
+  Grid lines off in all generated XLSX files.
+  6px frame (Row 1 / Col A) in all spreadsheets.
+  DDL footer on every generated page.
+
+LOGO:
+  Crimson AF stamp on navy.
+  Circular seal, AF monogram, cream outline ring.
+  Favicon: icon.svg in Next.js app directory.
+  "Crimson AF" — AccidentalInsight, now canon.
+
+
+## COLLABORATORS
+
+Dave Kitchens   — Operator. CPA. 10+ years internal audit.
+                  Commission Analyst II, UMB Bank (Day job).
+                  Builds AuditForge as DDL commercial product.
+
+Clayton Hotze   — Engineering partner, co-founder level.
+                  Built full-stack multi-agent knowledge management
+                  platform independently. AuditForge is forward-compatible
+                  with his platform by design.
+
+Beth Epperson   — Connector. CEO, Legacy Purpose.
+                  Gets to use the product. Does not own it.
+
+Connor          — Adjunct council seat (David's AI).
+                  Participated in CR-AUDITFORGE-001.
+
+
+## GOVERNANCE
+
+COUNCIL REVIEWS:
+  CR-AUDITFORGE-001   10 seats + Connor adjunct. 6 LOCK, 3 REVISE
+                      (all "LOCK with required fixes"). Unanimous on
+                      architectural boundary. Unanimous on v0.2 scope.
+
+  CR-AUDITFORGE-002   Status update. Informational. No verdict.
+
+  CR-AUDITFORGE-003   Analytics dashboard. Unanimous LOCK (9 seats).
+                      KPIs ratified. Layout ratified. Vanity metrics
+                      excluded by council consensus.
+
+  CR-DDL-COMBINED-001 Cross-product strategic review. STRONG verdict.
+                      Full council participated. No flags raised on
+                      architecture. BlindSpot governance flag raised.
+
+RATIFIED BOUNDARIES (do not move):
+  AuditForge is a System of Structure. Not execution.
+  The auditor issues the opinion. AuditForge produces the evidence package.
+  AI layer is a premium accelerator. Core product must function without it.
+  Evidence vault is deferred. References only, no storage.
+
+MIDDLEWARE RULES (enforced, not advisory):
+  Silent Fix Prevention — EDIT requires documented rationale
+  Segregation of duties — prepared_by ≠ reviewed_by
+  Lifecycle validation — controls can only move forward in lifecycle
+  Review status gate — APPROVED blocks certain mutations
+  Key control protection — key controls require elevated rationale to modify
+  Company scoping — all queries are company-scoped, no cross-company leaks
+  Template versioning — semver enforced on all templates
+  Audit trail — every mutation logged with actor, timestamp, field diffs
+
+
+## DEFERRED (council-ratified — do not build yet)
+
+  PDF export
+  AI layer (control description drafting, gap detection)
+  Multi-tenant UI
+  Automated testing suite
+  Evidence vault
+  Predictive analytics
+  Custom framework builder
+  Real-time collaboration
+  Clayton's platform integration
+
+
+## OPEN / NEXT
+
+IMMEDIATE:
+  Prod data population — risks and processes still empty on auditforge.dev
+                         14 DDL risks exist in seed, not yet imported via UI
+                         Import flow is live — needs run
+
+  Site wing            — 5 pages scoped (Landing, Architecture, Features,
+                         Demo, Roadmap). Built on DDL site thread.
+                         Routing TBD (/auditforge vs /products/auditforge)
+
+BACKLOG:
+  MCL/WLK DDL standards — RCM has full DDL standards applied.
+                           MCL and Walkthrough use generic palette.
+                           Not yet updated to match.
+  Version string audit   — Sidebar shows v0.4. Confirm intentional.
+  Sample CSVs            — Risks and processes sample files not yet generated
+
+
+## RULES FOR AI COLLABORATORS
+
+TONE:
+  Professional. Technical. Direct. No hedging.
+  This is a commercial audit product — treat it as one.
+  Users are CPAs, auditors, compliance leads. Write for them.
+
+ARCHITECTURAL RULES:
+  The data model is locked. Do not propose schema changes without council review.
+  The architectural boundary is ratified. Do not suggest AuditForge issue opinions.
+  Silent Fix Prevention is not optional. Every mutation needs rationale.
+  AuditTrail is not optional. Do not suggest bypassing it.
+  Company scoping is mandatory. Never write queries without companyId scope.
+
+WHEN BUILDING:
+  Star schema thinking always. Facts, dimensions, bridges.
+  Generators produce output from query layer — never touch Prisma directly.
+  Natural IDs resolve via resolveCompanyId() — use it.
+  Validation middleware runs on every POST/PUT — respect it.
+  The architecture does not change between domains. The data does.
+
+WHAT NOT TO DO:
+  Do not suggest the product store evidence artifacts (deferred, council decision).
+  Do not add AI to the core product (deferred, council decision).
+  Do not break company data isolation.
+  Do not bypass the audit trail.
+  Do not issue verdicts or opinions from generated documents.
+  Do not add features that blur the System of Structure boundary.
+
+DEVELOPMENT CONTEXT:
+  Local: localhost:3001 (3000 is DDL site)
+  Production: auditforge.dev
+  DB: Neon PostgreSQL — connection string in .env (not committed)
+  Seed: node prisma/seed.js && node prisma/seed-v03.js
+  Reset: npx prisma migrate reset (wipes and reseeds)
+
+
+## CANON TERMS
+
+Crimson AF          AccidentalInsight. Logo review produced a brand term
+                    that also means "extremely good." Now DDL canon.
+
+System of Structure AuditForge's ratified architectural identity.
+                    Not execution. Not opinion. Structure.
+
+Silent Fix          Core governance principle. Unacknowledged corrections
+Prevention          are the most dangerous kind. Every edit requires rationale.
+
+CoherentVelocity    Complete auditable systems built at speed.
+                    AuditForge v0.2 in one session. This is what it looks like.
+
+AcceptableArrogance Knowing what you built, letting the work prove it.
+                    The product governs its creator. That is the demo.
+
+ExpertiseInvisibility
+                    The output looks easy because the operator knows
+                    exactly what he is doing. The star schema is invisible.
+                    The RCM is obvious. That is the point.
+
+
+## EOF
+
+AuditForge v0.2 | auditforge.dev
+Dropdown Logistics — Chaos → Structured → Automated
+Dave Kitchens | March 2026
+The cottage ships.
