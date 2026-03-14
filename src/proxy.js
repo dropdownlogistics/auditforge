@@ -18,8 +18,8 @@ export default clerkMiddleware(async (auth, request) => {
   const { userId } = await auth()
   const { pathname } = request.nextUrl
 
-  // Unauthenticated hitting the app — send to landing
-  if (!userId && isAppRoute(request) && pathname !== '/landing') {
+  // Only gate non-root app routes
+  if (!userId && isAppRoute(request) && pathname !== '/' && pathname !== '/landing') {
     return NextResponse.redirect(new URL('/landing', request.url))
   }
 
