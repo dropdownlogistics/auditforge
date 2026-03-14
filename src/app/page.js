@@ -21,6 +21,99 @@ function fmtEnum(v) { return v ? v.replace(/_/g, " ").replace(/\b\w/g, c => c.to
 function Badge({ children, bg }) { return <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 4, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 500, background: bg || "#F3F4F6", color: "#0D1B2A" }}>{children}</span>; }
 
 // ── Main App ──
+
+/* ── Mobile Responsive ─────────────────────────────────────── */
+const mobileStyles = `
+  @media (max-width: 768px) {
+    .af-layout { flex-direction: column !important; }
+    .af-sidebar {
+      width: 100% !important;
+      min-width: unset !important;
+      flex-direction: row !important;
+      padding: 0 !important;
+      border-right: none !important;
+      border-bottom: 1px solid rgba(245,241,235,0.08) !important;
+      position: fixed !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      z-index: 100 !important;
+      background: #10202f !important;
+    }
+    .af-sidebar-brand { display: none !important; }
+    .af-sidebar-search { display: none !important; }
+    .af-sidebar-nav-label { display: none !important; }
+    .af-sidebar-footer { display: none !important; }
+    .af-nav-items {
+      display: flex !important;
+      flex-direction: row !important;
+      width: 100% !important;
+      padding: 0 !important;
+      overflow-x: auto !important;
+      scrollbar-width: none !important;
+    }
+    .af-nav-item {
+      flex-direction: column !important;
+      gap: 2px !important;
+      padding: 8px 6px !important;
+      min-width: 56px !important;
+      align-items: center !important;
+      border-left: none !important;
+      border-top: 2px solid transparent !important;
+      font-size: 10px !important;
+      flex: 1 !important;
+    }
+    .af-nav-item.active {
+      border-left: none !important;
+      border-top: 2px solid #C49A3C !important;
+    }
+    .af-nav-badge { display: none !important; }
+    .af-main {
+      padding-bottom: 70px !important;
+      margin-bottom: 0 !important;
+    }
+    .af-stats-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 10px !important;
+    }
+    .af-breakdowns-grid {
+      grid-template-columns: 1fr !important;
+    }
+    .af-header {
+      padding: 16px 16px 14px !important;
+      flex-direction: column !important;
+      gap: 8px !important;
+      align-items: flex-start !important;
+    }
+    .af-content-pad {
+      padding: 16px 16px 80px !important;
+    }
+    .af-analytics-cards {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 10px !important;
+    }
+    .af-analytics-mid {
+      grid-template-columns: 1fr !important;
+    }
+    .af-analytics-bot {
+      grid-template-columns: 1fr !important;
+    }
+    .af-table-wrap { overflow-x: auto !important; }
+    .af-generate-grid {
+      grid-template-columns: 1fr !important;
+    }
+    .af-warning-banner {
+      font-size: 10px !important;
+      padding: 8px 12px !important;
+    }
+  }
+`;
+
+
+function MobileStyles() {
+  return <style>{mobileStyles}</style>;
+}
+
 export default function AuditForgeApp() {
   const [view, setView] = useState("dashboard");
   const [controls, setControls] = useState([]);
@@ -65,22 +158,24 @@ export default function AuditForgeApp() {
   const approvedCount = controls.filter(c => c.reviewStatus === "APPROVED").length;
 
   return (
-    <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+    <div className="af-layout" style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+      <MobileStyles />
       {/* Sidebar */}
-      <nav style={{ width: 240, minWidth: 240, background: C.card, borderRight: `1px solid ${C.border}`, display: "flex", flexDirection: "column", padding: "24px 0" }}>
-        <div style={{ padding: "0 20px 24px", borderBottom: `1px solid ${C.border}` }}>
+      <nav className="af-sidebar" style={{ width: 240, minWidth: 240, background: C.card, borderRight: `1px solid ${C.border}`, display: "flex", flexDirection: "column", padding: "24px 0" }}>
+        <div className="af-sidebar-brand" style={{ padding: "0 20px 24px", borderBottom: `1px solid ${C.border}` }}>
           <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 18, fontWeight: 700, color: C.cream }}>AuditForge</div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, letterSpacing: "0.05em", marginTop: 4 }}>GOVERNED DOCUMENTATION</div>
         </div>
-        <div style={{ padding: "8px 0" }}>
+        <div className="af-nav-items" style={{ padding: "8px 0" }}>
           <div onClick={() => setSearchOpen(true)} style={{ margin: "0 12px 8px", display: "flex", alignItems: "center", gap: 8, padding: "7px 12px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(245,241,235,0.08)", cursor: "pointer" }}>
             <span style={{ color: "#4a6080", fontSize: 13 }}>?</span>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "#4a6080", flex: 1 }}>Search...</span>
             <kbd style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "#4a6080", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 4, padding: "1px 5px" }}>?K</kbd>
           </div>
-          <div style={{ padding: "16px 12px 8px", fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.slate, letterSpacing: "0.1em" }}>NAVIGATION</div>
+          <div className="af-sidebar-nav-label" style={{ padding: "16px 12px 8px", fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.slate, letterSpacing: "0.1em" }}>NAVIGATION</div>
           {NAV.map(n => (
-            <div key={n.id} onClick={() => n.id === "import" ? window.location.href = "/import" : setView(n.id)} style={{
+            <div key={n.id} onClick={() => n.id === "import" ? window.location.href = "/import" : setView(n.id)} className={`af-nav-item${view === n.id ? " active" : ""}`}
+            style={{
               display: "flex", alignItems: "center", gap: 10, padding: "8px 20px", cursor: "pointer",
               fontFamily: "'Space Grotesk', sans-serif", fontSize: 13,
               fontWeight: view === n.id ? 600 : 400,
@@ -90,11 +185,11 @@ export default function AuditForgeApp() {
             }}>
               <n.icon size={16} style={{ minWidth: 16 }} />
               {n.label}
-              {n.id === "audits" && audits.length > 0 && <span style={{ marginLeft: "auto", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.copper }}>{audits.length}</span>}
+              {n.id === "audits" && audits.length > 0 && <span className="af-nav-badge" style={{ marginLeft: "auto", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.copper }}>{audits.length}</span>}
             </div>
           ))}
         </div>
-        <div style={{ marginTop: "auto", padding: "16px 20px", borderTop: `1px solid ${C.border}` }}>
+        <div className="af-sidebar-footer" style={{ marginTop: "auto", padding: "16px 20px", borderTop: `1px solid ${C.border}` }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: C.slate, lineHeight: 1.6 }}>
             Dropdown Logistics<br />Chaos → Structured → Automated
           </div>
@@ -103,10 +198,10 @@ export default function AuditForgeApp() {
       </nav>
 
       {/* Main */}
-      <main style={{ flex: 1, overflow: "auto", background: C.navy }}>
+      <main className="af-main" style={{ flex: 1, overflow: "auto", background: C.navy }}>
         {/* Grey's Governance Fix: Warning banner when controls are in DRAFT */}
         {!loading && draftCount > 0 && (
-          <div style={{
+          <div className="af-warning-banner" style={{
             padding: "10px 32px", background: C.warnBg, borderBottom: `1px solid ${C.warnBorder}`,
             display: "flex", alignItems: "center", gap: 10,
             fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.warn,
@@ -158,9 +253,9 @@ function DashboardView({ controls, risks, processes, audits, loading }) {
   return (
     <>
       <Header title="Dashboard" meta={`Dropdown Logistics · FY2025 · ${controls.length} controls · ${risks.length} risks`} />
-      <div style={{ padding: "24px 32px 48px" }}>
+      <div style={{ padding: "24px 32px 48px" } /* af-content-pad */}>
         {/* Stats */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, marginBottom: 32 }}>
+        <div className="af-stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, marginBottom: 32 }}>
           {[
             { label: "TOTAL CONTROLS", value: controls.length, accent: C.copper },
             { label: "KEY CONTROLS", value: keyControls, accent: C.green },
@@ -178,7 +273,7 @@ function DashboardView({ controls, risks, processes, audits, loading }) {
         </div>
 
         {/* Breakdowns */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16, marginBottom: 32 }}>
+        <div className="af-breakdowns-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16, marginBottom: 32 }}>
           {[
             { title: "BY CONTROL TYPE", items: Object.entries(byType).map(([k, v]) => ({ label: <Badge bg={TYPE_BG[k]}>{fmtEnum(k)}</Badge>, value: v })) },
             { title: "BY PROCESS AREA", items: Object.entries(byArea).map(([k, v]) => ({ label: k, value: v })) },
@@ -217,7 +312,7 @@ function ControlsView({ controls, loading }) {
   return (
     <>
       <Header title="Controls" meta={`${filtered.length} of ${controls.length} controls`} />
-      <div style={{ padding: "24px 32px 48px" }}>
+      <div style={{ padding: "24px 32px 48px" } /* af-content-pad */}>
         <div style={{ display: "flex", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search controls..." style={{ background: C.card, border: `1px solid rgba(245,241,235,0.1)`, borderRadius: 6, padding: "6px 12px", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.cream, outline: "none", minWidth: 200 }} />
           <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} style={{ background: C.card, border: `1px solid rgba(245,241,235,0.1)`, borderRadius: 6, padding: "6px 12px", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.cream }}>
@@ -272,7 +367,7 @@ function RisksView({ risks, controls, loading }) {
   return (
     <>
       <Header title="Risk Registry" meta={`${filtered.length} of ${risks.length} risks`} />
-      <div style={{ padding: "24px 32px 48px" }}>
+      <div style={{ padding: "24px 32px 48px" } /* af-content-pad */}>
         <select value={ratingFilter} onChange={e => setRatingFilter(e.target.value)} style={{ background: C.card, border: `1px solid rgba(245,241,235,0.1)`, borderRadius: 6, padding: "6px 12px", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.cream, marginBottom: 20 }}>
           <option value="ALL">All Ratings</option><option value="CRITICAL">Critical</option><option value="HIGH">High</option><option value="MEDIUM">Medium</option><option value="LOW">Low</option>
         </select>
@@ -306,7 +401,7 @@ function ProcessesView({ processes, controls, loading }) {
   return (
     <>
       <Header title="Processes" meta={`${Object.keys(areas).length} areas · ${processes.length} processes`} />
-      <div style={{ padding: "24px 32px 48px" }}>
+      <div style={{ padding: "24px 32px 48px" } /* af-content-pad */}>
         {Object.entries(areas).map(([area, procs]) => (
           <div key={area} style={{ marginBottom: 32 }}>
             <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 600, color: C.copper, marginBottom: 16 }}>{area.toUpperCase()}</div>
@@ -331,7 +426,7 @@ function AuditsView({ audits, controls, loading }) {
   return (
     <>
       <Header title="Audit Engagements" meta={`${audits.length} audit(s) · v0.4 Planning Layer`} />
-      <div style={{ padding: "24px 32px 48px" }}>
+      <div style={{ padding: "24px 32px 48px" } /* af-content-pad */}>
         {audits.length === 0 ? (
           <div style={{ textAlign: "center", padding: 48, color: C.steel, fontFamily: "'Source Serif 4', serif" }}>No audits found. Seed with: node prisma/seed-v04.js</div>
         ) : audits.map(audit => {
@@ -443,7 +538,7 @@ function GenerateView({ controls }) {
   return (
     <>
       <Header title="Generate Documents" meta="Select a document type to generate and download from live data" />
-      <div style={{ padding: "24px 32px 48px" }}>
+      <div style={{ padding: "24px 32px 48px" } /* af-content-pad */}>
 
         {/* Grey's Fix: Governance state warning on generate page */}
         {draftCount > 0 && (
@@ -461,7 +556,7 @@ function GenerateView({ controls }) {
 
         {/* Document cards */}
         <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 600, color: C.copper, marginBottom: 16 }}>DOCUMENT TYPE</div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, marginBottom: 32 }}>
+        <div className="af-generate-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, marginBottom: 32 }}>
           {DOC_TYPES.map(doc => (
             <div key={doc.id} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: 24 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
@@ -480,7 +575,7 @@ function GenerateView({ controls }) {
 
         {/* Walkthroughs by area */}
         <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 600, color: C.copper, marginBottom: 16 }}>WALKTHROUGH NARRATIVES</div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, marginBottom: 32 }}>
+        <div className="af-generate-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, marginBottom: 32 }}>
           {processAreas.map(area => (
             <div key={area} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "20px 24px" }}>
               <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 600, color: C.cream, marginBottom: 4 }}>{area}</div>
@@ -612,10 +707,10 @@ function AnalyticsView({ controls, risks, loading }) {
   return (
     <>
       <Header title="Analytics" meta={`Control environment health · ${controls.length} controls · ${risks.length} risks`} />
-      <div style={{ padding: "24px 32px 48px" }}>
+      <div style={{ padding: "24px 32px 48px" } /* af-content-pad */}>
 
         {/* ── Row 1: Action Cards ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 24 }}>
+        <div className="af-analytics-cards" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 24 }}>
 
           {/* Unmitigated Critical/High */}
           <div style={{ background: unmitigated.length > 0 ? "rgba(178,53,49,0.12)" : C.card, border: `1px solid ${unmitigated.length > 0 ? "rgba(178,53,49,0.3)" : C.border}`, borderRadius: 8, padding: "20px 24px" }}>
@@ -659,7 +754,7 @@ function AnalyticsView({ controls, risks, loading }) {
         </div>
 
         {/* ── Row 2: Heatmap + Funnel ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
+        <div className="af-analytics-mid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
 
           {/* Control Health Heatmap */}
           <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "20px 24px" }}>
@@ -747,7 +842,7 @@ function AnalyticsView({ controls, risks, loading }) {
         </div>
 
         {/* ── Row 3: Nature×Type Matrix + Process Density ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
+        <div className="af-analytics-mid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
 
           {/* Nature vs Type */}
           <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "20px 24px" }}>
