@@ -102,6 +102,7 @@ const mobileStyles = `
     .af-generate-grid {
       grid-template-columns: 1fr !important;
     }
+    .af-mobile-search { display: flex !important; }
     .af-warning-banner {
       font-size: 10px !important;
       padding: 8px 12px !important;
@@ -167,10 +168,10 @@ export default function AuditForgeApp() {
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, letterSpacing: "0.05em", marginTop: 4 }}>GOVERNED DOCUMENTATION</div>
         </div>
         <div className="af-nav-items" style={{ padding: "8px 0" }}>
-          <div onClick={() => setSearchOpen(true)} style={{ margin: "0 12px 8px", display: "flex", alignItems: "center", gap: 8, padding: "7px 12px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(245,241,235,0.08)", cursor: "pointer" }}>
-            <span style={{ color: "#4a6080", fontSize: 13 }}>?</span>
+          <div className="af-sidebar-search" onClick={() => setSearchOpen(true)} style={{ margin: "0 12px 8px", display: "flex", alignItems: "center", gap: 8, padding: "7px 12px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(245,241,235,0.08)", cursor: "pointer" }}>
+            <span style={{ color: "#4a6080", fontSize: 13 }}>⌕</span>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "#4a6080", flex: 1 }}>Search...</span>
-            <kbd style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "#4a6080", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 4, padding: "1px 5px" }}>?K</kbd>
+            <kbd style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "#4a6080", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 4, padding: "1px 5px" }}>⌘K</kbd>
           </div>
           <div className="af-sidebar-nav-label" style={{ padding: "16px 12px 8px", fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.slate, letterSpacing: "0.1em" }}>NAVIGATION</div>
           {NAV.map(n => (
@@ -199,6 +200,16 @@ export default function AuditForgeApp() {
 
       {/* Main */}
       <main className="af-main" style={{ flex: 1, overflow: "auto", background: C.navy }}>
+        {/* Mobile search button */}
+        <button
+          onClick={() => setSearchOpen(true)}
+          className="af-mobile-search"
+          style={{ display: "none", position: "fixed", bottom: 70, right: 16, zIndex: 99,
+            width: 44, height: 44, borderRadius: "50%", background: "#C49A3C",
+            border: "none", cursor: "pointer", fontSize: 18, color: "#0D1B2A",
+            alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(0,0,0,0.4)" }}
+          aria-label="Search"
+        >⌕</button>
         {/* Grey's Governance Fix: Warning banner when controls are in DRAFT */}
         {!loading && draftCount > 0 && (
           <div className="af-warning-banner" style={{
