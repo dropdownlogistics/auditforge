@@ -12,7 +12,7 @@ function GateModal({ onClose }) {
   const router = useRouter();
   return (
     <div style={{ position:"fixed", inset:0, background:"rgba(13,27,42,0.85)", zIndex:1000, display:"flex", alignItems:"center", justifyContent:"center", backdropFilter:"blur(4px)" }}>
-      <div style={{ background:C.card, border:1px solid 40, borderRadius:12, padding:"40px 36px", maxWidth:400, width:"90%", textAlign:"center" }}>
+      <div style={{ background:C.card, border:"1px solid rgba(178,53,49,0.4)", borderRadius:12, padding:"40px 36px", maxWidth:400, width:"90%", textAlign:"center" }}>
         <svg width="48" height="48" viewBox="0 0 200 200" style={{marginBottom:20}}>
           <circle cx="100" cy="100" r="90" fill="none" stroke="#F5F1EB" strokeWidth="2"/>
           <circle cx="100" cy="100" r="78" fill="#0D1B2A"/>
