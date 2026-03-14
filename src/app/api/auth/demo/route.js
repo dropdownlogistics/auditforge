@@ -11,7 +11,7 @@ export async function GET(request) {
       expiresInSeconds: 300,
     })
 
-    const signInUrl = https://auditforge.dev/sign-in?token=
+    const signInUrl = "https://auditforge.dev/sign-in?token=" + token.token
     return NextResponse.redirect(signInUrl)
   } catch (err) {
     console.error('Demo login error:', err)
