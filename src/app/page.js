@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 
@@ -1133,6 +1133,8 @@ function GlobalSearch({ controls, risks, processes, open, setOpen, query, setQue
 // ── GlobalSearch Component ────────────────────────────────────────────────────
 // Drop this entire block into page.js (before the closing export or after AnalyticsView)
 // Then wire into AuditForgeApp (instructions at bottom)
+
+
 
 
 
