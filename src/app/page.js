@@ -233,6 +233,12 @@ export default function AuditForgeApp() {
         {view === "generate" && <GenerateView controls={controls} />}
         
       </main>
+      <GlobalSearch
+        controls={controls} risks={risks} processes={processes}
+        open={searchOpen} setOpen={setSearchOpen}
+        query={searchQuery} setQuery={setSearchQuery}
+        onNavigate={setView}
+      />
     </div>
   );
 }
