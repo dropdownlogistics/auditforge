@@ -123,6 +123,8 @@ model Company {
   scopes    Scope[]
   auditors  Auditor[]
   audits    Audit[]
+  users     User[]
+  invites   Invite[]
 
   @@map("dim_company")
 }
