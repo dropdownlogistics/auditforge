@@ -1,0 +1,6 @@
+﻿content = open('src/app/demo/page.jsx', 'r', encoding='utf-8').read()
+content = content.replace('border:1px solid 40,', 'border:"1px solid rgba(178,53,49,0.4)",')
+content = content.replace('border:1px solid  ,', 'border:"1px solid rgba(245,241,235,0.07)",')
+content = content.replace('border:1px solid ,', 'border:"1px solid rgba(245,241,235,0.07)",')
+open('src/app/demo/page.jsx', 'w', encoding='utf-8').write(content)
+print('remaining:', content.count('border:1px'))
