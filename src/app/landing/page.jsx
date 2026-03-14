@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useSignIn } from "@clerk/nextjs";
 
 const ARMS = [
   { label: "System of Structure",  sub: "What AuditForge is",       angle: -90,  color: "#B23531" },
@@ -96,9 +97,31 @@ function RadialStamp({ visible }) {
 
 export default function LandingPage() {
   const [visible, setVisible] = useState(false);
+  const [guestLoading, setGuestLoading] = useState(false);
+  const { signIn, setActive } = useSignIn();
   const router = useRouter();
 
   useEffect(() => { setTimeout(() => setVisible(true), 200); }, []);
+
+  async function handleGuest(e) {
+    e.preventDefault();
+    if (!signIn) return;
+    setGuestLoading(true);
+    try {
+      const result = await signIn.create({
+        identifier: "demo@auditforge.dev",
+        password: "DDLogistics!9*6",
+      });
+      if (result.status === "complete") {
+        await setActive({ session: result.createdSessionId });
+        router.push("/");
+      }
+    } catch (err) {
+      console.error("Guest sign in failed:", err);
+    } finally {
+      setGuestLoading(false);
+    }
+  }
 
   return (
     <>
@@ -228,7 +251,7 @@ export default function LandingPage() {
             The auditor issues the opinion. AuditForge produces the evidence package.
           </p>
           <div className="cta-row">
-            <a href="/api/auth/demo" className="btn-guest">Enter as Guest →</a>
+            <a href="#" className="btn-guest" onClick={handleGuest}>{guestLoading ? "Signing in..." : "Enter as Guest →"}</a>
             <button className="btn-primary" onClick={() => router.push("/coming-soon")}>Sign In</button>
           </div>
           <div className="cta-sub">
