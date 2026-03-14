@@ -209,6 +209,7 @@ export default function AuditForgeApp() {
             border: "none", cursor: "pointer", fontSize: 18, color: "#0D1B2A",
             alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(0,0,0,0.4)" }}
           aria-label="Search"
+          onTouchEnd={(e) => { e.preventDefault(); setSearchOpen(true); }}
         >⌕</button>
         {/* Grey's Governance Fix: Warning banner when controls are in DRAFT */}
         {!loading && draftCount > 0 && (
