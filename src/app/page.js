@@ -2,7 +2,7 @@
 
 import { LayoutDashboard, BarChart2, Shield, AlertTriangle, Network, BookOpen, FileOutput, Upload } from "lucide-react";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 // ── CottageHumble Tokens ──
 const C = {
