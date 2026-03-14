@@ -252,7 +252,7 @@ export default function LandingPage() {
             The auditor issues the opinion. AuditForge produces the evidence package.
           </p>
           <div className="cta-row">
-            <a href="/" className="btn-guest">Enter as Guest →</a>
+            <a href="/demo" className="btn-guest">Enter as Guest →</a>
             <button className="btn-primary" onClick={() => router.push("/coming-soon")}>Sign In</button>
           </div>
           <div className="cta-hint">demo@auditforge.dev &nbsp;·&nbsp; DDLogistics!9*6</div>

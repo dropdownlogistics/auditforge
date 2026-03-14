@@ -9,7 +9,7 @@ export default clerkMiddleware(async (auth, request) => {
   if (pathname.startsWith('/api/')) return NextResponse.next()
 
   // Always allow static/public pages
-  const publicPaths = ['/landing', '/sign-in', '/coming-soon', '/llms.txt', '/icon.svg']
+  const publicPaths = ['/landing', '/sign-in', '/coming-soon', '/demo', '/llms.txt', '/icon.svg']
   if (publicPaths.some(p => pathname.startsWith(p))) {
     // Authenticated users hitting landing -> app
     if (userId && pathname.startsWith('/landing')) {
