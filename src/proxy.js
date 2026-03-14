@@ -3,12 +3,15 @@ import { NextResponse } from 'next/server'
 
 const isPublicRoute = createRouteMatcher([
   '/landing(.*)',
+  '/sign-in(.*)',
+  '/coming-soon(.*)',
+  '/api/auth/demo(.*)',
   '/api/webhooks(.*)',
   '/llms.txt',
 ])
 
 const isAppRoute = createRouteMatcher([
-  '/((?!landing|api/webhooks|llms.txt|_next|icon.svg).*)',
+  '/((?!landing|sign-in|coming-soon|api/auth|api/webhooks|llms.txt|_next|icon.svg).*)',
 ])
 
 export default clerkMiddleware(async (auth, request) => {
