@@ -23,10 +23,10 @@ function Badge({ children, bg }) { return <span style={{ display: "inline-block"
 // ── Main App ──
 export default function AuditForgeApp() {
   const [view, setView] = useState("dashboard");
-  const { open: searchOpen, setOpen: setSearchOpen, query: searchQuery, setQuery: setSearchQuery } = useGlobalSearch(controls, risks, processes);
   const [controls, setControls] = useState([]);
   const [risks, setRisks] = useState([]);
   const [processes, setProcesses] = useState([]);
+  const { open: searchOpen, setOpen: setSearchOpen, query: searchQuery, setQuery: setSearchQuery } = useGlobalSearch(controls, risks, processes);
   const [audits, setAudits] = useState([]);
   const [loading, setLoading] = useState(true);
 
