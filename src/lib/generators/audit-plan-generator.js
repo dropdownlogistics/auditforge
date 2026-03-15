@@ -5,8 +5,6 @@
 // ============================================================
 
 const ExcelJS = require("exceljs");
-const path = require("path");
-const fs = require("fs");
 
 const BRAND = {
   navy: "0D1B2A",
@@ -310,9 +308,8 @@ async function generateAuditPlan({ audit, scope, companyName, periodLabel, outpu
   // ── Write ──
   const companyAbbr = companyName.replace(/[^A-Z]/g, "").substring(0, 6) || "CO";
   const fileName = `${companyAbbr}_ADP_${audit.auditId}_${periodLabel}_v1.0.xlsx`;
-  const filePath = path.join(outputDir, fileName);
-  await workbook.xlsx.writeFile(filePath);
-  return { filePath, fileName };
+  const buffer = await workbook.xlsx.writeBuffer();
+  return { buffer, fileName };
 }
 
 function fmtEnum(v) { return v ? v.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()) : ""; }

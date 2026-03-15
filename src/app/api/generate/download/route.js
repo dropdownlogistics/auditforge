@@ -4,10 +4,7 @@
 
 import { NextResponse } from "next/server";
 import { prisma, resolveCompanyId } from "@/lib/prisma";
-import path from "path";
-import fs from "fs";
 
-const OUTPUT_DIR = path.join(process.cwd(), "generated");
 
 export async function GET(request) {
   try {
@@ -27,7 +24,6 @@ export async function GET(request) {
 
     if (!period) return NextResponse.json({ error: "No period found" }, { status: 404 });
 
-    if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
     // Get controls for generation
     const controls = await prisma.control.findMany({
@@ -92,7 +88,6 @@ export async function GET(request) {
           companyName: company.name,
           periodLabel: period.periodLabel,
           controls: flatControls,
-          outputDir: OUTPUT_DIR,
         });
         contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
         break;
@@ -103,7 +98,6 @@ export async function GET(request) {
           companyName: company.name,
           periodLabel: period.periodLabel,
           controls: flatControls,
-          outputDir: OUTPUT_DIR,
         });
         contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
         break;
@@ -125,7 +119,6 @@ export async function GET(request) {
           controls: areaControls,
           risks,
           preparedBy: "Dave Kitchens, CPA",
-          outputDir: OUTPUT_DIR,
         });
         contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
         break;
@@ -159,7 +152,6 @@ export async function GET(request) {
           scope,
           companyName: company.name,
           periodLabel: audit.period.periodLabel,
-          outputDir: OUTPUT_DIR,
         });
         contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
         break;
@@ -175,6 +167,7 @@ export async function GET(request) {
         "Content-Type": contentType,
         "Content-Disposition": `attachment; filename="${result.fileName}"`,
         "Content-Length": fileBuffer.length.toString(),
+        "Cache-Control": "no-store",
       },
     });
   } catch (error) {

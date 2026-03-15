@@ -5,8 +5,6 @@
 // ============================================================
 
 const ExcelJS = require("exceljs");
-const path = require("path");
-const fs = require("fs");
 
 // ── DDL Brand Tokens ───────────────────────────────────────
 const BRAND = {
@@ -343,9 +341,8 @@ async function generateRCM({ companyName, periodLabel, controls, outputDir }) {
 
   const companyAbbr = companyName.replace(/[^A-Z]/g, "").substring(0, 6) || "CO";
   const fileName = `${companyAbbr}_RCM_${periodLabel}_v1.0.xlsx`;
-  const filePath = path.join(outputDir, fileName);
-  await workbook.xlsx.writeFile(filePath);
-  return { filePath, fileName };
+  const buffer = await workbook.xlsx.writeBuffer();
+  return { buffer, fileName };
 }
 
 // ── Helpers ────────────────────────────────────────────────

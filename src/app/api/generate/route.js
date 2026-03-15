@@ -7,10 +7,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createHash } from "crypto";
-import path from "path";
-import fs from "fs";
 
-const OUTPUT_DIR = path.join(process.cwd(), "generated");
 
 // Dynamic imports for generators (server-side only)
 async function getGenerators() {
@@ -112,7 +109,6 @@ export async function POST(request) {
     const template = await prisma.template.findUnique({ where: { templateId } });
     if (!template) return NextResponse.json({ error: "Template not found" }, { status: 404 });
 
-    if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
     const generators = await getGenerators();
     let result;
@@ -122,13 +118,13 @@ export async function POST(request) {
       case "RCM": {
         controlData = await getControlsForGeneration(companyId, periodId);
         if (controlData.length === 0) return NextResponse.json({ error: "No controls found" }, { status: 404 });
-        result = await generators.generateRCM({ companyName: company.name, periodLabel: period.periodLabel, controls: controlData, outputDir: OUTPUT_DIR });
+        result = await generators.generateRCM({ companyName: company.name, periodLabel: period.periodLabel, controls: controlData });
         break;
       }
       case "MCL": {
         controlData = await getControlsForGeneration(companyId, periodId);
         if (controlData.length === 0) return NextResponse.json({ error: "No controls found" }, { status: 404 });
-        result = await generators.generateMCL({ companyName: company.name, periodLabel: period.periodLabel, controls: controlData, outputDir: OUTPUT_DIR });
+        result = await generators.generateMCL({ companyName: company.name, periodLabel: period.periodLabel, controls: controlData });
         break;
       }
       case "WALKTHROUGH": {
@@ -142,7 +138,7 @@ export async function POST(request) {
         result = await generators.generateWalkthrough({
           companyName: company.name, periodLabel: period.periodLabel,
           process, controls: processControls, risks,
-          preparedBy: options.preparedBy || "AuditForge", outputDir: OUTPUT_DIR,
+          preparedBy: options.preparedBy || "AuditForge",
         });
         break;
       }
@@ -179,7 +175,7 @@ export async function POST(request) {
         docStatus: "DRAFT",
         dataHash: controlData ? computeDataHash(controlData) : null,
         generatedBy: userId,
-        filePath: result.filePath,
+        filePath: result.fileName,
         metadata: {
           generatedAt: new Date().toISOString(),
           controlCount: controlData?.length || 0,
