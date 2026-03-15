@@ -8,10 +8,7 @@ export default clerkMiddleware(async (auth, request) => {
   // Always allow API routes
   if (pathname.startsWith('/api/')) return NextResponse.next()
 
-  // Authenticated users hitting landing -> app
-  if (userId && pathname.startsWith('/landing')) {
-    return NextResponse.redirect(new URL('/', request.url))
-  }
+  // Landing is always accessible
 
   // Everything else is open
   return NextResponse.next()
