@@ -190,7 +190,12 @@ export default function AuditForgeApp() {
             </div>
           ))}
         </div>
-        <div className="af-sidebar-footer" style={{ marginTop: "auto", padding: "16px 20px", borderTop: `1px solid ${C.border}` }}>
+        <div className="af-sidebar-footer">
+            <a href="/sign-in" style={{ display:"flex", alignItems:"center", gap:8, padding:"8px 12px", borderRadius:6, background:"rgba(178,53,49,0.1)", border:"1px solid rgba(178,53,49,0.2)", textDecoration:"none", marginBottom:12 }}>
+              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:"#B23531", letterSpacing:"0.06em" }}>Sign In →</span>
+            </a>
+          </div>
+          <div style={{display:"none"}} className="af-sidebar-footer" style={{ marginTop: "auto", padding: "16px 20px", borderTop: `1px solid ${C.border}` }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: C.slate, lineHeight: 1.6 }}>
             Dropdown Logistics<br />Chaos → Structured → Automated
           </div>
