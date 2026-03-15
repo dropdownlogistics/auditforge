@@ -8,21 +8,12 @@ export default clerkMiddleware(async (auth, request) => {
   // Always allow API routes
   if (pathname.startsWith('/api/')) return NextResponse.next()
 
-  // Always allow static/public pages
-  const publicPaths = ['/landing', '/sign-in', '/coming-soon', '/demo', '/llms.txt', '/icon.svg']
-  if (publicPaths.some(p => pathname.startsWith(p))) {
-    // Authenticated users hitting landing -> app
-    if (userId && pathname.startsWith('/landing')) {
-      return NextResponse.redirect(new URL('/', request.url))
-    }
-    return NextResponse.next()
+  // Authenticated users hitting landing -> app
+  if (userId && pathname.startsWith('/landing')) {
+    return NextResponse.redirect(new URL('/', request.url))
   }
 
-  // Unauthenticated hitting anything else -> landing
-  if (!userId) {
-    return NextResponse.redirect(new URL('/landing', request.url))
-  }
-
+  // Everything else is open
   return NextResponse.next()
 })
 
