@@ -293,6 +293,7 @@ model Auditor {
   company          Company             @relation(fields: [companyId], references: [id])
   ledAudits        Audit[]             @relation("LeadAuditor")
   scopeAssignments AuditControlScope[] @relation("ScopeAssignee")
+  teamAssignments  AuditAuditor[]
 
   @@index([companyId])
   @@map("dim_auditor")
@@ -398,6 +399,7 @@ model Audit {
   period          Period      @relation(fields: [periodId], references: [id])
   leadAuditor     Auditor     @relation("LeadAuditor", fields: [leadAuditorId], references: [id])
   controlScope    AuditControlScope[]
+  team            AuditAuditor[]
 
   @@index([companyId])
   @@index([periodId])
@@ -731,3 +733,19 @@ enum ScopeDecision {
   DEFERRED
 }
 
+
+model AuditAuditor {
+  id           String   @id @default(cuid())
+  auditId      String   @map("audit_id")
+  auditorId    String   @map("auditor_id")
+  teamRole     String   @default("STAFF") // LEAD, SENIOR, STAFF, REVIEWER, PARTNER
+  budgetHours  Float?   @map("budget_hours")
+  assignedPhase String  @default("ALL") // PLANNING, FIELDWORK, REPORTING, ALL
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  audit        Audit    @relation(fields: [auditId], references: [id])
+  auditor      Auditor  @relation(fields: [auditorId], references: [id])
+
+  @@unique([auditId, auditorId])
+  @@map("bridge_audit_auditor")
+}
