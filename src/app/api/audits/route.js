@@ -28,6 +28,12 @@ export async function GET(request) {
     include: {
       period: true,
       leadAuditor: true,
+      team: {
+        include: {
+          auditor: { select: { auditorId: true, auditorName: true, role: true, certifications: true } }
+        },
+        orderBy: { createdAt: "asc" }
+      },
       controlScope: {
         where: { validTo: null },
         include: {
