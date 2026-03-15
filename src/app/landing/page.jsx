@@ -164,6 +164,7 @@ export default function LandingPage() {
         .btn-manifest:hover { color: var(--cream); }
         .cta-hint { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #1a2e42; letter-spacing: 0.06em; margin-top: 14px; }
         .stamp-col { opacity: 0; animation: fadeUp 0.9s 0.25s ease forwards; }
+        @media (max-width: 600px) { .stamp-col svg { max-width: 320px !important; } .stamp-col { overflow: hidden; } }
 
         .divider-strip { position: relative; z-index: 1; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 12px 0; overflow: hidden; background: rgba(16,32,47,0.6); }
         .ticker-inner { display: flex; gap: 48px; animation: ticker 28s linear infinite; white-space: nowrap; width: max-content; }
