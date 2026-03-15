@@ -70,10 +70,6 @@ function buildCover(workbook, companyName, periodLabel, controls) {
   });
   applyDDLStandard(cover);
 
-  // DDL Logo
-    cover.addImage(img, { tl: { col: 1, row: 1.5 }, ext: { width: 140, height: 100 } });
-  }
-
   cover.mergeCells("B8:H8");
   cover.getCell("B8").value = companyName;
   cover.getCell("B8").font = { name: "Space Grotesk", size: 24, bold: true, color: { argb: BRAND.navy } };

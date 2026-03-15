@@ -75,10 +75,6 @@ function buildCover(workbook, companyName, periodLabel, controls) {
   });
   applyDDLStandard(cover);
 
-  // DDL Logo
-    cover.addImage(img, { tl: { col: 1, row: 1.5 }, ext: { width: 140, height: 100 } });
-  }
-
   // Company name
   cover.mergeCells("B8:H8");
   const nameCell = cover.getCell("B8");

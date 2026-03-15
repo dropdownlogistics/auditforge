@@ -49,7 +49,6 @@ async function generateAuditPlan({ audit, scope, companyName, periodLabel, outpu
   });
   applyDDLStandard(cover);
 
-    cover.addImage(img, { tl: { col: 1, row: 1.5 }, ext: { width: 140, height: 100 } });
   }
 
   cover.mergeCells("B8:H8");
