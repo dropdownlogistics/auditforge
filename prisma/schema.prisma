@@ -277,7 +277,13 @@ model Auditor {
   title           String?
   department      String?
   email           String?
+  role            String   @default("STAFF") // STAFF, SENIOR, MANAGER, DIRECTOR, PARTNER
   certifications  String?  // comma-separated: CPA, CIA, CISA
+  specializations String?
+  bio             String?
+  councilSeat     String?
+  hireDate        DateTime? @map("hire_date")
+  departureDate   DateTime? @map("departure_date")
   independence    String   @default("INTERNAL") // INTERNAL, EXTERNAL, REGULATORY
   firm            String?
   isActive        Boolean  @default(true) @map("is_active")
@@ -724,3 +730,4 @@ enum ScopeDecision {
   OUT_OF_SCOPE
   DEFERRED
 }
+
