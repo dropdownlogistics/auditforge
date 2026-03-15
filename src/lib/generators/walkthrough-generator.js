@@ -242,8 +242,7 @@ async function generateWalkthrough({
   const companyAbbr = companyName.replace(/[^A-Z]/g, "").substring(0, 6) || "CO";
   const processAbbr = process.processArea.replace(/\s+/g, "").substring(0, 6);
   const fileName = `${companyAbbr}_WLK_${processAbbr}_${periodLabel}_v1.0.docx`;
-  fs.writeFileSync(filePath, buffer);
-  return { filePath, fileName };
+  return { buffer, fileName };
 }
 
 // ── Component Builders ─────────────────────────────────────

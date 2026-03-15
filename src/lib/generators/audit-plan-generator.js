@@ -49,9 +49,6 @@ async function generateAuditPlan({ audit, scope, companyName, periodLabel, outpu
   });
   applyDDLStandard(cover);
 
-  const logoPath = path.join(__dirname, "ddl_logo.jpg");
-  if (fs.existsSync(logoPath)) {
-    const img = workbook.addImage({ filename: logoPath, extension: "jpeg" });
     cover.addImage(img, { tl: { col: 1, row: 1.5 }, ext: { width: 140, height: 100 } });
   }
 

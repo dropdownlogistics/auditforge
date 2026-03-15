@@ -71,9 +71,6 @@ function buildCover(workbook, companyName, periodLabel, controls) {
   applyDDLStandard(cover);
 
   // DDL Logo
-  const logoPath = path.join(__dirname, "ddl_logo.jpg");
-  if (fs.existsSync(logoPath)) {
-    const img = workbook.addImage({ filename: logoPath, extension: "jpeg" });
     cover.addImage(img, { tl: { col: 1, row: 1.5 }, ext: { width: 140, height: 100 } });
   }
 
