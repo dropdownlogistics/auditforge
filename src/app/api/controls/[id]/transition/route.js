@@ -18,7 +18,7 @@ import {
 // Body: { type: "REVIEW" | "LIFECYCLE", toStatus: "PREPARED", userId, comment? }
 export async function POST(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { type, toStatus, userId, comment, supersededById } = body;
 
