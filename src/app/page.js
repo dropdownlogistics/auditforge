@@ -144,6 +144,14 @@ export default function AuditForgeApp() {
     load();
   }, []);
 
+  const refetchControls = async () => {
+    try {
+      const res = await fetch('/api/controls?companyId=CO-DDL');
+      const data = await res.json();
+      setControls(data.controls || []);
+    } catch (e) { console.error('Refetch failed:', e); }
+  };
+
   const NAV = [
     { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { id: "analytics", icon: BarChart2, label: "Analytics" },
@@ -236,7 +244,7 @@ export default function AuditForgeApp() {
         {view === "risks" && <RisksView risks={risks} controls={controls} loading={loading} />}
         {view === "processes" && <ProcessesView processes={processes} controls={controls} loading={loading} />}
         {view === "audits" && <AuditsView audits={audits} controls={controls} loading={loading} />}
-        {view === "review" && <ReviewView controls={controls} loading={loading} onRefresh={() => window.location.reload()} />}
+        {view === "review" && <ReviewView controls={controls} loading={loading} onRefresh={refetchControls} />}
         {view === "generate" && <GenerateView controls={controls} />}
         
       </main>
