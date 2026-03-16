@@ -160,7 +160,7 @@ export async function GET(request) {
         return NextResponse.json({ error: `Unknown type: ${type}` }, { status: 400 });
     }
 
-    const fileBuffer = fs.readFileSync(result.filePath);
+    const fileBuffer = result.buffer;
 
     return new NextResponse(fileBuffer, {
       headers: {
