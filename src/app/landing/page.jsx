@@ -343,11 +343,12 @@ export default function LandingPage() {
         * { box-sizing: border-box; margin: 0; padding: 0; }
         ::selection { background: rgba(178,53,49,0.35); }
         @media (max-width: 768px) {
-          .af-hero-grid { flex-direction: column !important; }
+          .af-hero-grid { flex-direction: column-reverse !important; }
           .af-stat-grid { grid-template-columns: repeat(2,1fr) !important; }
           .af-feature-grid { grid-template-columns: 1fr !important; }
           .af-hero-text { padding-right: 0 !important; }
-          .af-orbital { display: none !important; }
+          .af-orbital { width: 100% !important; max-width: 340px !important; margin: 0 auto 8px !important; }
+  .af-hero-grid { align-items: center !important; }
         }
       `}</style>
 
