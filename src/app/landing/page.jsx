@@ -85,6 +85,9 @@ function Ticker() {
 }
 
 function OrbitalHero() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return <div style={{ width: 500, height: 420 }} />;
   const arms = [
     { label: ["System of", "Structure"], sub: "What AuditForge is", angle: 270, color: C.crimson },
     { label: ["RCM · MCL", "Walkthrough"], sub: "What it generates", angle: 30, color: C.copper },
