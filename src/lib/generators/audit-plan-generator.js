@@ -49,8 +49,6 @@ async function generateAuditPlan({ audit, scope, companyName, periodLabel, outpu
   });
   applyDDLStandard(cover);
 
-  }
-
   cover.mergeCells("B8:H8");
   cover.getCell("B8").value = companyName;
   cover.getCell("B8").font = { name: "Space Grotesk", size: 24, bold: true, color: { argb: BRAND.navy } };
