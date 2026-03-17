@@ -14,7 +14,7 @@ import { createAuditEntry } from "@/lib/middleware/validation";
 // ── Enums ────────────────────────────────────────────────────────────────────
 
 const VALID_CONTROL_TYPES  = ["PREVENTIVE", "DETECTIVE", "CORRECTIVE"];
-const VALID_FREQUENCIES    = ["DAILY", "WEEKLY", "MONTHLY", "QUARTERLY", "ANNUAL", "AD_HOC"];
+const VALID_FREQUENCIES    = ["DAILY", "WEEKLY", "MONTHLY", "QUARTERLY", "ANNUAL", "ANNUALLY", "AD_HOC"];
 const VALID_NATURES        = ["MANUAL", "AUTOMATED", "IT_DEPENDENT_MANUAL", null, undefined, ""];
 const VALID_EFFECTIVENESS  = ["EFFECTIVE", "INEFFECTIVE", "NOT_TESTED", "PARTIALLY_EFFECTIVE", null, undefined, ""];
 const CONTROL_ID_RE        = /^[A-Z]{2,8}-[A-Z]{2,8}-\d{3,}$/;

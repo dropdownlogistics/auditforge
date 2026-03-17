@@ -282,6 +282,8 @@ model Auditor {
   specializations String?
   bio             String?
   councilSeat     String?
+  strengths       String?
+  weaknesses      String?
   hireDate        DateTime? @map("hire_date")
   departureDate   DateTime? @map("departure_date")
   independence    String   @default("INTERNAL") // INTERNAL, EXTERNAL, REGULATORY
