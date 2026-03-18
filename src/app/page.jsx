@@ -656,7 +656,7 @@ export default function LandingPage() {
           </div>
 
           {/* Orbital */}
-          <div className="af-orbital" style={{ width: 440, flexShrink: 0 }}>
+          <div className="af-orbital" style={{ width: 560, flexShrink: 0 }}>
             <OrbitalHero />
           </div>
         </div>

@@ -1,0 +1,5 @@
+﻿content = open('src/app/page.jsx', encoding='utf-8').read()
+fixed = content.replace('style={{ width: 440, flexShrink: 0 }}', 'style={{ width: 560, flexShrink: 0 }}')
+fixed = fixed.replace('viewBox="0 0 500 420"', 'viewBox="0 0 500 420"')
+open('src/app/page.jsx', 'w', encoding='utf-8').write(fixed)
+print('done')
