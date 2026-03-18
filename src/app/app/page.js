@@ -1039,7 +1039,7 @@ function AuditsView({ audits, controls, auditors, loading, onRefresh }) {
           onCreated={() => { setShowWizard(false); onRefresh && onRefresh(); }}
         />
       )}
-      <Header title="Audit Engagements" meta={`${audits.length} audit(s) · v0.4 Planning Layer`}
+      <Header title="Audit Engagements" meta={`${audits.length} audit(s) · v0.4 Planning Layer`}>
         <button onClick={() => setShowWizard(true)} style={{
             padding: "8px 18px", background: C.crimson, color: C.cream,
             border: "none", borderRadius: 6, fontFamily: "'Space Grotesk', sans-serif",
