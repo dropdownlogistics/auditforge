@@ -1031,9 +1031,9 @@ function AuditProgramAnalytics({ audits }) {
   if (!audits || audits.length === 0) return null;
 
   // Derived stats
-  const totalBudgetHours = audits.reduce((s, a) => s + a.team.reduce((t, m) => t + (m.budgetHours || 0), 0), 0);
-  const totalControls = audits.reduce((s, a) => s + (a.controlScope?.filter(c => c.inScope).length || 0), 0);
-  const totalTeamAssignments = audits.reduce((s, a) => s + (a.team?.length || 0), 0);
+  const totalBudgetHours = audits.reduce((s, a) => s + (a.team || []).reduce((t, m) => t + (m.budgetHours || 0), 0), 0);
+  const totalControls = audits.reduce((s, a) => s + ((a.controlScope || []).filter(c => c.inScope).length || 0), 0);
+  const totalTeamAssignments = audits.reduce((s, a) => s + ((a.team || []).length || 0), 0);
   const statusCounts = audits.reduce((acc, a) => { acc[a.status] = (acc[a.status] || 0) + 1; return acc; }, {});
 
   // By lead
@@ -1042,7 +1042,7 @@ function AuditProgramAnalytics({ audits }) {
     const lead = a.leadAuditor?.auditorName || 'Unknown';
     if (!byLead[lead]) byLead[lead] = { audits: 0, hours: 0, controls: 0 };
     byLead[lead].audits++;
-    byLead[lead].hours += a.team.reduce((t, m) => t + (m.budgetHours || 0), 0);
+    byLead[lead].hours += (a.team || []).reduce((t, m) => t + (m.budgetHours || 0), 0);
     byLead[lead].controls += a.controlScope?.filter(c => c.inScope).length || 0;
   });
 
