@@ -22,7 +22,7 @@ export default function ComingSoon() {
       <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:12,color:"#4a6080",marginBottom:40,textAlign:"center",maxWidth:360,lineHeight:1.8}}>
         Sign-in is being configured.<br/>The forge is still hot.
       </p>
-      <button onClick={() => router.push("/landing")}
+      <button onClick={() => router.push("/")}
         style={{background:"transparent",color:"#4a6080",fontFamily:"'JetBrains Mono',monospace",fontSize:11,border:"1px solid rgba(245,241,235,0.1)",borderRadius:6,padding:"10px 20px",cursor:"pointer",letterSpacing:"0.06em"}}>
         ← Back to landing
       </button>

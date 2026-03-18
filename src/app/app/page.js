@@ -173,7 +173,7 @@ export default function AuditForgeApp() {
       {/* Sidebar */}
       <nav className="af-sidebar" style={{ width: 240, minWidth: 240, background: C.card, borderRight: `1px solid ${C.border}`, display: "flex", flexDirection: "column", padding: "24px 0" }}>
         <div className="af-sidebar-brand" style={{ padding: "0 20px 24px", borderBottom: `1px solid ${C.border}` }}>
-          <a href="/landing" style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 18, fontWeight: 700, color: C.cream, textDecoration: "none" }}>AuditForge</a>
+          <a href="/" style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 18, fontWeight: 700, color: C.cream, textDecoration: "none" }}>AuditForge</a>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, letterSpacing: "0.05em", marginTop: 4 }}>GOVERNED DOCUMENTATION</div>
         </div>
         <div className="af-nav-items" style={{ padding: "8px 0" }}>
