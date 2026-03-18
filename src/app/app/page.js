@@ -1040,14 +1040,12 @@ function AuditsView({ audits, controls, auditors, loading, onRefresh }) {
         />
       )}
       <Header title="Audit Engagements" meta={`${audits.length} audit(s) · v0.4 Planning Layer`}
-        action={
-          <button onClick={() => setShowWizard(true)} style={{
+        <button onClick={() => setShowWizard(true)} style={{
             padding: "8px 18px", background: C.crimson, color: C.cream,
             border: "none", borderRadius: 6, fontFamily: "'Space Grotesk', sans-serif",
             fontSize: 13, fontWeight: 700, cursor: "pointer",
           }}>+ New Audit</button>
-        }
-      />
+      </Header>
       <div style={{ padding: "24px 32px 48px" } /* af-content-pad */}>
         {audits.length === 0 ? (
           <div style={{ textAlign: "center", padding: 48, color: C.steel, fontFamily: "'Source Serif 4', serif" }}>No audits found. Seed with: node prisma/seed-v04.js</div>
