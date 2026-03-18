@@ -284,6 +284,10 @@ model Auditor {
   councilSeat     String?
   strengths       String?
   weaknesses      String?
+  strengthTokens  String?             @map("strength_tokens")
+  weaknessTokens  String?             @map("weakness_tokens")
+  strengthTokens  String?             @map("strength_tokens")
+  weaknessTokens  String?             @map("weakness_tokens")
   hireDate        DateTime? @map("hire_date")
   departureDate   DateTime? @map("departure_date")
   independence    String   @default("INTERNAL") // INTERNAL, EXTERNAL, REGULATORY
