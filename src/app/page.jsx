@@ -714,6 +714,13 @@ export default function LandingPage() {
         </FadeSection>
       </section>
 
+      {/* Firm Roster Teaser */}
+      <section style={{ padding: "0 48px 80px", maxWidth: 1200, margin: "0 auto" }}>
+        <FadeSection>
+          <RosterTeaser />
+        </FadeSection>
+      </section>
+
       <section style={{ padding: "0 48px 64px", maxWidth: 1200, margin: "0 auto" }}>
         <FadeSection>
           <CanonBlock />
