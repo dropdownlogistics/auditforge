@@ -1,11 +1,10 @@
-"use client";
-
+'use client';
+import TimeAnalyticsDash from "./components/TimeAnalyticsDash";
 import TimeEntryGrid from "./components/TimeEntryGrid";
 import { LayoutDashboard, BarChart2, Shield, AlertTriangle, Network, BookOpen, FileOutput, Upload, ClipboardCheck, Clock } from "lucide-react";
-
 import { useState, useEffect, useRef, useCallback } from "react";
 
-// ── CottageHumble Tokens ──
+// â”€â”€ CottageHumble Tokens â”€â”€
 const C = {
   navy: "#0D1B2A", card: "#10202f", cream: "#F5F1EB", copper: "#C49A3C",
   crimson: "#B23531", green: "#22C55E", blue: "#6B9DC2", slate: "#4A5568",
@@ -21,9 +20,9 @@ const AUDIT_BG = { PLANNING: "#DBEAFE", FIELDWORK: "#FEF3C7", REPORTING: "#E0E7F
 function fmtEnum(v) { return v ? v.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()) : ""; }
 function Badge({ children, bg }) { return <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 4, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 500, background: bg || "#F3F4F6", color: "#0D1B2A" }}>{children}</span>; }
 
-// ── Main App ──
+// â”€â”€ Main App â”€â”€
 
-/* ── Mobile Responsive ─────────────────────────────────────── */
+/* â”€â”€ Mobile Responsive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const mobileStyles = `
   @media (max-width: 768px) {
     .af-layout { flex-direction: column !important; }
@@ -183,9 +182,9 @@ export default function AuditForgeApp() {
         </div>
         <div className="af-nav-items" style={{ padding: "8px 0" }}>
           <div className="af-sidebar-search" onClick={() => setSearchOpen(true)} style={{ margin: "0 12px 8px", display: "flex", alignItems: "center", gap: 8, padding: "7px 12px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(245,241,235,0.08)", cursor: "pointer" }}>
-            <span style={{ color: "#4a6080", fontSize: 13 }}>⌕</span>
+            <span style={{ color: "#4a6080", fontSize: 13 }}>âŒ•</span>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "#4a6080", flex: 1 }}>Search...</span>
-            <kbd style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "#4a6080", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 4, padding: "1px 5px" }}>⌘K</kbd>
+            <kbd style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "#4a6080", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 4, padding: "1px 5px" }}>âŒ˜K</kbd>
           </div>
           <div className="af-sidebar-nav-label" style={{ padding: "16px 12px 8px", fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.slate, letterSpacing: "0.1em" }}>NAVIGATION</div>
           {NAV.map(n => (
@@ -206,14 +205,14 @@ export default function AuditForgeApp() {
         </div>
         <div className="af-sidebar-footer">
             <a href="/sign-in" style={{ display:"flex", alignItems:"center", gap:8, padding:"8px 12px", borderRadius:6, background:"rgba(178,53,49,0.1)", border:"1px solid rgba(178,53,49,0.2)", textDecoration:"none", marginBottom:12 }}>
-              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:"#B23531", letterSpacing:"0.06em" }}>Sign In →</span>
+              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:"#B23531", letterSpacing:"0.06em" }}>Sign In â†’</span>
             </a>
           </div>
           <div style={{display:"none"}} className="af-sidebar-footer" style={{ marginTop: "auto", padding: "16px 20px", borderTop: `1px solid ${C.border}` }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: C.slate, lineHeight: 1.6 }}>
-            Dropdown Logistics<br />Chaos → Structured → Automated
+            Dropdown Logistics<br />Chaos â†’ Structured â†’ Automated
           </div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: C.copper, marginTop: 8 }}>CO-DDL · FY2025 · v0.4</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: C.copper, marginTop: 8 }}>CO-DDL Â· FY2025 Â· v0.4</div>
         </div>
       </nav>
 
@@ -230,7 +229,7 @@ export default function AuditForgeApp() {
           aria-label="Search"
           onClick={() => setSearchOpen(true)}
           onTouchEnd={(e) => { e.preventDefault(); setSearchOpen(true); }}
-        >⌕</button>
+        >âŒ•</button>
         {/* Grey's Governance Fix: Warning banner when controls are in DRAFT */}
         {!loading && draftCount > 0 && (
           <div className="af-warning-banner" style={{
@@ -238,8 +237,8 @@ export default function AuditForgeApp() {
             display: "flex", alignItems: "center", gap: 10,
             fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.warn,
           }}>
-            <span style={{ fontSize: 16 }}>⚠</span>
-            <span><strong>{draftCount} of {controls.length}</strong> controls in DRAFT — {approvedCount} approved. Generated documents will be stamped as draft governance state.</span>
+            <span style={{ fontSize: 16 }}>âš </span>
+            <span><strong>{draftCount} of {controls.length}</strong> controls in DRAFT â€” {approvedCount} approved. Generated documents will be stamped as draft governance state.</span>
           </div>
         )}
 
@@ -273,7 +272,7 @@ export default function AuditForgeApp() {
   );
 }
 
-// ── Header ──
+// â”€â”€ Header â”€â”€
 function Header({ title, meta, children }) {
   return (
     <div style={{ padding: "24px 32px 20px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -286,7 +285,7 @@ function Header({ title, meta, children }) {
   );
 }
 
-// ── Dashboard ──
+// â”€â”€ Dashboard â”€â”€
 function DashboardView({ controls, risks, processes, audits, loading }) {
   if (loading) return <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 200, fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.steel }}>Loading...</div>;
 
@@ -301,7 +300,7 @@ function DashboardView({ controls, risks, processes, audits, loading }) {
 
   return (
     <>
-      <Header title="Dashboard" meta={`Dropdown Logistics · FY2025 · ${controls.length} controls · ${risks.length} risks`} />
+      <Header title="Dashboard" meta={`Dropdown Logistics Â· FY2025 Â· ${controls.length} controls Â· ${risks.length} risks`} />
       <div style={{ padding: "24px 32px 48px" } /* af-content-pad */}>
         {/* Stats */}
         <div className="af-stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, marginBottom: 32 }}>
@@ -339,13 +338,14 @@ function DashboardView({ controls, risks, processes, audits, loading }) {
               ))}
             </div>
           ))}
+          <TimeAnalyticsDash />
         </div>
       </div>
     </>
   );
 }
 
-// ── Controls ──
+// â”€â”€ Controls â”€â”€
 function ControlsView({ controls, loading }) {
   const [typeFilter, setTypeFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
@@ -394,10 +394,10 @@ function ControlTable({ controls }) {
               <td style={{ padding: "12px 16px", fontFamily: "'Source Serif 4', serif", fontSize: 13, color: C.cream, borderBottom: `1px solid ${C.borderLight}`, maxWidth: 350, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}>{c.description?.substring(0, 150)}{c.description?.length > 150 ? "..." : ""}</td>
               <td style={{ padding: "12px 16px", fontFamily: "'Source Serif 4', serif", fontSize: 12, color: C.steel, borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}>{c.process?.processArea}</td>
               <td style={{ padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}><Badge bg={TYPE_BG[c.controlType]}>{fmtEnum(c.controlType)}</Badge></td>
-              <td style={{ padding: "12px 16px", textAlign: "center", borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}>{c.keyControl ? <span style={{ color: C.green, fontWeight: 700 }}>●</span> : <span style={{ color: C.slate }}>○</span>}</td>
-              <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.cream, borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}>{c.owner?.ownerName || "—"}</td>
+              <td style={{ padding: "12px 16px", textAlign: "center", borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}>{c.keyControl ? <span style={{ color: C.green, fontWeight: 700 }}>â—</span> : <span style={{ color: C.slate }}>â—‹</span>}</td>
+              <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.cream, borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}>{c.owner?.ownerName || "â€”"}</td>
               <td style={{ padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}><Badge bg={STATUS_BG[c.reviewStatus]}>{fmtEnum(c.reviewStatus)}</Badge></td>
-              <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.crimson, borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}>{c.risks?.map(r => r.risk?.riskId).filter(Boolean).join(", ") || "—"}</td>
+              <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.crimson, borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}>{c.risks?.map(r => r.risk?.riskId).filter(Boolean).join(", ") || "â€”"}</td>
             </tr>
           ))}
         </tbody>
@@ -525,7 +525,7 @@ function ReviewView({ controls, loading, onRefresh }) {
   );
 }
 
-// ── Risks ──
+// â”€â”€ Risks â”€â”€
 function RisksView({ risks, controls, loading }) {
   const [ratingFilter, setRatingFilter] = useState("ALL");
   if (loading) return <div style={{ padding: 32, color: C.steel }}>Loading...</div>;
@@ -560,7 +560,7 @@ function RisksView({ risks, controls, loading }) {
   );
 }
 
-// ── Processes ──
+// â”€â”€ Processes â”€â”€
 function ProcessesView({ processes, controls, loading }) {
   if (loading) return <div style={{ padding: 32, color: C.steel }}>Loading...</div>;
   const areas = {}; processes.forEach(p => { if (!areas[p.processArea]) areas[p.processArea] = []; areas[p.processArea].push(p); });
@@ -568,7 +568,7 @@ function ProcessesView({ processes, controls, loading }) {
 
   return (
     <>
-      <Header title="Processes" meta={`${Object.keys(areas).length} areas · ${processes.length} processes`} />
+      <Header title="Processes" meta={`${Object.keys(areas).length} areas Â· ${processes.length} processes`} />
       <div style={{ padding: "24px 32px 48px" } /* af-content-pad */}>
         {Object.entries(areas).map(([area, procs]) => (
           <div key={area} style={{ marginBottom: 32 }}>
@@ -576,7 +576,7 @@ function ProcessesView({ processes, controls, loading }) {
             {procs.map(p => (
               <div key={p.id} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "20px 24px", marginBottom: 12 }}>
                 <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 600, color: C.cream }}>{p.processName}</div>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.slate, marginTop: 4 }}>{p.processId} · Owner: {p.processOwner} · {ctrlCounts[p.processId] || 0} controls</div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.slate, marginTop: 4 }}>{p.processId} Â· Owner: {p.processOwner} Â· {ctrlCounts[p.processId] || 0} controls</div>
                 {p.description && <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 12, color: C.steel, marginTop: 8 }}>{p.description}</div>}
               </div>
             ))}
@@ -587,16 +587,16 @@ function ProcessesView({ processes, controls, loading }) {
   );
 }
 
-// ── Audits (v0.4) ──
+// â”€â”€ Audits (v0.4) â”€â”€
 
-// ── Create Audit Wizard ──────────────────────────────────────────────────────
+// â”€â”€ Create Audit Wizard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function CreateAuditWizard({ controls, auditors, onClose, onCreated }) {
   const STEPS = ["Details", "Controls", "Team", "Review"];
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
-  // Step 1 — Details
+  // Step 1 â€” Details
   const [auditId, setAuditId] = useState("AUD-" + new Date().getFullYear() + "-" + String(Date.now()).slice(-3));
   const [auditName, setAuditName] = useState("");
   const [leadAuditorId, setLeadAuditorId] = useState("");
@@ -605,7 +605,7 @@ function CreateAuditWizard({ controls, auditors, onClose, onCreated }) {
   const [scope, setScope] = useState("");
   const [methodology, setMethodology] = useState("");
 
-  // Step 2 — Controls
+  // Step 2 â€” Controls
   const processAreas = [...new Set(controls.map(c => c.process?.processArea).filter(Boolean))].sort();
   const [selectedControls, setSelectedControls] = useState(new Set());
   const [expandedAreas, setExpandedAreas] = useState(new Set());
@@ -624,7 +624,7 @@ function CreateAuditWizard({ controls, auditors, onClose, onCreated }) {
     setSelectedControls(next);
   };
 
-  // Step 3 — Team
+  // Step 3 â€” Team
   const [teamMembers, setTeamMembers] = useState([]);
   const [addingMember, setAddingMember] = useState(false);
   const [memberAuditorId, setMemberAuditorId] = useState("");
@@ -744,10 +744,10 @@ function CreateAuditWizard({ controls, auditors, onClose, onCreated }) {
               New Audit
             </div>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel, marginTop: 2 }}>
-              Step {step + 1} of {STEPS.length} — {STEPS[step]}
+              Step {step + 1} of {STEPS.length} â€” {STEPS[step]}
             </div>
           </div>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: C.steel, cursor: "pointer", fontSize: 20 }}>✕</button>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: C.steel, cursor: "pointer", fontSize: 20 }}>âœ•</button>
         </div>
 
         {/* Step indicators */}
@@ -760,7 +760,7 @@ function CreateAuditWizard({ controls, auditors, onClose, onCreated }) {
                 display: "flex", alignItems: "center", justifyContent: "center",
                 fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 700,
                 color: i <= step ? C.navy : C.steel,
-              }}>{i < step ? "✓" : i + 1}</div>
+              }}>{i < step ? "âœ“" : i + 1}</div>
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: i === step ? C.cream : C.steel }}>
                 {s}
               </span>
@@ -772,7 +772,7 @@ function CreateAuditWizard({ controls, auditors, onClose, onCreated }) {
         {/* Body */}
         <div style={{ flex: 1, overflowY: "auto", padding: "24px 28px" }}>
 
-          {/* STEP 1 — Details */}
+          {/* STEP 1 â€” Details */}
           {step === 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
@@ -795,7 +795,7 @@ function CreateAuditWizard({ controls, auditors, onClose, onCreated }) {
               <div>
                 <label style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel, display: "block", marginBottom: 6 }}>AUDIT NAME *</label>
                 <input value={auditName} onChange={e => setAuditName(e.target.value)}
-                  placeholder="e.g. Technology and Infrastructure Review — FY2025"
+                  placeholder="e.g. Technology and Infrastructure Review â€” FY2025"
                   style={{ width: "100%", background: C.navy, border: `1px solid ${C.border}`, borderRadius: 6, padding: "10px 12px", color: C.cream, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, boxSizing: "border-box" }} />
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
@@ -825,7 +825,7 @@ function CreateAuditWizard({ controls, auditors, onClose, onCreated }) {
             </div>
           )}
 
-          {/* STEP 2 — Controls */}
+          {/* STEP 2 â€” Controls */}
           {step === 1 && (
             <div>
               <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel, marginBottom: 16 }}>
@@ -854,7 +854,7 @@ function CreateAuditWizard({ controls, auditors, onClose, onCreated }) {
                       })} style={{ flex: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: C.cream }}>{area}</span>
                         <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>
-                          {areaControls.filter(c => selectedControls.has(c.id)).length}/{areaControls.length} {isExpanded ? "▲" : "▼"}
+                          {areaControls.filter(c => selectedControls.has(c.id)).length}/{areaControls.length} {isExpanded ? "â–²" : "â–¼"}
                         </span>
                       </div>
                     </div>
@@ -884,7 +884,7 @@ function CreateAuditWizard({ controls, auditors, onClose, onCreated }) {
             </div>
           )}
 
-          {/* STEP 3 — Team */}
+          {/* STEP 3 â€” Team */}
           {step === 2 && (
             <div>
               {/* Team list */}
@@ -906,16 +906,16 @@ function CreateAuditWizard({ controls, auditors, onClose, onCreated }) {
                             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, padding: "2px 8px", borderRadius: 3, background: "rgba(196,154,60,0.15)", color: ROLE_COLORS[m.teamRole] || C.steel }}>{m.teamRole}</span>
                           </td>
                           <td style={{ padding: "10px 14px", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.steel }}>{m.assignedPhase}</td>
-                          <td style={{ padding: "10px 14px", fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.cream }}>{m.budgetHours ? m.budgetHours + "h" : "—"}</td>
+                          <td style={{ padding: "10px 14px", fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.cream }}>{m.budgetHours ? m.budgetHours + "h" : "â€”"}</td>
                           <td style={{ padding: "10px 14px" }}>
-                            <button onClick={() => removeMember(m.auditorId)} style={{ background: "none", border: "none", color: C.crimson, cursor: "pointer", fontSize: 12 }}>✕</button>
+                            <button onClick={() => removeMember(m.auditorId)} style={{ background: "none", border: "none", color: C.crimson, cursor: "pointer", fontSize: 12 }}>âœ•</button>
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                   <div style={{ padding: "8px 14px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel, borderTop: `1px solid ${C.border}` }}>
-                    {teamMembers.length} members · {teamMembers.reduce((s, m) => s + (m.budgetHours || 0), 0)}h total
+                    {teamMembers.length} members Â· {teamMembers.reduce((s, m) => s + (m.budgetHours || 0), 0)}h total
                   </div>
                 </div>
               )}
@@ -930,7 +930,7 @@ function CreateAuditWizard({ controls, auditors, onClose, onCreated }) {
                         style={{ width: "100%", background: C.card, border: `1px solid ${C.border}`, borderRadius: 6, padding: "8px 10px", color: C.cream, fontFamily: "'Space Grotesk', sans-serif", fontSize: 12 }}>
                         <option value="">Select...</option>
                         {auditors.filter(a => !teamMembers.find(m => m.auditorId === a.auditorId)).map(a => (
-                          <option key={a.id} value={a.auditorId}>{a.auditorName} — {a.role}</option>
+                          <option key={a.id} value={a.auditorId}>{a.auditorName} â€” {a.role}</option>
                         ))}
                       </select>
                     </div>
@@ -970,7 +970,7 @@ function CreateAuditWizard({ controls, auditors, onClose, onCreated }) {
             </div>
           )}
 
-          {/* STEP 4 — Review */}
+          {/* STEP 4 â€” Review */}
           {step === 3 && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div style={{ background: C.navy, border: `1px solid ${C.border}`, borderRadius: 8, padding: 20 }}>
@@ -1013,7 +1013,7 @@ function CreateAuditWizard({ controls, auditors, onClose, onCreated }) {
         }}>
           <button onClick={() => step > 0 ? setStep(s => s - 1) : onClose()}
             style={{ padding: "10px 20px", background: "transparent", color: C.steel, border: `1px solid ${C.border}`, borderRadius: 6, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, cursor: "pointer" }}>
-            {step === 0 ? "Cancel" : "← Back"}
+            {step === 0 ? "Cancel" : "â† Back"}
           </button>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>
@@ -1022,7 +1022,7 @@ function CreateAuditWizard({ controls, auditors, onClose, onCreated }) {
             {step < STEPS.length - 1 ? (
               <button onClick={() => canNext() && setStep(s => s + 1)} disabled={!canNext()}
                 style={{ padding: "10px 24px", background: canNext() ? C.copper : "rgba(196,154,60,0.3)", color: C.navy, border: "none", borderRadius: 6, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, cursor: canNext() ? "pointer" : "default" }}>
-                Next →
+                Next â†’
               </button>
             ) : (
               <button onClick={handleCreate} disabled={saving}
@@ -1038,7 +1038,7 @@ function CreateAuditWizard({ controls, auditors, onClose, onCreated }) {
 }
 
 
-// ── Audit Program Analytics ──────────────────────────────────────────────────
+// â”€â”€ Audit Program Analytics â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function AuditProgramAnalytics({ audits }) {
   if (!audits || audits.length === 0) return null;
 
@@ -1058,7 +1058,7 @@ function AuditProgramAnalytics({ audits }) {
     byLead[lead].controls += a.controlScope?.filter(c => c.inScope).length || 0;
   });
 
-  // Timeline — months covered
+  // Timeline â€” months covered
   const now = new Date('2025-01-01');
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
@@ -1077,7 +1077,7 @@ function AuditProgramAnalytics({ audits }) {
         borderRadius: 10, overflow: "hidden", marginBottom: 24,
       }}>
         {[
-          { value: audits.length, label: "ENGAGEMENTS", sub: Object.entries(statusCounts).map(([k,v]) => v + " " + k.toLowerCase()).join(" · "), color: "#C49A3C" },
+          { value: audits.length, label: "ENGAGEMENTS", sub: Object.entries(statusCounts).map(([k,v]) => v + " " + k.toLowerCase()).join(" Â· "), color: "#C49A3C" },
           { value: Math.round(totalBudgetHours).toLocaleString() + "h", label: "TOTAL BUDGET", sub: Math.round(totalBudgetHours / audits.length) + "h avg per engagement", color: "#6B9DC2" },
           { value: totalControls, label: "CONTROLS IN SCOPE", sub: Math.round(totalControls / audits.length) + " avg per engagement", color: "#B23531" },
           { value: totalTeamAssignments, label: "TEAM ASSIGNMENTS", sub: Math.round(totalTeamAssignments / audits.length) + " avg team size", color: "#4A9E6B" },
@@ -1096,7 +1096,7 @@ function AuditProgramAnalytics({ audits }) {
 
         {/* Timeline */}
         <div style={{ background: "#10202f", border: "1px solid rgba(245,241,235,0.07)", borderRadius: 10, padding: "20px 24px" }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 700, color: "#C49A3C", letterSpacing: "0.1em", marginBottom: 16 }}>ENGAGEMENT TIMELINE — FY2025</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 700, color: "#C49A3C", letterSpacing: "0.1em", marginBottom: 16 }}>ENGAGEMENT TIMELINE â€” FY2025</div>
           <div style={{ position: "relative" }}>
             {/* Month labels */}
             <div style={{ display: "flex", marginBottom: 8 }}>
@@ -1224,7 +1224,7 @@ function AuditProgramAnalytics({ audits }) {
               }}>
                 <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, fontWeight: 600, color: "#F5F1EB", marginBottom: 3 }}>{area}</div>
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "#6B7B8D" }}>
-                  {data.count} controls · {data.audits.size} engagement{data.audits.size > 1 ? "s" : ""}
+                  {data.count} controls Â· {data.audits.size} engagement{data.audits.size > 1 ? "s" : ""}
                 </div>
               </div>
             ));
@@ -1249,7 +1249,7 @@ function AuditsView({ audits, controls, auditors, loading, onRefresh }) {
           onCreated={() => { setShowWizard(false); onRefresh && onRefresh(); }}
         />
       )}
-      <Header title="Audit Engagements" meta={`${audits.length} audit(s) · v0.4 Planning Layer`}>
+      <Header title="Audit Engagements" meta={`${audits.length} audit(s) Â· v0.4 Planning Layer`}>
         <button onClick={() => setShowWizard(true)} style={{
             padding: "8px 18px", background: C.crimson, color: C.cream,
             border: "none", borderRadius: 6, fontFamily: "'Space Grotesk', sans-serif",
@@ -1295,7 +1295,7 @@ function AuditsView({ audits, controls, auditors, loading, onRefresh }) {
                     { label: "IN SCOPE", value: inScope.length, accent: C.copper },
                     { label: "KEY CONTROLS", value: keyInScope.length, accent: C.green },
                     { label: "PROCESS AREAS", value: areas.length, accent: C.blue },
-                    { label: "PERIOD", value: audit.period?.periodLabel || "—", accent: "#8a6cc9" },
+                    { label: "PERIOD", value: audit.period?.periodLabel || "â€”", accent: "#8a6cc9" },
                   ].map(s => (
                     <div key={s.label}>
                       <div style={{ width: 24, height: 2, background: s.accent, borderRadius: 1, marginBottom: 8 }} />
@@ -1341,13 +1341,13 @@ function AuditsView({ audits, controls, auditors, loading, onRefresh }) {
                               }}>{t.teamRole}</span>
                             </td>
                             <td style={{ padding: '10px 16px', fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.steel }}>{t.assignedPhase}</td>
-                            <td style={{ padding: '10px 16px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.cream }}>{t.budgetHours ? t.budgetHours + 'h' : '—'}</td>
+                            <td style={{ padding: '10px 16px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.cream }}>{t.budgetHours ? t.budgetHours + 'h' : 'â€”'}</td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                     <div style={{ padding: '10px 16px', borderTop: '1px solid rgba(245,241,235,0.07)', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>
-                      {audit.team.length} auditors · {audit.team.reduce((sum, t) => sum + (t.budgetHours || 0), 0)}h total budget
+                      {audit.team.length} auditors Â· {audit.team.reduce((sum, t) => sum + (t.budgetHours || 0), 0)}h total budget
                     </div>
                   </div>
                 </div>
@@ -1365,7 +1365,7 @@ function AuditsView({ audits, controls, auditors, loading, onRefresh }) {
                         <td style={{ padding: "12px 16px", fontSize: 11, color: C.steel, borderBottom: `1px solid ${C.borderLight}` }}>{s.control?.process?.processArea}</td>
                         <td style={{ padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}` }}><Badge bg={s.inScope ? "#D1FAE5" : "#FECACA"}>{s.scopeDecision ? fmtEnum(s.scopeDecision) : (s.inScope ? "In Scope" : "Out")}</Badge></td>
                         <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.cream, borderBottom: `1px solid ${C.borderLight}` }}>{s.assignedTo?.auditorName || "Unassigned"}</td>
-                        <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.steel, borderBottom: `1px solid ${C.borderLight}` }}>{s.targetDate ? new Date(s.targetDate).toLocaleDateString() : "—"}</td>
+                        <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.steel, borderBottom: `1px solid ${C.borderLight}` }}>{s.targetDate ? new Date(s.targetDate).toLocaleDateString() : "â€”"}</td>
                         <td style={{ padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}` }}><Badge bg={STATUS_BG[s.control?.reviewStatus]}>{fmtEnum(s.control?.reviewStatus)}</Badge></td>
                       </tr>
                     ))}
@@ -1379,7 +1379,7 @@ function AuditsView({ audits, controls, auditors, loading, onRefresh }) {
                   display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 24px",
                   background: C.copper, color: C.navy, borderRadius: 6, fontFamily: "'Space Grotesk', sans-serif",
                   fontSize: 13, fontWeight: 600, textDecoration: "none", cursor: "pointer",
-                }}>↓ Download Audit Plan</a>
+                }}>â†“ Download Audit Plan</a>
               </div>
             </div>
           );
@@ -1389,16 +1389,16 @@ function AuditsView({ audits, controls, auditors, loading, onRefresh }) {
   );
 }
 
-// ── Generate (with download buttons + Grey's governance stamp) ──
+// â”€â”€ Generate (with download buttons + Grey's governance stamp) â”€â”€
 function GenerateView({ controls }) {
   const [downloading, setDownloading] = useState(null);
   const draftCount = controls.filter(c => c.reviewStatus === "DRAFT").length;
   const processAreas = [...new Set(controls.map(c => c.process?.processArea).filter(Boolean))];
 
   const DOC_TYPES = [
-    { id: "RCM", label: "Risk Control Matrix", ext: "XLSX", desc: "Full RCM with cover, matrix, and summary. Maps controls to risks, frameworks, and assertions.", icon: "◫" },
-    { id: "MCL", label: "Master Control List", ext: "XLSX", desc: "Complete control catalog with status breakdown by review state, type, and nature.", icon: "◧" },
-    { id: "AUDIT_PLAN", label: "Audit Plan", ext: "XLSX", desc: "Cover, scope matrix, timeline. Controls in scope with assignments and target dates.", icon: "◈" },
+    { id: "RCM", label: "Risk Control Matrix", ext: "XLSX", desc: "Full RCM with cover, matrix, and summary. Maps controls to risks, frameworks, and assertions.", icon: "â—«" },
+    { id: "MCL", label: "Master Control List", ext: "XLSX", desc: "Complete control catalog with status breakdown by review state, type, and nature.", icon: "â—§" },
+    { id: "AUDIT_PLAN", label: "Audit Plan", ext: "XLSX", desc: "Cover, scope matrix, timeline. Controls in scope with assignments and target dates.", icon: "â—ˆ" },
   ];
 
   function handleDownload(type, extra) {
@@ -1419,7 +1419,7 @@ function GenerateView({ controls }) {
             background: C.warnBg, border: `1px solid ${C.warnBorder}`, borderRadius: 8,
             padding: "16px 20px", marginBottom: 24, display: "flex", alignItems: "flex-start", gap: 12,
           }}>
-            <span style={{ fontSize: 20, color: C.warn }}>⚠</span>
+            <span style={{ fontSize: 20, color: C.warn }}>âš </span>
             <div>
               <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: C.warn }}>Governance State: {draftCount} of {controls.length} controls in DRAFT</div>
               <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 12, color: C.steel, marginTop: 4 }}>Generated documents will include a "Document Status: DRAFT" stamp. Approve all source controls to generate production-grade output.</div>
@@ -1441,7 +1441,7 @@ function GenerateView({ controls }) {
               <button onClick={() => handleDownload(doc.id)} style={{
                 width: "100%", padding: "10px 0", background: C.copper, color: C.navy, border: "none",
                 borderRadius: 6, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, cursor: "pointer",
-              }}>{downloading === doc.id ? "↓ Downloading..." : `↓ Generate & Download`}</button>
+              }}>{downloading === doc.id ? "â†“ Downloading..." : `â†“ Generate & Download`}</button>
             </div>
           ))}
         </div>
@@ -1452,11 +1452,11 @@ function GenerateView({ controls }) {
           {processAreas.map(area => (
             <div key={area} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "20px 24px" }}>
               <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 600, color: C.cream, marginBottom: 4 }}>{area}</div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel, marginBottom: 12 }}>{controls.filter(c => c.process?.processArea === area).length} controls · DOCX</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel, marginBottom: 12 }}>{controls.filter(c => c.process?.processArea === area).length} controls Â· DOCX</div>
               <button onClick={() => handleDownload("WALKTHROUGH", `&processArea=${encodeURIComponent(area)}`)} style={{
                 width: "100%", padding: "8px 0", background: "transparent", color: C.copper, border: `1px solid ${C.copper}`,
                 borderRadius: 6, fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, fontWeight: 600, cursor: "pointer",
-              }}>{downloading === "WALKTHROUGH" ? "↓ ..." : "↓ Download"}</button>
+              }}>{downloading === "WALKTHROUGH" ? "â†“ ..." : "â†“ Download"}</button>
             </div>
           ))}
         </div>
@@ -1466,7 +1466,7 @@ function GenerateView({ controls }) {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
           {["6px frame (Row 1 / Col A)", "Grid lines off", "DDL footer on every page", "Space Grotesk headings", "JetBrains Mono for data", "Source Serif 4 for body", "Copper accent dividers", "Navy header bars", "Sheet protection", "Frozen panes", "Print area configured", "Branded cover sheet"].map(item => (
             <div key={item} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel, padding: "6px 0" }}>
-              <span style={{ color: C.green, marginRight: 6 }}>✓</span>{item}
+              <span style={{ color: C.green, marginRight: 6 }}>âœ“</span>{item}
             </div>
           ))}
         </div>
@@ -1486,16 +1486,16 @@ function GenerateView({ controls }) {
 
 
 
-// ── Analytics View ────────────────────────────────────────────────────────────
-// Add to NAV array: { id: "analytics", icon: "◈", label: "Analytics" }
+// â”€â”€ Analytics View â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Add to NAV array: { id: "analytics", icon: "â—ˆ", label: "Analytics" }
 // Add to view render: {view === "analytics" && <AnalyticsView controls={controls} risks={risks} />}
 
 function AnalyticsView({ controls, risks, loading }) {
   if (loading) return <div style={{ padding: 32, color: C.steel }}>Loading...</div>;
 
-  // ── Computed metrics ──────────────────────────────────────────────────────
+  // â”€â”€ Computed metrics â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-  // 1. Risk coverage — risks with at least one mapped control
+  // 1. Risk coverage â€” risks with at least one mapped control
   const allRiskIds = risks.map(r => r.riskId);
   const mappedRiskIds = new Set(
     controls.flatMap(c => (c.risks || []).map(r => r.risk?.riskId).filter(Boolean))
@@ -1527,7 +1527,7 @@ function AnalyticsView({ controls, risks, loading }) {
     APPROVED: controls.filter(c => c.reviewStatus === "APPROVED").length,
   };
 
-  // 6. Control health heatmap (risk rating × operating effectiveness)
+  // 6. Control health heatmap (risk rating Ã— operating effectiveness)
   const RATINGS = ["CRITICAL", "HIGH", "MEDIUM", "LOW"];
   const EFF     = ["EFFECTIVE", "PARTIALLY_EFFECTIVE", "INEFFECTIVE", "NOT_TESTED"];
   const heatmap = {};
@@ -1564,7 +1564,7 @@ function AnalyticsView({ controls, risks, loading }) {
   });
   const maxAreaCount = Math.max(...Object.values(byArea), 1);
 
-  // ── Heatmap cell color ────────────────────────────────────────────────────
+  // â”€â”€ Heatmap cell color â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function heatColor(rating, eff, count) {
     if (count === 0) return "rgba(255,255,255,0.03)";
     if (eff === "EFFECTIVE") return `rgba(74,158,107,${Math.min(0.15 + count * 0.12, 0.7)})`;
@@ -1579,10 +1579,10 @@ function AnalyticsView({ controls, risks, loading }) {
 
   return (
     <>
-      <Header title="Analytics" meta={`Control environment health · ${controls.length} controls · ${risks.length} risks`} />
+      <Header title="Analytics" meta={`Control environment health Â· ${controls.length} controls Â· ${risks.length} risks`} />
       <div style={{ padding: "24px 32px 48px" } /* af-content-pad */}>
 
-        {/* ── Row 1: Action Cards ── */}
+        {/* â”€â”€ Row 1: Action Cards â”€â”€ */}
         <div className="af-analytics-cards" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 24 }}>
 
           {/* Unmitigated Critical/High */}
@@ -1612,7 +1612,7 @@ function AnalyticsView({ controls, risks, loading }) {
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, letterSpacing: "0.08em", marginBottom: 12, textTransform: "uppercase" }}>Key Controls Not Tested</div>
             <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 40, fontWeight: 700, color: keyNotTested > 0 ? C.warn : "#4A9E6B", lineHeight: 1 }}>{keyNotTested}</div>
             <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 11, color: C.steel, marginTop: 8 }}>
-              of {keyControls.length} key controls · {keyEffective} effective
+              of {keyControls.length} key controls Â· {keyEffective} effective
             </div>
           </div>
 
@@ -1626,7 +1626,7 @@ function AnalyticsView({ controls, risks, loading }) {
           </div>
         </div>
 
-        {/* ── Row 2: Heatmap + Funnel ── */}
+        {/* â”€â”€ Row 2: Heatmap + Funnel â”€â”€ */}
         <div className="af-analytics-mid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
 
           {/* Control Health Heatmap */}
@@ -1653,7 +1653,7 @@ function AnalyticsView({ controls, risks, loading }) {
                         return (
                           <td key={eff} style={{ padding: "4px", textAlign: "center" }}>
                             <div style={{ width: 44, height: 36, background: heatColor(rating, eff, count), borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'JetBrains Mono', monospace", fontSize: count > 0 ? 14 : 10, fontWeight: 700, color: count > 0 ? C.cream : "rgba(255,255,255,0.15)", margin: "0 auto" }}>
-                              {count > 0 ? count : "·"}
+                              {count > 0 ? count : "Â·"}
                             </div>
                           </td>
                         );
@@ -1714,12 +1714,12 @@ function AnalyticsView({ controls, risks, loading }) {
           </div>
         </div>
 
-        {/* ── Row 3: Nature×Type Matrix + Process Density ── */}
+        {/* â”€â”€ Row 3: NatureÃ—Type Matrix + Process Density â”€â”€ */}
         <div className="af-analytics-mid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
 
           {/* Nature vs Type */}
           <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "20px 24px" }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel, letterSpacing: "0.05em", marginBottom: 16, textTransform: "uppercase" }}>Control Mix — Nature × Type</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel, letterSpacing: "0.05em", marginBottom: 16, textTransform: "uppercase" }}>Control Mix â€” Nature Ã— Type</div>
             <table style={{ borderCollapse: "collapse", width: "100%" }}>
               <thead>
                 <tr>
@@ -1743,7 +1743,7 @@ function AnalyticsView({ controls, risks, loading }) {
                             fontFamily: "'JetBrains Mono', monospace", fontSize: count > 0 ? 14 : 10,
                             fontWeight: 700, color: count > 0 ? C.cream : "rgba(255,255,255,0.15)", margin: "0 auto",
                           }}>
-                            {count > 0 ? count : "·"}
+                            {count > 0 ? count : "Â·"}
                           </div>
                         </td>
                       );
@@ -1776,12 +1776,12 @@ function AnalyticsView({ controls, risks, loading }) {
           </div>
         </div>
 
-        {/* ── Row 4: Unmapped Risks Table ── */}
+        {/* â”€â”€ Row 4: Unmapped Risks Table â”€â”€ */}
         {uncoveredRisks.length > 0 && (
           <div style={{ background: C.card, border: `1px solid rgba(178,53,49,0.2)`, borderRadius: 8, padding: "20px 24px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
               <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#fca5a5", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                ⚠ Unmapped Risks — {uncoveredRisks.length} risk{uncoveredRisks.length > 1 ? "s" : ""} with no controls
+                âš  Unmapped Risks â€” {uncoveredRisks.length} risk{uncoveredRisks.length > 1 ? "s" : ""} with no controls
               </div>
             </div>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -1817,8 +1817,8 @@ function AnalyticsView({ controls, risks, loading }) {
 
         {uncoveredRisks.length === 0 && risks.length > 0 && (
           <div style={{ background: "rgba(74,158,107,0.08)", border: "1px solid rgba(74,158,107,0.2)", borderRadius: 8, padding: "16px 24px", display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ fontSize: 20, color: "#4A9E6B" }}>✓</span>
-            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: "#4A9E6B", fontWeight: 600 }}>Full risk coverage — every risk has at least one mapped control.</div>
+            <span style={{ fontSize: 20, color: "#4A9E6B" }}>âœ“</span>
+            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: "#4A9E6B", fontWeight: 600 }}>Full risk coverage â€” every risk has at least one mapped control.</div>
           </div>
         )}
 
@@ -1832,7 +1832,7 @@ function AnalyticsView({ controls, risks, loading }) {
 
 
 
-// ── GlobalSearch Component ────────────────────────────────────────────────────
+// â”€â”€ GlobalSearch Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Drop this entire block into page.js (before the closing export or after AnalyticsView)
 // Then wire into AuditForgeApp (instructions at bottom)
 
@@ -1890,13 +1890,13 @@ function GlobalSearch({ controls, risks, processes, open, setOpen, query, setQue
 
   // Quick nav shortcuts (no query needed)
   const SHORTCUTS = [
-    { label: "Dashboard",  view: "dashboard",  icon: "◉" },
-    { label: "Analytics",  view: "analytics",  icon: "◈" },
-    { label: "Controls",   view: "controls",   icon: "⬡" },
-    { label: "Risks",      view: "risks",       icon: "△" },
-    { label: "Processes",  view: "processes",  icon: "◫" },
-    { label: "Generate",   view: "generate",   icon: "⬢" },
-    { label: "Import",     view: "import",     icon: "⬒" },
+    { label: "Dashboard",  view: "dashboard",  icon: "â—‰" },
+    { label: "Analytics",  view: "analytics",  icon: "â—ˆ" },
+    { label: "Controls",   view: "controls",   icon: "â¬¡" },
+    { label: "Risks",      view: "risks",       icon: "â–³" },
+    { label: "Processes",  view: "processes",  icon: "â—«" },
+    { label: "Generate",   view: "generate",   icon: "â¬¢" },
+    { label: "Import",     view: "import",     icon: "â¬’" },
   ];
 
   function highlight(text, q) {
@@ -1937,7 +1937,7 @@ function GlobalSearch({ controls, risks, processes, open, setOpen, query, setQue
       }}>
         {/* Input */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "16px 20px", borderBottom: "1px solid rgba(245,241,235,0.08)" }}>
-          <span style={{ color: "#4a6080", fontSize: 16 }}>⌕</span>
+          <span style={{ color: "#4a6080", fontSize: 16 }}>âŒ•</span>
           <input
             ref={inputRef}
             value={query}
@@ -2005,7 +2005,7 @@ function GlobalSearch({ controls, risks, processes, open, setOpen, query, setQue
                       {highlight(c.description?.substring(0, 100), q)}{c.description?.length > 100 ? "..." : ""}
                     </div>
                     <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#4a6080", marginTop: 3 }}>
-                      {c.process?.processArea} · {c.controlType}
+                      {c.process?.processArea} Â· {c.controlType}
                     </div>
                   </div>
                 </div>
@@ -2033,7 +2033,7 @@ function GlobalSearch({ controls, risks, processes, open, setOpen, query, setQue
                       {highlight(r.description?.substring(0, 100), q)}{r.description?.length > 100 ? "..." : ""}
                     </div>
                     <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#4a6080", marginTop: 3 }}>
-                      {r.inherentRiskRating} · {fmtEnum(r.category)}
+                      {r.inherentRiskRating} Â· {fmtEnum(r.category)}
                     </div>
                   </div>
                 </div>
@@ -2081,7 +2081,7 @@ function GlobalSearch({ controls, risks, processes, open, setOpen, query, setQue
           background: "rgba(0,0,0,0.2)",
         }}>
           <div style={{ display: "flex", gap: 16 }}>
-            {[["↵", "select"], ["↑↓", "navigate"], ["esc", "close"]].map(([key, label]) => (
+            {[["â†µ", "select"], ["â†‘â†“", "navigate"], ["esc", "close"]].map(([key, label]) => (
               <div key={key} style={{ display: "flex", alignItems: "center", gap: 5 }}>
                 <kbd style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#4a6080", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 4, padding: "1px 5px" }}>{key}</kbd>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "#2a3a4a" }}>{label}</span>
@@ -2101,7 +2101,7 @@ function GlobalSearch({ controls, risks, processes, open, setOpen, query, setQue
 
 
 
-// ── GlobalSearch Component ────────────────────────────────────────────────────
+// â”€â”€ GlobalSearch Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Drop this entire block into page.js (before the closing export or after AnalyticsView)
 // Then wire into AuditForgeApp (instructions at bottom)
 
