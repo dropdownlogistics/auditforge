@@ -1,0 +1,5 @@
+﻿const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient()
+prisma.auditor.findUnique({ where: { auditorId: 'AUD-011' } })
+  .then(a => console.log(a))
+  .finally(() => prisma[String.fromCharCode(36)+'disconnect']())

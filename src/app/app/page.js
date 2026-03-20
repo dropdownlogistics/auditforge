@@ -1,6 +1,7 @@
-﻿"use client";
+"use client";
 
-import { LayoutDashboard, BarChart2, Shield, AlertTriangle, Network, BookOpen, FileOutput, Upload, ClipboardCheck } from "lucide-react";
+import TimeEntryGrid from "./components/TimeEntryGrid";
+import { LayoutDashboard, BarChart2, Shield, AlertTriangle, Network, BookOpen, FileOutput, Upload, ClipboardCheck, Clock } from "lucide-react";
 
 import { useState, useEffect, useRef, useCallback } from "react";
 
@@ -165,6 +166,7 @@ export default function AuditForgeApp() {
     { id: "review", icon: ClipboardCheck, label: "Review" },
     { id: "generate", icon: FileOutput, label: "Generate" },
     { id: "import", icon: Upload, label: "Import" },
+    { id: "time", icon: Clock, label: "Time" },
   ];
 
   const draftCount = controls.filter(c => c.reviewStatus === "DRAFT").length;
@@ -249,6 +251,16 @@ export default function AuditForgeApp() {
         {view === "audits" && <AuditsView audits={audits} controls={controls} auditors={auditors} loading={loading} onRefresh={async () => { const r = await fetch("/api/audits?companyId=CO-DDL"); const d = await r.json(); setAudits(d.audits || []); }} />}
         {view === "review" && <ReviewView controls={controls} loading={loading} onRefresh={refetchControls} />}
         {view === "generate" && <GenerateView controls={controls} />}
+        {view === "time" && (
+          <div style={{ padding: "32px" }}>
+            <div style={{ marginBottom: "24px" }}>
+              <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "10px", fontWeight: "700", letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(196,154,60,0.8)", marginBottom: "6px" }}>Time Tracking</div>
+              <div style={{ fontSize: "22px", fontWeight: "700", color: "#F5F1EB" }}>Weekly Time Entry</div>
+              <div style={{ fontSize: "13px", color: "rgba(245,241,235,0.4)", marginTop: "4px" }}>Log hours by engagement, component, and day.</div>
+            </div>
+            <TimeEntryGrid audits={audits} currentAuditor={auditors?.[0]} />
+          </div>
+        )}
         
       </main>
       <GlobalSearch
