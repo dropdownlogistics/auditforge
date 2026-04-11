@@ -1,6 +1,10 @@
-// AuditForge — Seed Data: Dropdown Logistics CAE v1.2
+// AuditForge — Seed Data: Dropdown Logistics CAE v1.3
 // Real data. Real company. Eat your own cooking.
-// Run: node prisma/seed.js
+// Run: node prisma/seed.js  (or `npx prisma db seed`)
+//
+// Merged 2026-04-11: seed-v03.js (Dim_ControlType + lifecycle wiring,
+// CR-AUDITFORGE-001 Item 2) and seed-v04.js (Auditor + Audit + scope,
+// CR-AUDITFORGE-004) folded in. Both source files deleted.
 
 require("dotenv/config");
 const { PrismaClient } = require("@prisma/client");
@@ -374,16 +378,144 @@ async function main() {
   });
   console.log("Seeded 3 default templates");
 
+  // ============================================================
+  // CONTROL TYPE DIMENSION (merged from seed-v03.js, 2026-04-11)
+  // CR-AUDITFORGE-001 Item 2 — Dim_ControlType
+  // ============================================================
+  const typeProfiles = [
+    { nature: "PREVENTIVE", automation: "MANUAL",        domain: "BUSINESS", label: "Preventive Manual Business" },
+    { nature: "PREVENTIVE", automation: "AUTOMATED",     domain: "IT",       label: "Preventive Automated IT" },
+    { nature: "PREVENTIVE", automation: "IT_DEPENDENT",  domain: "HYBRID",   label: "Preventive IT-Dependent Hybrid" },
+    { nature: "DETECTIVE",  automation: "MANUAL",        domain: "BUSINESS", label: "Detective Manual Business" },
+    { nature: "DETECTIVE",  automation: "AUTOMATED",     domain: "IT",       label: "Detective Automated IT" },
+    { nature: "DETECTIVE",  automation: "IT_DEPENDENT",  domain: "HYBRID",   label: "Detective IT-Dependent Hybrid" },
+    { nature: "CORRECTIVE", automation: "MANUAL",        domain: "BUSINESS", label: "Corrective Manual Business" },
+    { nature: "CORRECTIVE", automation: "AUTOMATED",     domain: "IT",       label: "Corrective Automated IT" },
+    { nature: "CORRECTIVE", automation: "IT_DEPENDENT",  domain: "HYBRID",   label: "Corrective IT-Dependent Hybrid" },
+  ];
+  for (const profile of typeProfiles) {
+    await prisma.controlTypeDim.upsert({
+      where: { label: profile.label },
+      update: {},
+      create: profile,
+    });
+  }
+  console.log(`Seeded ${typeProfiles.length} control type profiles`);
+
+  // Wire DDL controls to ControlTypeDim
+  const typeMap = {
+    "CTRL-GOV-001": "Detective Manual Business",
+    "CTRL-PRO-001": "Preventive Manual Business",
+    "CTRL-PRO-002": "Preventive Manual Business",
+    "CTRL-PRO-003": "Detective Manual Business",
+    "CTRL-PRO-004": "Preventive Manual Business",
+    "CTRL-CTX-001": "Detective Manual Business",
+    "CTRL-CTX-002": "Preventive Manual Business",
+    "CTRL-CTX-003": "Preventive Manual Business",
+    "CTRL-HAB-001": "Preventive Manual Business",
+    "CTRL-HAB-002": "Detective Manual Business",
+    "CTRL-HAB-003": "Preventive Manual Business",
+  };
+  for (const [controlId, typeLabel] of Object.entries(typeMap)) {
+    const typeDim = await prisma.controlTypeDim.findUnique({ where: { label: typeLabel } });
+    if (typeDim) {
+      await prisma.control.updateMany({
+        where: { companyId: company.id, controlId },
+        data: { controlTypeDimId: typeDim.id },
+      });
+    }
+  }
+  console.log("Wired DDL controls to ControlTypeDim");
+
+  // Set all DDL controls to ACTIVE lifecycle
+  await prisma.control.updateMany({
+    where: { companyId: company.id },
+    data: { lifecycle: "ACTIVE" },
+  });
+  console.log("Set DDL controls to ACTIVE lifecycle");
+
+  // ============================================================
+  // AUDIT ENGAGEMENT LAYER (merged from seed-v04.js, 2026-04-11)
+  // CR-AUDITFORGE-004 — Dim_Auditor + Fact_Audit + Bridge_Audit_Control
+  // ============================================================
+  const baseAuditor = await prisma.auditor.upsert({
+    where: { auditorId: "AUD-DK-001" },
+    update: {},
+    create: {
+      auditorId: "AUD-DK-001",
+      companyId: company.id,
+      auditorName: "Dave Kitchens",
+      title: "Chief Standards Officer",
+      department: "Governance",
+      email: null,
+      certifications: "CPA",
+      independence: "INTERNAL",
+      firm: "Dropdown Logistics",
+      isActive: true,
+    },
+  });
+  console.log(`Seeded auditor: ${baseAuditor.auditorName} (${baseAuditor.auditorId})`);
+
+  const baseAudit = await prisma.audit.upsert({
+    where: { auditId: "AUD-2025-001" },
+    update: {},
+    create: {
+      auditId: "AUD-2025-001",
+      companyId: company.id,
+      periodId: period.id,
+      auditName: "DDL CAE Annual Review — FY2025",
+      auditType: "INTERNAL",
+      status: "PLANNING",
+      leadAuditorId: baseAuditor.id,
+      startDate: new Date("2025-03-01"),
+      endDate: new Date("2025-12-31"),
+      scope: "Annual review of all DDL Control Audit Engine controls across Governance & Oversight, Prompt Governance, Context Integrity, and Human-AI Boundary domains. Full design and operating effectiveness testing of all 11 controls.",
+      methodology: "Design effectiveness: inquiry and inspection of governing documentation. Operating effectiveness: inspection of evidence and reperformance of control activities. Sample-based testing for recurring controls; full-population for ad hoc controls.",
+    },
+  });
+  console.log(`Seeded audit: ${baseAudit.auditName} (${baseAudit.auditId})`);
+
+  // Bridge_Audit_Control — all 11 DDL controls in scope of the base audit
+  const seededControls = await prisma.control.findMany({
+    where: { companyId: company.id, periodId: period.id },
+    orderBy: { controlId: "asc" },
+  });
+  let scopeCount = 0;
+  for (const ctrl of seededControls) {
+    const existing = await prisma.auditControlScope.findFirst({
+      where: { auditId: baseAudit.id, controlId: ctrl.id, validTo: null },
+    });
+    if (!existing) {
+      await prisma.auditControlScope.create({
+        data: {
+          auditId: baseAudit.id,
+          controlId: ctrl.id,
+          inScope: true,
+          scopeDecision: "IN_SCOPE",
+          scopeRationale: "All DDL CAE controls included in annual review scope.",
+          assignedToId: baseAuditor.id,
+          targetDate: new Date("2025-06-30"),
+        },
+      });
+      scopeCount++;
+    }
+  }
+  console.log(`Scoped ${scopeCount} controls to ${baseAudit.auditId}`);
+
   console.log("\n=== SEED COMPLETE ===");
-  console.log("Company: Dropdown Logistics (CO-DDL)");
-  console.log("Period:  FY2025");
-  console.log("Controls: 11 (GOV, PRO, CTX, HAB domains)");
-  console.log("Risks:    14 (16 in CAE, 2 unmapped — RSK-GOV-003, RSK-GOV-004)");
-  console.log("Processes: 7 (mapped from 4 active CAE domains)");
-  console.log("Owners:    3 (CSO, CEO, CTO — role-based)");
-  console.log("Frameworks: COSO 2013 (17), SOX/PCAOB (15), COBIT 2019 (13)");
-  console.log("Assertions: 9 (PCAOB)");
-  console.log("Templates: 3 (RCM, MCL, Walkthrough)");
+  console.log("Company:       Dropdown Logistics (CO-DDL)");
+  console.log("Period:        FY2025");
+  console.log("Controls:      11 (GOV, PRO, CTX, HAB domains)");
+  console.log("Risks:         14 (16 in CAE, 2 unmapped — RSK-GOV-003, RSK-GOV-004)");
+  console.log("Processes:     7 (mapped from 4 active CAE domains)");
+  console.log("Owners:        3 (CSO, CEO, CTO — role-based)");
+  console.log("Frameworks:    COSO 2013 (17), SOX/PCAOB (15), COBIT 2019 (13)");
+  console.log("Assertions:    9 (PCAOB)");
+  console.log("Templates:     3 (RCM, MCL, Walkthrough)");
+  console.log("ControlTypes:  9 (3 nature × 3 automation matrix)");
+  console.log("Auditors:      1 (Dave Kitchens, AUD-DK-001)");
+  console.log("Audits:        1 (AUD-2025-001, PLANNING status)");
+  console.log("AuditScope:    11 controls scoped to AUD-2025-001");
 }
 
 main()
