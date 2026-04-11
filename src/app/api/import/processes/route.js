@@ -46,7 +46,7 @@ export async function POST(request) {
       const p = processes[result.rowIndex];
 
       const procData = {
-        processId:      p.processId.trim(),
+        processId:      p.processId.trim().toUpperCase(),
         companyId:      companyDbId,
         processArea:    p.processArea.trim(),
         processName:    p.processName.trim(),
