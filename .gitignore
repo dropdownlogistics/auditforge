@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# runtime document outputs (sample DOCX/XLSX from generators)
+/generated/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
