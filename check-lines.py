@@ -1,6 +1,0 @@
-﻿content = open('src/app/app/page.js', encoding='utf-8').read()
-lines = content.split('\n')
-print('Line 1041:', repr(lines[1040]))
-print('Line 1042:', repr(lines[1041]))
-print('Line 1043:', repr(lines[1042]))
-print('Line 1044:', repr(lines[1043]))

@@ -1,7 +1,0 @@
-﻿content = open('src/app/page.jsx', encoding='utf-8').read()
-old = '          .af-orbital { display: none !important; }'
-new = '          .af-orbital { display: block !important; width: 100% !important; margin-bottom: 32px; }'
-fixed = content.replace(old, new)
-print('patched:', old in content)
-open('src/app/page.jsx', 'w', encoding='utf-8').write(fixed)
-print('done')
