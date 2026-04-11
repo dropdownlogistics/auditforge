@@ -226,24 +226,24 @@ export async function POST(request) {
         updated++;
 
         // Audit trail
-        await createAuditEntry({
-          controlId: existing.id,
-          action:    "BULK_IMPORT_UPDATE",
-          changedBy: "IMPORT",
-          rationale: `Bulk import updated control ${ctrl.controlId}`,
-          diffs:     [{ field: "bulk_import", before: "existing", after: "updated" }],
-        }).catch(() => {}); // Don't fail import if audit write fails
+        await createAuditEntry(prisma, {
+          entityType: "Control",
+          entityId:   existing.id,
+          action:     "BULK_IMPORT_UPDATE",
+          userId:     "IMPORT",
+          rationale:  `Bulk import updated control ${ctrl.controlId}`,
+        }).catch((err) => console.error(`Audit trail write failed for ${ctrl.controlId}:`, err));
       } else {
         const newControl = await prisma.control.create({ data: controlData });
         created++;
 
-        await createAuditEntry({
-          controlId: newControl.id,
-          action:    "BULK_IMPORT_CREATE",
-          changedBy: "IMPORT",
-          rationale: `Bulk import created control ${ctrl.controlId}`,
-          diffs:     [],
-        }).catch(() => {});
+        await createAuditEntry(prisma, {
+          entityType: "Control",
+          entityId:   newControl.id,
+          action:     "BULK_IMPORT_CREATE",
+          userId:     "IMPORT",
+          rationale:  `Bulk import created control ${ctrl.controlId}`,
+        }).catch((err) => console.error(`Audit trail write failed for ${ctrl.controlId}:`, err));
       }
     }
 
