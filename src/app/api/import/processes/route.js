@@ -11,7 +11,7 @@ function validateProcess(proc, idx) {
   const errors = [];
   if (!proc.processId) {
     errors.push("processId required");
-  } else if (!PROCESS_ID_RE.test(proc.processId)) {
+  } else if (!PROCESS_ID_RE.test(proc.processId.toUpperCase())) {
     errors.push(`processId "${proc.processId}" must match pattern: PROC-{AREA}-{SEQ} (e.g., PROC-GOV-001)`);
   }
   if (!proc.processArea) errors.push("processArea required");
