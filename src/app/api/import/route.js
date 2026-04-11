@@ -276,15 +276,36 @@ export async function GET(request) {
     return NextResponse.json({ error: "Company not found" }, { status: 404 });
   }
 
-  const entries = await prisma.auditTrail.findMany({
-    where: {
-      action:   { in: ["BULK_IMPORT_CREATE", "BULK_IMPORT_UPDATE"] },
-      control:  { companyId: companyDbId },
-    },
-    orderBy: { createdAt: "desc" },
-    take:    20,
-    include: { control: { select: { controlId: true } } },
+  // AuditTrail is polymorphic — it stores (entityType, entityId) as strings,
+  // with no FK back to Control. To scope by company we look up the company's
+  // control IDs first, then filter the trail by entityId IN that set.
+  const companyControls = await prisma.control.findMany({
+    where:  { companyId: companyDbId },
+    select: { id: true, controlId: true },
   });
+
+  if (companyControls.length === 0) {
+    return NextResponse.json({ entries: [] });
+  }
+
+  const controlIdMap = new Map(companyControls.map((c) => [c.id, c.controlId]));
+
+  const trail = await prisma.auditTrail.findMany({
+    where: {
+      action:     { in: ["BULK_IMPORT_CREATE", "BULK_IMPORT_UPDATE"] },
+      entityType: "Control",
+      entityId:   { in: [...controlIdMap.keys()] },
+    },
+    orderBy: { timestamp: "desc" },
+    take:    20,
+  });
+
+  // Enrich each entry with the natural controlId so callers don't have to
+  // resolve internal cuids on the client side.
+  const entries = trail.map((e) => ({
+    ...e,
+    controlId: controlIdMap.get(e.entityId) || null,
+  }));
 
   return NextResponse.json({ entries });
 }
