@@ -208,7 +208,7 @@ export default function AuditForgeApp() {
               <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:"#B23531", letterSpacing:"0.06em" }}>Sign In →</span>
             </a>
           </div>
-          <div style={{display:"none"}} className="af-sidebar-footer" style={{ marginTop: "auto", padding: "16px 20px", borderTop: `1px solid ${C.border}` }}>
+          <div className="af-sidebar-footer" style={{ marginTop: "auto", padding: "16px 20px", borderTop: `1px solid ${C.border}` }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: C.slate, lineHeight: 1.6 }}>
             Dropdown Logistics<br />Chaos → Structured → Automated
           </div>
@@ -227,7 +227,6 @@ export default function AuditForgeApp() {
             border: "none", cursor: "pointer", fontSize: 18, color: "#0D1B2A",
             alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(0,0,0,0.4)" }}
           aria-label="Search"
-          onClick={() => setSearchOpen(true)}
           onTouchEnd={(e) => { e.preventDefault(); setSearchOpen(true); }}
         >⌕</button>
         {/* Grey's Governance Fix: Warning banner when controls are in DRAFT */}
