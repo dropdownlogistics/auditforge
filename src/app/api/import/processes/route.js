@@ -5,9 +5,15 @@
 import { NextResponse } from "next/server";
 import { prisma, resolveCompanyId } from "@/lib/prisma";
 
+const PROCESS_ID_RE = /^PROC-[A-Z]{2,6}-\d{3,4}$/;
+
 function validateProcess(proc, idx) {
   const errors = [];
-  if (!proc.processId)   errors.push("processId required");
+  if (!proc.processId) {
+    errors.push("processId required");
+  } else if (!PROCESS_ID_RE.test(proc.processId)) {
+    errors.push(`processId "${proc.processId}" must match pattern: PROC-{AREA}-{SEQ} (e.g., PROC-GOV-001)`);
+  }
   if (!proc.processArea) errors.push("processArea required");
   if (!proc.processName) errors.push("processName required");
   return { rowIndex: idx, processId: proc.processId, errors, valid: errors.length === 0 };
