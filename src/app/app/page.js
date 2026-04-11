@@ -182,9 +182,9 @@ export default function AuditForgeApp() {
         </div>
         <div className="af-nav-items" style={{ padding: "8px 0" }}>
           <div className="af-sidebar-search" onClick={() => setSearchOpen(true)} style={{ margin: "0 12px 8px", display: "flex", alignItems: "center", gap: 8, padding: "7px 12px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(245,241,235,0.08)", cursor: "pointer" }}>
-            <span style={{ color: "#4a6080", fontSize: 13 }}>■’â€¢</span>
+            <span style={{ color: "#4a6080", fontSize: 13 }}>⌕</span>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "#4a6080", flex: 1 }}>Search...</span>
-            <kbd style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "#4a6080", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 4, padding: "1px 5px" }}>■’ËœK</kbd>
+            <kbd style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "#4a6080", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 4, padding: "1px 5px" }}>⌘K</kbd>
           </div>
           <div className="af-sidebar-nav-label" style={{ padding: "16px 12px 8px", fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.slate, letterSpacing: "0.1em" }}>NAVIGATION</div>
           {NAV.map(n => (
@@ -229,7 +229,7 @@ export default function AuditForgeApp() {
           aria-label="Search"
           onClick={() => setSearchOpen(true)}
           onTouchEnd={(e) => { e.preventDefault(); setSearchOpen(true); }}
-        >■’â€¢</button>
+        >⌕</button>
         {/* Grey's Governance Fix: Warning banner when controls are in DRAFT */}
         {!loading && draftCount > 0 && (
           <div className="af-warning-banner" style={{
@@ -394,7 +394,7 @@ function ControlTable({ controls }) {
               <td style={{ padding: "12px 16px", fontFamily: "'Source Serif 4', serif", fontSize: 13, color: C.cream, borderBottom: `1px solid ${C.borderLight}`, maxWidth: 350, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}>{c.description?.substring(0, 150)}{c.description?.length > 150 ? "..." : ""}</td>
               <td style={{ padding: "12px 16px", fontFamily: "'Source Serif 4', serif", fontSize: 12, color: C.steel, borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}>{c.process?.processArea}</td>
               <td style={{ padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}><Badge bg={TYPE_BG[c.controlType]}>{fmtEnum(c.controlType)}</Badge></td>
-              <td style={{ padding: "12px 16px", textAlign: "center", borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}>{c.keyControl ? <span style={{ color: C.green, fontWeight: 700 }}>✔</span> : <span style={{ color: C.slate }}>✔â€¹</span>}</td>
+              <td style={{ padding: "12px 16px", textAlign: "center", borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}>{c.keyControl ? <span style={{ color: C.green, fontWeight: 700 }}>✔</span> : <span style={{ color: C.slate }}>✗</span>}</td>
               <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.cream, borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}>{c.owner?.ownerName || "—"}</td>
               <td style={{ padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}><Badge bg={STATUS_BG[c.reviewStatus]}>{fmtEnum(c.reviewStatus)}</Badge></td>
               <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.crimson, borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}>{c.risks?.map(r => r.risk?.riskId).filter(Boolean).join(", ") || "—"}</td>
@@ -747,7 +747,7 @@ function CreateAuditWizard({ controls, auditors, onClose, onCreated }) {
               Step {step + 1} of {STEPS.length} — {STEPS[step]}
             </div>
           </div>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: C.steel, cursor: "pointer", fontSize: 20 }}>■“â€¢</button>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: C.steel, cursor: "pointer", fontSize: 20 }}>✕</button>
         </div>
 
         {/* Step indicators */}
@@ -760,7 +760,7 @@ function CreateAuditWizard({ controls, auditors, onClose, onCreated }) {
                 display: "flex", alignItems: "center", justifyContent: "center",
                 fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 700,
                 color: i <= step ? C.navy : C.steel,
-              }}>{i < step ? "■“â€œ" : i + 1}</div>
+              }}>{i < step ? "✓" : i + 1}</div>
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: i === step ? C.cream : C.steel }}>
                 {s}
               </span>
@@ -908,7 +908,7 @@ function CreateAuditWizard({ controls, auditors, onClose, onCreated }) {
                           <td style={{ padding: "10px 14px", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.steel }}>{m.assignedPhase}</td>
                           <td style={{ padding: "10px 14px", fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.cream }}>{m.budgetHours ? m.budgetHours + "h" : "—"}</td>
                           <td style={{ padding: "10px 14px" }}>
-                            <button onClick={() => removeMember(m.auditorId)} style={{ background: "none", border: "none", color: C.crimson, cursor: "pointer", fontSize: 12 }}>■“â€¢</button>
+                            <button onClick={() => removeMember(m.auditorId)} style={{ background: "none", border: "none", color: C.crimson, cursor: "pointer", fontSize: 12 }}>✕</button>
                           </td>
                         </tr>
                       ))}
@@ -1379,7 +1379,7 @@ function AuditsView({ audits, controls, auditors, loading, onRefresh }) {
                   display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 24px",
                   background: C.copper, color: C.navy, borderRadius: 6, fontFamily: "'Space Grotesk', sans-serif",
                   fontSize: 13, fontWeight: 600, textDecoration: "none", cursor: "pointer",
-                }}>←â€œ Download Audit Plan</a>
+                }}>↓ Download Audit Plan</a>
               </div>
             </div>
           );
@@ -1396,9 +1396,9 @@ function GenerateView({ controls }) {
   const processAreas = [...new Set(controls.map(c => c.process?.processArea).filter(Boolean))];
 
   const DOC_TYPES = [
-    { id: "RCM", label: "Risk Control Matrix", ext: "XLSX", desc: "Full RCM with cover, matrix, and summary. Maps controls to risks, frameworks, and assertions.", icon: "✔«" },
-    { id: "MCL", label: "Master Control List", ext: "XLSX", desc: "Complete control catalog with status breakdown by review state, type, and nature.", icon: "✔§" },
-    { id: "AUDIT_PLAN", label: "Audit Plan", ext: "XLSX", desc: "Cover, scope matrix, timeline. Controls in scope with assignments and target dates.", icon: "✔Ë†" },
+    { id: "RCM", label: "Risk Control Matrix", ext: "XLSX", desc: "Full RCM with cover, matrix, and summary. Maps controls to risks, frameworks, and assertions.", icon: "▦" },
+    { id: "MCL", label: "Master Control List", ext: "XLSX", desc: "Complete control catalog with status breakdown by review state, type, and nature.", icon: "▤" },
+    { id: "AUDIT_PLAN", label: "Audit Plan", ext: "XLSX", desc: "Cover, scope matrix, timeline. Controls in scope with assignments and target dates.", icon: "◫" },
   ];
 
   function handleDownload(type, extra) {
@@ -1441,7 +1441,7 @@ function GenerateView({ controls }) {
               <button onClick={() => handleDownload(doc.id)} style={{
                 width: "100%", padding: "10px 0", background: C.copper, color: C.navy, border: "none",
                 borderRadius: 6, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, cursor: "pointer",
-              }}>{downloading === doc.id ? "←â€œ Downloading..." : `←â€œ Generate & Download`}</button>
+              }}>{downloading === doc.id ? "↓ Downloading..." : `↓ Generate & Download`}</button>
             </div>
           ))}
         </div>
@@ -1456,7 +1456,7 @@ function GenerateView({ controls }) {
               <button onClick={() => handleDownload("WALKTHROUGH", `&processArea=${encodeURIComponent(area)}`)} style={{
                 width: "100%", padding: "8px 0", background: "transparent", color: C.copper, border: `1px solid ${C.copper}`,
                 borderRadius: 6, fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, fontWeight: 600, cursor: "pointer",
-              }}>{downloading === "WALKTHROUGH" ? "←â€œ ..." : "←â€œ Download"}</button>
+              }}>{downloading === "WALKTHROUGH" ? "↓ ..." : "↓ Download"}</button>
             </div>
           ))}
         </div>
@@ -1466,7 +1466,7 @@ function GenerateView({ controls }) {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
           {["6px frame (Row 1 / Col A)", "Grid lines off", "DDL footer on every page", "Space Grotesk headings", "JetBrains Mono for data", "Source Serif 4 for body", "Copper accent dividers", "Navy header bars", "Sheet protection", "Frozen panes", "Print area configured", "Branded cover sheet"].map(item => (
             <div key={item} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel, padding: "6px 0" }}>
-              <span style={{ color: C.green, marginRight: 6 }}>■“â€œ</span>{item}
+              <span style={{ color: C.green, marginRight: 6 }}>✓</span>{item}
             </div>
           ))}
         </div>
@@ -1487,7 +1487,7 @@ function GenerateView({ controls }) {
 
 
 // ── Analytics View ────────────────────────────────────────────────────────────
-// Add to NAV array: { id: "analytics", icon: "✔Ë†", label: "Analytics" }
+// Add to NAV array: { id: "analytics", icon: "◫", label: "Analytics" }
 // Add to view render: {view === "analytics" && <AnalyticsView controls={controls} risks={risks} />}
 
 function AnalyticsView({ controls, risks, loading }) {
@@ -1527,7 +1527,7 @@ function AnalyticsView({ controls, risks, loading }) {
     APPROVED: controls.filter(c => c.reviewStatus === "APPROVED").length,
   };
 
-  // 6. Control health heatmap (risk rating Ãƒâ€” operating effectiveness)
+  // 6. Control health heatmap (risk rating × operating effectiveness)
   const RATINGS = ["CRITICAL", "HIGH", "MEDIUM", "LOW"];
   const EFF     = ["EFFECTIVE", "PARTIALLY_EFFECTIVE", "INEFFECTIVE", "NOT_TESTED"];
   const heatmap = {};
@@ -1714,12 +1714,12 @@ function AnalyticsView({ controls, risks, loading }) {
           </div>
         </div>
 
-        {/* ── Row 3: NatureÃƒâ€”Type Matrix + Process Density ── */}
+        {/* ── Row 3: Nature×Type Matrix + Process Density ── */}
         <div className="af-analytics-mid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
 
           {/* Nature vs Type */}
           <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "20px 24px" }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel, letterSpacing: "0.05em", marginBottom: 16, textTransform: "uppercase" }}>Control Mix — Nature Ãƒâ€” Type</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel, letterSpacing: "0.05em", marginBottom: 16, textTransform: "uppercase" }}>Control Mix — Nature × Type</div>
             <table style={{ borderCollapse: "collapse", width: "100%" }}>
               <thead>
                 <tr>
@@ -1817,7 +1817,7 @@ function AnalyticsView({ controls, risks, loading }) {
 
         {uncoveredRisks.length === 0 && risks.length > 0 && (
           <div style={{ background: "rgba(74,158,107,0.08)", border: "1px solid rgba(74,158,107,0.2)", borderRadius: 8, padding: "16px 24px", display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ fontSize: 20, color: "#4A9E6B" }}>■“â€œ</span>
+            <span style={{ fontSize: 20, color: "#4A9E6B" }}>✓</span>
             <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: "#4A9E6B", fontWeight: 600 }}>Full risk coverage — every risk has at least one mapped control.</div>
           </div>
         )}
@@ -1890,13 +1890,13 @@ function GlobalSearch({ controls, risks, processes, open, setOpen, query, setQue
 
   // Quick nav shortcuts (no query needed)
   const SHORTCUTS = [
-    { label: "Dashboard",  view: "dashboard",  icon: "✔â€°" },
-    { label: "Analytics",  view: "analytics",  icon: "✔Ë†" },
+    { label: "Dashboard",  view: "dashboard",  icon: "▦" },
+    { label: "Analytics",  view: "analytics",  icon: "◫" },
     { label: "Controls",   view: "controls",   icon: "↑" },
     { label: "Risks",      view: "risks",       icon: "△" },
-    { label: "Processes",  view: "processes",  icon: "✔«" },
+    { label: "Processes",  view: "processes",  icon: "▦" },
     { label: "Generate",   view: "generate",   icon: "↓" },
-    { label: "Import",     view: "import",     icon: "↕€™" },
+    { label: "Import",     view: "import",     icon: "↥" },
   ];
 
   function highlight(text, q) {
@@ -1937,7 +1937,7 @@ function GlobalSearch({ controls, risks, processes, open, setOpen, query, setQue
       }}>
         {/* Input */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "16px 20px", borderBottom: "1px solid rgba(245,241,235,0.08)" }}>
-          <span style={{ color: "#4a6080", fontSize: 16 }}>■’â€¢</span>
+          <span style={{ color: "#4a6080", fontSize: 16 }}>⌕</span>
           <input
             ref={inputRef}
             value={query}
@@ -2081,7 +2081,7 @@ function GlobalSearch({ controls, risks, processes, open, setOpen, query, setQue
           background: "rgba(0,0,0,0.2)",
         }}>
           <div style={{ display: "flex", gap: 16 }}>
-            {[["←µ", "select"], ["←â€˜←â€œ", "navigate"], ["esc", "close"]].map(([key, label]) => (
+            {[["↵", "select"], ["↑↓", "navigate"], ["esc", "close"]].map(([key, label]) => (
               <div key={key} style={{ display: "flex", alignItems: "center", gap: 5 }}>
                 <kbd style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#4a6080", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 4, padding: "1px 5px" }}>{key}</kbd>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "#2a3a4a" }}>{label}</span>
