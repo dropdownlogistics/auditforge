@@ -1398,7 +1398,7 @@ function GenerateView({ controls }) {
   const DOC_TYPES = [
     { id: "RCM", label: "Risk Control Matrix", ext: "XLSX", desc: "Full RCM with cover, matrix, and summary. Maps controls to risks, frameworks, and assertions.", icon: "▦" },
     { id: "MCL", label: "Master Control List", ext: "XLSX", desc: "Complete control catalog with status breakdown by review state, type, and nature.", icon: "▤" },
-    { id: "AUDIT_PLAN", label: "Audit Plan", ext: "XLSX", desc: "Cover, scope matrix, timeline. Controls in scope with assignments and target dates.", icon: "◫" },
+    { id: "AUDIT_PLAN", label: "Audit Plan", ext: "XLSX", desc: "Cover, scope matrix, timeline. Controls in scope with assignments and target dates.", icon: "▥" },
   ];
 
   function handleDownload(type, extra) {
@@ -1894,7 +1894,7 @@ function GlobalSearch({ controls, risks, processes, open, setOpen, query, setQue
     { label: "Analytics",  view: "analytics",  icon: "◫" },
     { label: "Controls",   view: "controls",   icon: "↑" },
     { label: "Risks",      view: "risks",       icon: "△" },
-    { label: "Processes",  view: "processes",  icon: "▦" },
+    { label: "Processes",  view: "processes",  icon: "⇄" },
     { label: "Generate",   view: "generate",   icon: "↓" },
     { label: "Import",     view: "import",     icon: "↥" },
   ];
