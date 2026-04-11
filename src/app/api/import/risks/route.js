@@ -5,7 +5,7 @@
 import { NextResponse } from "next/server";
 import { prisma, resolveCompanyId } from "@/lib/prisma";
 
-const RISK_ID_RE    = /^[A-Z]{2,8}-[A-Z]{2,8}-\d{3,}$/;
+const RISK_ID_RE    = /^RSK-[A-Z]{2,6}-\d{3,4}$/;
 const VALID_RATINGS = ["CRITICAL", "HIGH", "MEDIUM", "LOW"];
 const VALID_CATS    = ["OPERATIONAL", "FINANCIAL", "COMPLIANCE", "STRATEGIC", "TECHNOLOGY"];
 

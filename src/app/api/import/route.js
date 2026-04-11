@@ -17,7 +17,7 @@ const VALID_CONTROL_TYPES  = ["PREVENTIVE", "DETECTIVE", "CORRECTIVE"];
 const VALID_FREQUENCIES    = ["DAILY", "WEEKLY", "MONTHLY", "QUARTERLY", "ANNUAL", "ANNUALLY", "AD_HOC"];
 const VALID_NATURES        = ["MANUAL", "AUTOMATED", "IT_DEPENDENT_MANUAL", null, undefined, ""];
 const VALID_EFFECTIVENESS  = ["EFFECTIVE", "INEFFECTIVE", "NOT_TESTED", "PARTIALLY_EFFECTIVE", null, undefined, ""];
-const CONTROL_ID_RE        = /^[A-Z]{2,8}-[A-Z]{2,8}-\d{3,}$/;
+const CONTROL_ID_RE        = /^CTRL-[A-Z]{2,6}-\d{3,4}$/;
 
 // ── Validate a single control row ────────────────────────────────────────────
 
@@ -27,7 +27,7 @@ function validateControl(ctrl, rowIndex) {
   if (!ctrl.controlId)
     errors.push("controlId is required");
   else if (!CONTROL_ID_RE.test(ctrl.controlId.toUpperCase()))
-    errors.push(`controlId "${ctrl.controlId}" must match pattern like CTRL-AP-001`);
+    errors.push(`controlId "${ctrl.controlId}" must match pattern: CTRL-{AREA}-{SEQ} (e.g., CTRL-GOV-001)`);
 
   if (!ctrl.description)
     errors.push("description is required");

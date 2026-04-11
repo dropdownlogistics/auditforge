@@ -126,8 +126,8 @@ function validateRisk(data) {
 
   if (!data.riskId || data.riskId.trim() === "") {
     errors.push({ field: "riskId", message: "Risk ID is required" });
-  } else if (!/^RISK-[A-Z]{2,6}-\d{3,4}$/.test(data.riskId)) {
-    errors.push({ field: "riskId", message: "Risk ID must match pattern: RISK-{AREA}-{SEQ}" });
+  } else if (!/^RSK-[A-Z]{2,6}-\d{3,4}$/.test(data.riskId)) {
+    errors.push({ field: "riskId", message: "Risk ID must match pattern: RSK-{AREA}-{SEQ} (e.g., RSK-GOV-001)" });
   }
 
   if (!data.description || data.description.trim().length < 10) {
