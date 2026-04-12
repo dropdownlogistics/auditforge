@@ -7,13 +7,13 @@ import { useState, useEffect, useRef } from "react";
 
 // ── WorkBench Light palette ──
 const W = {
-  fog:     "#F0F4F8",
+  fog:     "#DBEAFE",
   white:   "#FFFFFF",
-  cloud:   "#E8EDF2",
+  cloud:   "#CBD5E1",
   slate:   "#1E293B",
   iron:    "#334155",
   steel:   "#64748B",
-  mist:    "#E2E8F0",
+  mist:    "#BFDBFE",
   sky:     "#3B82F6",
   green:   "#4A9E6B",
   amber:   "#C49A3C",
@@ -159,7 +159,7 @@ function OrbitalDiagram() {
 
   return (
     <>
-      <svg viewBox="0 0 700 700" style={{ width: "100%", maxWidth: 700, display: "block", margin: "0 auto" }} onMouseMove={(e) => setTooltipPos({ x: e.clientX + 16, y: e.clientY + 16 })} onMouseLeave={() => setHoveredNode(null)}>
+      <svg viewBox="0 0 700 700" style={{ width: "100%", maxWidth: 800, display: "block", margin: "0 auto" }} onMouseMove={(e) => setTooltipPos({ x: e.clientX + 16, y: e.clientY + 16 })} onMouseLeave={() => setHoveredNode(null)}>
         {/* Connection lines — use live positions so they track rotating nodes */}
         {CONNECTIONS.map(([a, b], i) => {
           const na = liveNodeMap[a], nb = liveNodeMap[b];
@@ -237,7 +237,7 @@ export default function WorkBenchPage() {
       <style dangerouslySetInnerHTML={{ __html: pageStyles }} />
 
       {/* ── SECTION 1 — NAV BAR ── */}
-      <nav className="wb-nav" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "24px 48px", maxWidth: 1200, margin: "0 auto" }}>
+      <nav className="wb-nav" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 48px", maxWidth: 1200, margin: "0 auto", background: "#C7D9F8", borderBottom: "1px solid #BFDBFE" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <WBMark size={36} />
           <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 18, fontWeight: 700 }}>
@@ -254,13 +254,13 @@ export default function WorkBenchPage() {
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: W.sky, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 20, fontWeight: 500 }}>
           MODULAR BUSINESS OS · FROM DROPDOWN LOGISTICS
         </div>
-        <h1 className="wb-headline" style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 52, fontWeight: 700, color: W.slate, letterSpacing: "-0.03em", lineHeight: 1.05, margin: "0 0 24px" }}>
+        <h1 className="wb-headline" style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 64, fontWeight: 700, color: W.slate, letterSpacing: "-0.03em", lineHeight: 1.05, margin: "0 0 24px" }}>
           Build the stack{"\n"}your business{"\n"}actually needs.
         </h1>
-        <p className="wb-subhead" style={{ fontFamily: "'Inter', sans-serif", fontSize: 16, color: W.steel, lineHeight: 1.6, maxWidth: 520, margin: "0 auto 16px" }}>
+        <p className="wb-subhead" style={{ fontFamily: "'Inter', sans-serif", fontSize: 18, color: W.steel, lineHeight: 1.6, maxWidth: 520, margin: "0 auto 16px" }}>
           Pick what fits. Leave what doesn&apos;t. WorkBench modules run on the same data layer — so everything you choose connects from day one.
         </p>
-        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, color: "#94A3B8", textAlign: "center", marginBottom: 24 }}>
+        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, color: "#94A3B8", textAlign: "center", marginBottom: 24 }}>
           For professional services firms of 2–20 people building their operational stack.
         </p>
         <div className="wb-chip-row" style={{ display: "flex", gap: 10, justifyContent: "center" }}>
@@ -295,9 +295,9 @@ export default function WorkBenchPage() {
       {/* ── SECTION 4 — ORBITAL ── */}
       <section className="wb-orbital-section" style={{ background: W.white, padding: "80px 48px", textAlign: "center" }}>
         <div style={{ maxWidth: 600, margin: "0 auto 48px" }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: W.sky, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 12, fontWeight: 500 }}>ONE DATA LAYER</div>
-          <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 32, fontWeight: 700, color: W.slate, letterSpacing: "-0.02em", margin: "0 0 12px" }}>One layer. Every module connected.</h2>
-          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, color: W.steel, lineHeight: 1.5 }}>You don&apos;t configure the connections. They&apos;re already there.</p>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: W.sky, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 12, fontWeight: 500 }}>ONE DATA LAYER</div>
+          <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 36, fontWeight: 700, color: W.slate, letterSpacing: "-0.02em", margin: "0 0 12px" }}>One layer. Every module connected.</h2>
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 16, color: W.steel, lineHeight: 1.5 }}>You don&apos;t configure the connections. They&apos;re already there.</p>
         </div>
 
         <OrbitalDiagram />
@@ -306,19 +306,19 @@ export default function WorkBenchPage() {
       {/* ── SECTION 5 — MODULE CARDS ── */}
       <section className="wb-modules" style={{ background: W.cloud, padding: "80px 48px", borderTop: `1px solid ${W.mist}` }}>
         <div className="wb-modules-header" style={{ textAlign: "center", maxWidth: 600, margin: "0 auto 48px" }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: W.sky, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 12, fontWeight: 500 }}>THE FULL STACK</div>
-          <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 32, fontWeight: 700, color: W.slate, letterSpacing: "-0.02em", margin: "0 0 12px" }}>Everything your business needs.</h2>
-          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, color: W.steel, lineHeight: 1.5 }}>Start with what fits now. Add more as you grow.</p>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: W.sky, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 12, fontWeight: 500 }}>THE FULL STACK</div>
+          <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 36, fontWeight: 700, color: W.slate, letterSpacing: "-0.02em", margin: "0 0 12px" }}>Everything your business needs.</h2>
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 16, color: W.steel, lineHeight: 1.5 }}>Start with what fits now. Add more as you grow.</p>
         </div>
-        <div className="wb-module-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, maxWidth: 1000, margin: "0 auto" }}>
+        <div className="wb-module-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, maxWidth: 1000, margin: "0 auto" }}>
           {MODULES.map((m) => {
             const isLive = m.status === "LIVE";
             return (
-              <div key={m.name} style={{ background: W.white, border: `1px solid ${W.mist}`, borderRadius: 10, padding: 24, position: "relative" }}>
+              <div key={m.name} style={{ background: W.white, border: `1px solid ${W.mist}`, borderRadius: 10, padding: 28, position: "relative" }}>
                 <div style={{ position: "absolute", top: 16, right: 16, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", color: isLive ? W.green : W.amber, padding: "3px 10px", borderRadius: 12, background: isLive ? W.greenBg : W.amberBg, border: `1px solid ${isLive ? "rgba(74,158,107,0.25)" : "rgba(196,154,60,0.25)"}` }}>{m.status}</div>
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 20, color: isLive ? W.sky : W.amber, marginBottom: 10, lineHeight: 1 }}>{m.icon}</div>
-                <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 600, color: W.slate, marginBottom: 6, paddingRight: 90 }}>{m.name}</div>
-                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: W.steel, lineHeight: 1.5, margin: 0 }}>{m.desc}</p>
+                <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 16, fontWeight: 600, color: W.slate, marginBottom: 6, paddingRight: 90 }}>{m.name}</div>
+                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, color: W.steel, lineHeight: 1.5, margin: 0 }}>{m.desc}</p>
                 {m.data && (<div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: W.sky, paddingTop: 10, marginTop: 12, borderTop: `1px solid ${W.mist}`, letterSpacing: "0.04em" }}>{m.data}</div>)}
               </div>
             );
@@ -328,18 +328,18 @@ export default function WorkBenchPage() {
 
       {/* ── SECTION 6 — PITCH ROW ── */}
       <div className="wb-pitch" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, padding: "64px 48px", maxWidth: 900, margin: "0 auto" }}>
-        <div style={{ background: W.white, border: `1px solid ${W.mist}`, borderRadius: 10, padding: "32px 28px" }}>
-          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 22, fontWeight: 700, color: W.slate, marginBottom: 14 }}>One layer.</div>
-          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, color: W.steel, lineHeight: 1.6, margin: 0 }}>Every module runs on the same data layer. Time feeds payroll. Controls feed analytics. Teams feed capacity. You don&apos;t configure the connections — they&apos;re already there.</p>
+        <div style={{ background: W.white, border: `1px solid ${W.mist}`, borderRadius: 10, padding: "40px 36px" }}>
+          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 26, fontWeight: 700, color: W.slate, marginBottom: 14 }}>One layer.</div>
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, color: W.steel, lineHeight: 1.6, margin: 0 }}>Every module runs on the same data layer. Time feeds payroll. Controls feed analytics. Teams feed capacity. You don&apos;t configure the connections — they&apos;re already there.</p>
         </div>
-        <div style={{ background: W.skyBg, border: "1px solid rgba(59,130,246,0.2)", borderRadius: 10, padding: "32px 28px" }}>
-          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 22, fontWeight: 700, color: W.slate, marginBottom: 14 }}>Pick what fits.</div>
-          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, color: W.steel, lineHeight: 1.6, margin: 0 }}>You&apos;re not buying a suite. You&apos;re building a stack. Start with Time Tracking. Add Invoicing when you&apos;re ready. The system grows when you do.</p>
+        <div style={{ background: W.skyBg, border: "1px solid rgba(59,130,246,0.2)", borderRadius: 10, padding: "40px 36px" }}>
+          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 26, fontWeight: 700, color: W.slate, marginBottom: 14 }}>Pick what fits.</div>
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, color: W.steel, lineHeight: 1.6, margin: 0 }}>You&apos;re not buying a suite. You&apos;re building a stack. Start with Time Tracking. Add Invoicing when you&apos;re ready. The system grows when you do.</p>
         </div>
       </div>
 
       {/* ── SECTION 7 — DDL ATTRIBUTION BAR ── */}
-      <div className="wb-attribution" style={{ background: W.slate, padding: "28px 48px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div className="wb-attribution" style={{ background: W.slate, padding: "32px 56px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <WBMark size={28} />
           <div>
