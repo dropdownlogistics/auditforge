@@ -1319,14 +1319,15 @@ function AuditsView({ audits, controls, auditors, loading, onRefresh }) {
           const areas = [...new Set(inScope.map(s => s.control?.process?.processArea).filter(Boolean))];
 
           return (
-            <div key={audit.id} style={{ marginBottom: 32 }}>
-              {/* Audit Header Card — click to open Engagement Orbital */}
-              <div
-                onClick={() => setSelectedAudit(audit)}
-                style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "24px 28px", marginBottom: 16, cursor: "pointer", transition: "border-color 150ms ease" }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.copper; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.border; }}
-              >
+            <div
+              key={audit.id}
+              onClick={() => setSelectedAudit(audit)}
+              style={{ marginBottom: 32, cursor: "pointer", transition: "filter 150ms ease" }}
+              onMouseEnter={(e) => { e.currentTarget.style.filter = "brightness(1.08)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.filter = "none"; }}
+            >
+              {/* Audit Header Card — part of the clickable audit block */}
+              <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "24px 28px", marginBottom: 16 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
@@ -1429,11 +1430,15 @@ function AuditsView({ audits, controls, auditors, loading, onRefresh }) {
 
               {/* Download Audit Plan */}
               <div style={{ marginTop: 20, display: "flex", gap: 12 }}>
-                <a href={`/api/generate/download?type=AUDIT_PLAN&companyId=CO-DDL&auditId=${audit.auditId}`} style={{
-                  display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 24px",
-                  background: C.copper, color: C.navy, borderRadius: 6, fontFamily: "'Space Grotesk', sans-serif",
-                  fontSize: 13, fontWeight: 600, textDecoration: "none", cursor: "pointer",
-                }}>↓ Download Audit Plan</a>
+                <a
+                  href={`/api/generate/download?type=AUDIT_PLAN&companyId=CO-DDL&auditId=${audit.auditId}`}
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 24px",
+                    background: C.copper, color: C.navy, borderRadius: 6, fontFamily: "'Space Grotesk', sans-serif",
+                    fontSize: 13, fontWeight: 600, textDecoration: "none", cursor: "pointer",
+                  }}
+                >↓ Download Audit Plan</a>
               </div>
             </div>
           );
