@@ -1279,7 +1279,14 @@ function AuditProgramAnalytics({ audits }) {
 
 function AuditsView({ audits, controls, auditors, loading, onRefresh }) {
   const [showWizard, setShowWizard] = useState(false);
+  const [selectedAudit, setSelectedAudit] = useState(null);
   if (loading) return <div style={{ padding: 32, color: C.steel }}>Loading...</div>;
+
+  if (selectedAudit) {
+    // Refresh against current audits prop in case of upstream updates
+    const fresh = audits.find((a) => a.id === selectedAudit.id) || selectedAudit;
+    return <EngagementOrbital audit={fresh} onBack={() => setSelectedAudit(null)} />;
+  }
 
   return (
     <>
@@ -1313,8 +1320,13 @@ function AuditsView({ audits, controls, auditors, loading, onRefresh }) {
 
           return (
             <div key={audit.id} style={{ marginBottom: 32 }}>
-              {/* Audit Header Card */}
-              <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "24px 28px", marginBottom: 16 }}>
+              {/* Audit Header Card — click to open Engagement Orbital */}
+              <div
+                onClick={() => setSelectedAudit(audit)}
+                style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "24px 28px", marginBottom: 16, cursor: "pointer", transition: "border-color 150ms ease" }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.copper; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.border; }}
+              >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
@@ -1426,6 +1438,482 @@ function AuditsView({ audits, controls, auditors, loading, onRefresh }) {
             </div>
           );
         })}
+      </div>
+    </>
+  );
+}
+
+// ── Engagement Orbital: full-screen detail view for a single audit ──
+
+function EngagementOrbital({ audit, onBack }) {
+  const [team, setTeam] = useState([]);
+  const [scope, setScope] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(null);
+  const [hoveredNode, setHoveredNode] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const [teamRes, scopeRes] = await Promise.all([
+          fetch(`/api/audits/${audit.id}/team`).then((r) => {
+            if (!r.ok) throw new Error(`GET /api/audits/${audit.id}/team failed: ${r.status} ${r.statusText}`);
+            return r.json();
+          }),
+          fetch(`/api/audits/${audit.id}/scope`).then((r) => {
+            if (!r.ok) throw new Error(`GET /api/audits/${audit.id}/scope failed: ${r.status} ${r.statusText}`);
+            return r.json();
+          }),
+        ]);
+        if (cancelled) return;
+        setTeam(teamRes.team || []);
+        setScope(scopeRes.scope || []);
+      } catch (err) {
+        console.error("EngagementOrbital fetch failed:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [audit.id]);
+
+  function formatMonth(d) {
+    if (!d) return "—";
+    const date = new Date(d);
+    const m = date.toLocaleDateString("en-US", { month: "short" });
+    const y = date.getFullYear().toString().slice(-2);
+    return `${m} '${y}`;
+  }
+
+  // Derived values for orbital nodes
+  const distinctAreas = new Set(scope.map((s) => s.control?.process?.processArea).filter(Boolean)).size;
+  const totalBudget = team.reduce((sum, t) => sum + (t.budgetHours || 0), 0);
+  const leadFirstName = audit.leadAuditor?.auditorName?.split(" ")[0] || "—";
+
+  // Orbital geometry — per task spec: center (350, 250), orbital radius 180, center r 52, node r 38
+  const cx = 350, cy = 250, orbitalR = 180, centerR = 52, nodeR = 38;
+  const nodeDefs = [
+    { angle: -90, icon: "◈", label: "Lead Auditor",  value: leadFirstName },
+    { angle: -30, icon: "⬡", label: "Team",          value: `${team.length} members` },
+    { angle: 30,  icon: "▦", label: "Controls",      value: `${scope.length} in scope` },
+    { angle: 90,  icon: "⇄", label: "Process Areas", value: `${distinctAreas} areas` },
+    { angle: 150, icon: "◐", label: "Budget",        value: `${totalBudget}h` },
+    { angle: 210, icon: "△", label: "Timeline",      value: `${formatMonth(audit.startDate)} → ${formatMonth(audit.endDate)}` },
+  ];
+  const nodes = nodeDefs.map((n) => {
+    const a = (n.angle * Math.PI) / 180;
+    return {
+      ...n,
+      x: cx + orbitalR * Math.cos(a),
+      y: cy + orbitalR * Math.sin(a),
+      lineStart: [cx + centerR * Math.cos(a), cy + centerR * Math.sin(a)],
+    };
+  });
+
+  // Center node text — abbreviated to fit the 104px diameter at 11px font
+  const abbrevName =
+    audit.auditName && audit.auditName.length > 20
+      ? audit.auditName.slice(0, 14) + "…"
+      : audit.auditName || "—";
+
+  // Download logic reused from GenerateView pattern
+  function handleDownload(type, extra) {
+    setDownloading(type);
+    const url = `/api/generate/download?type=${type}&companyId=CO-DDL${extra || ""}`;
+    const a = document.createElement("a");
+    a.href = url;
+    a.click();
+    setTimeout(() => setDownloading(null), 2000);
+  }
+
+  const firstAreaForWalkthrough = scope[0]?.control?.process?.processArea;
+
+  return (
+    <>
+      {/* Custom header — back button + title + status badge (not reusing Header for layout control) */}
+      <div style={{ padding: "20px 32px 16px", borderBottom: `1px solid ${C.border}` }}>
+        <button
+          onClick={onBack}
+          style={{
+            background: "none",
+            border: "none",
+            color: C.copper,
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: 11,
+            cursor: "pointer",
+            padding: "4px 0 12px",
+            letterSpacing: "0.06em",
+            display: "block",
+          }}
+        >
+          ← Engagements
+        </button>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 16 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 22, fontWeight: 700, color: C.cream, lineHeight: 1.2 }}>
+              {audit.auditName}
+            </div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.steel, marginTop: 4, letterSpacing: "0.05em" }}>
+              {audit.auditId} · {fmtEnum(audit.auditType) || "—"}
+            </div>
+          </div>
+          <Badge bg={AUDIT_BG[audit.status] || "#E5E7EB"}>{fmtEnum(audit.status) || "—"}</Badge>
+        </div>
+      </div>
+
+      <div style={{ padding: "24px 32px 48px" } /* af-content-pad */}>
+        {/* Orbital SVG */}
+        <svg viewBox="0 0 700 500" style={{ width: "100%", maxWidth: 700, display: "block", margin: "0 auto 24px" }}>
+          {/* Connecting lines */}
+          {nodes.map((n, i) => (
+            <line
+              key={`line-${i}`}
+              x1={n.lineStart[0]}
+              y1={n.lineStart[1]}
+              x2={n.x}
+              y2={n.y}
+              stroke={C.border}
+              strokeWidth="1"
+              strokeDasharray="4 4"
+            />
+          ))}
+
+          {/* Center node */}
+          <circle cx={cx} cy={cy} r={centerR} fill={C.card} stroke={C.crimson} strokeWidth="2" />
+          <text
+            x={cx}
+            y={cy - 4}
+            textAnchor="middle"
+            fontFamily="'Space Grotesk', sans-serif"
+            fontSize="11"
+            fontWeight="700"
+            fill={C.cream}
+          >
+            {abbrevName}
+          </text>
+          <text
+            x={cx}
+            y={cy + 14}
+            textAnchor="middle"
+            fontFamily="'JetBrains Mono', monospace"
+            fontSize="9"
+            fill={C.copper}
+            letterSpacing="0.1em"
+          >
+            {audit.status || "—"}
+          </text>
+
+          {/* Surrounding nodes */}
+          {nodes.map((n, i) => (
+            <g
+              key={`node-${i}`}
+              onMouseEnter={() => setHoveredNode(i)}
+              onMouseLeave={() => setHoveredNode(null)}
+              style={{ cursor: "default" }}
+            >
+              <circle
+                cx={n.x}
+                cy={n.y}
+                r={nodeR}
+                fill={C.card}
+                stroke={hoveredNode === i ? C.copper : C.border}
+                strokeWidth={hoveredNode === i ? 2 : 1}
+                style={{ transition: "stroke 150ms ease, stroke-width 150ms ease" }}
+              />
+              <text
+                x={n.x}
+                y={n.y - 8}
+                textAnchor="middle"
+                fontSize="16"
+                fill={C.cream}
+                fontFamily="'JetBrains Mono', monospace"
+              >
+                {n.icon}
+              </text>
+              <text
+                x={n.x}
+                y={n.y + 12}
+                textAnchor="middle"
+                fontFamily="'JetBrains Mono', monospace"
+                fontSize="10"
+                fill={C.cream}
+                fontWeight="600"
+              >
+                {n.value}
+              </text>
+              <text
+                x={n.x}
+                y={n.y + nodeR + 16}
+                textAnchor="middle"
+                fontFamily="'JetBrains Mono', monospace"
+                fontSize="8"
+                fill={C.steel}
+                letterSpacing="0.1em"
+              >
+                {n.label.toUpperCase()}
+              </text>
+            </g>
+          ))}
+        </svg>
+
+        {loading && (
+          <div
+            style={{
+              textAlign: "center",
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 11,
+              color: C.steel,
+              marginBottom: 24,
+            }}
+          >
+            Loading team and scope...
+          </div>
+        )}
+
+        {/* Three panels */}
+        <div
+          className="af-breakdowns-grid"
+          style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}
+        >
+          {/* Panel 1 — Team Roster */}
+          <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "20px 24px" }}>
+            <div
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 10,
+                color: C.copper,
+                letterSpacing: "0.12em",
+                marginBottom: 14,
+                textTransform: "uppercase",
+                fontWeight: 700,
+              }}
+            >
+              Team Roster
+            </div>
+            {team.length === 0 ? (
+              <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 11, color: C.steel, fontStyle: "italic" }}>
+                {loading ? "Loading..." : "No team assigned"}
+              </div>
+            ) : (
+              team.map((m) => (
+                <div
+                  key={m.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    padding: "8px 0",
+                    borderBottom: `1px solid ${C.borderLight}`,
+                  }}
+                >
+                  <div
+                    style={{
+                      flex: 1,
+                      fontFamily: "'Source Serif 4', serif",
+                      fontSize: 12,
+                      color: C.cream,
+                      minWidth: 0,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {m.auditor?.auditorName || "—"}
+                  </div>
+                  <Badge bg={ROLE_BG[m.teamRole] || "#E5E7EB"}>{m.teamRole || "—"}</Badge>
+                  <div
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 10,
+                      color: C.steel,
+                      minWidth: 42,
+                      textAlign: "right",
+                    }}
+                  >
+                    {m.budgetHours ? `${m.budgetHours}h` : "—"}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Panel 2 — Controls in Scope */}
+          <div
+            style={{
+              background: C.card,
+              border: `1px solid ${C.border}`,
+              borderRadius: 8,
+              padding: "20px 24px",
+              maxHeight: 480,
+              overflowY: "auto",
+            }}
+          >
+            <div
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 10,
+                color: C.copper,
+                letterSpacing: "0.12em",
+                marginBottom: 14,
+                textTransform: "uppercase",
+                fontWeight: 700,
+              }}
+            >
+              Controls in Scope
+            </div>
+            {scope.length === 0 ? (
+              <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 11, color: C.steel, fontStyle: "italic" }}>
+                {loading ? "Loading..." : "No controls in scope"}
+              </div>
+            ) : (
+              scope.map((s) => (
+                <div key={s.id} style={{ padding: "8px 0", borderBottom: `1px solid ${C.borderLight}` }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
+                    <span
+                      style={{
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: 11,
+                        color: C.copper,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {s.control?.controlId || "—"}
+                    </span>
+                    <Badge bg={s.inScope ? "#D1FAE5" : "#FECACA"}>
+                      {s.scopeDecision ? fmtEnum(s.scopeDecision) : s.inScope ? "In Scope" : "Out"}
+                    </Badge>
+                  </div>
+                  <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 11, color: C.steel, lineHeight: 1.4 }}>
+                    {s.control?.description
+                      ? s.control.description.length > 100
+                        ? s.control.description.slice(0, 100) + "…"
+                        : s.control.description
+                      : "—"}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Panel 3 — Engagement Details + Generate */}
+          <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "20px 24px" }}>
+            <div
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 10,
+                color: C.copper,
+                letterSpacing: "0.12em",
+                marginBottom: 14,
+                textTransform: "uppercase",
+                fontWeight: 700,
+              }}
+            >
+              Engagement Details
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              {[
+                { label: "Type",   value: fmtEnum(audit.auditType) || "—" },
+                { label: "Status", value: fmtEnum(audit.status) || "—" },
+                { label: "Period", value: audit.period?.periodLabel || "—" },
+                { label: "Start",  value: formatMonth(audit.startDate) },
+                { label: "End",    value: formatMonth(audit.endDate) },
+              ].map((row) => (
+                <div
+                  key={row.label}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    padding: "5px 0",
+                    borderBottom: `1px solid ${C.borderLight}`,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 9,
+                      color: C.steel,
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {row.label}
+                  </span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.cream }}>
+                    {row.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+            {audit.methodology && (
+              <div style={{ marginBottom: 16 }}>
+                <div
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: 9,
+                    color: C.steel,
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    marginBottom: 6,
+                  }}
+                >
+                  Methodology
+                </div>
+                <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 11, color: C.cream, lineHeight: 1.5 }}>
+                  {audit.methodology.length > 180
+                    ? audit.methodology.slice(0, 180) + "…"
+                    : audit.methodology}
+                </div>
+              </div>
+            )}
+            <div style={{ paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
+              <div
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: 9,
+                  color: C.copper,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  marginBottom: 10,
+                  fontWeight: 700,
+                }}
+              >
+                Generate
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                {[
+                  { label: "RCM",         type: "RCM",         extra: "" },
+                  { label: "MCL",         type: "MCL",         extra: "" },
+                  { label: "Walkthrough", type: "WALKTHROUGH", extra: firstAreaForWalkthrough ? `&processArea=${encodeURIComponent(firstAreaForWalkthrough)}` : "" },
+                  { label: "Audit Plan",  type: "AUDIT_PLAN",  extra: `&auditId=${audit.auditId}` },
+                ].map((btn) => (
+                  <button
+                    key={btn.type}
+                    onClick={() => handleDownload(btn.type, btn.extra)}
+                    disabled={downloading === btn.type}
+                    style={{
+                      padding: "8px 12px",
+                      background: downloading === btn.type ? "rgba(196,154,60,0.2)" : "transparent",
+                      color: C.copper,
+                      border: `1px solid ${C.copper}`,
+                      borderRadius: 6,
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontSize: 11,
+                      fontWeight: 600,
+                      cursor: downloading === btn.type ? "wait" : "pointer",
+                      letterSpacing: "0.02em",
+                    }}
+                  >
+                    {downloading === btn.type ? "…" : `↓ ${btn.label}`}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );
