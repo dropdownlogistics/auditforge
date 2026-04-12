@@ -1,10 +1,16 @@
-// AuditForge — Seed Data: Dropdown Logistics CAE v1.3
+// AuditForge — Seed Data: Dropdown Logistics CAE v1.4
 // Real data. Real company. Eat your own cooking.
 // Run: node prisma/seed.js  (or `npx prisma db seed`)
 //
-// Merged 2026-04-11: seed-v03.js (Dim_ControlType + lifecycle wiring,
-// CR-AUDITFORGE-001 Item 2) and seed-v04.js (Auditor + Audit + scope,
-// CR-AUDITFORGE-004) folded in. Both source files deleted.
+// History:
+//   2026-04-11 — Merged seed-v03.js (Dim_ControlType + lifecycle wiring,
+//                CR-AUDITFORGE-001 Item 2) and seed-v04.js (Auditor + Audit
+//                + scope, CR-AUDITFORGE-004). Source files deleted.
+//   2026-04-11 — Removed the merged v04 audit engagement block (AUD-DK-001
+//                auditor + AUD-2025-001 base audit + scope) after the DB
+//                was cleaned of the legacy AUD-DK-001 duplicate. Audit
+//                engagement layer now seeds exclusively via archived
+//                scripts under _build-history/.
 
 require("dotenv/config");
 const { PrismaClient } = require("@prisma/client");
@@ -434,73 +440,11 @@ async function main() {
   });
   console.log("Set DDL controls to ACTIVE lifecycle");
 
-  // ============================================================
-  // AUDIT ENGAGEMENT LAYER (merged from seed-v04.js, 2026-04-11)
-  // CR-AUDITFORGE-004 — Dim_Auditor + Fact_Audit + Bridge_Audit_Control
-  // ============================================================
-  const baseAuditor = await prisma.auditor.upsert({
-    where: { auditorId: "AUD-DK-001" },
-    update: {},
-    create: {
-      auditorId: "AUD-DK-001",
-      companyId: company.id,
-      auditorName: "Dave Kitchens",
-      title: "Chief Standards Officer",
-      department: "Governance",
-      email: null,
-      certifications: "CPA",
-      independence: "INTERNAL",
-      firm: "Dropdown Logistics",
-      isActive: true,
-    },
-  });
-  console.log(`Seeded auditor: ${baseAuditor.auditorName} (${baseAuditor.auditorId})`);
-
-  const baseAudit = await prisma.audit.upsert({
-    where: { auditId: "AUD-2025-001" },
-    update: {},
-    create: {
-      auditId: "AUD-2025-001",
-      companyId: company.id,
-      periodId: period.id,
-      auditName: "DDL CAE Annual Review — FY2025",
-      auditType: "INTERNAL",
-      status: "PLANNING",
-      leadAuditorId: baseAuditor.id,
-      startDate: new Date("2025-03-01"),
-      endDate: new Date("2025-12-31"),
-      scope: "Annual review of all DDL Control Audit Engine controls across Governance & Oversight, Prompt Governance, Context Integrity, and Human-AI Boundary domains. Full design and operating effectiveness testing of all 11 controls.",
-      methodology: "Design effectiveness: inquiry and inspection of governing documentation. Operating effectiveness: inspection of evidence and reperformance of control activities. Sample-based testing for recurring controls; full-population for ad hoc controls.",
-    },
-  });
-  console.log(`Seeded audit: ${baseAudit.auditName} (${baseAudit.auditId})`);
-
-  // Bridge_Audit_Control — all 11 DDL controls in scope of the base audit
-  const seededControls = await prisma.control.findMany({
-    where: { companyId: company.id, periodId: period.id },
-    orderBy: { controlId: "asc" },
-  });
-  let scopeCount = 0;
-  for (const ctrl of seededControls) {
-    const existing = await prisma.auditControlScope.findFirst({
-      where: { auditId: baseAudit.id, controlId: ctrl.id, validTo: null },
-    });
-    if (!existing) {
-      await prisma.auditControlScope.create({
-        data: {
-          auditId: baseAudit.id,
-          controlId: ctrl.id,
-          inScope: true,
-          scopeDecision: "IN_SCOPE",
-          scopeRationale: "All DDL CAE controls included in annual review scope.",
-          assignedToId: baseAuditor.id,
-          targetDate: new Date("2025-06-30"),
-        },
-      });
-      scopeCount++;
-    }
-  }
-  console.log(`Scoped ${scopeCount} controls to ${baseAudit.auditId}`);
+  // Note: the v04 audit engagement layer (AUD-DK-001 auditor + AUD-2025-001 base
+  // audit + scope rows) was removed 2026-04-11. The audit engagement layer is now
+  // seeded exclusively via the archived scripts under _build-history/ (seed-staff,
+  // seed-engagements, backfill-tokens). This base seed only creates the dimension
+  // and fact data — no auditors, no audits.
 
   console.log("\n=== SEED COMPLETE ===");
   console.log("Company:       Dropdown Logistics (CO-DDL)");
@@ -513,9 +457,8 @@ async function main() {
   console.log("Assertions:    9 (PCAOB)");
   console.log("Templates:     3 (RCM, MCL, Walkthrough)");
   console.log("ControlTypes:  9 (3 nature × 3 automation matrix)");
-  console.log("Auditors:      1 (Dave Kitchens, AUD-DK-001)");
-  console.log("Audits:        1 (AUD-2025-001, PLANNING status)");
-  console.log("AuditScope:    11 controls scoped to AUD-2025-001");
+  console.log("\nAudit engagement layer (auditors, audits, scope) must be seeded separately");
+  console.log("via _build-history/seed-staff.js + seed-engagements.js + backfill-tokens.js");
 }
 
 main()
