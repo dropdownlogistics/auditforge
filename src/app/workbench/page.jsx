@@ -4,9 +4,9 @@
 
 // ── WorkBench Light palette ──
 const W = {
-  fog:     "#F8FAFC",
+  fog:     "#F0F4F8",
   white:   "#FFFFFF",
-  cloud:   "#F1F5F9",
+  cloud:   "#E8EDF2",
   slate:   "#1E293B",
   iron:    "#334155",
   steel:   "#64748B",
