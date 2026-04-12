@@ -82,6 +82,7 @@ const mobileStyles = `
     .af-sidebar-search { display: none !important; }
     .af-sidebar-nav-label { display: none !important; }
     .af-sidebar-footer { display: none !important; }
+    .af-sidebar-signin { display: flex !important; align-items: center; }
     .af-nav-items {
       display: flex !important;
       flex-direction: row !important;
@@ -245,7 +246,7 @@ export default function AuditForgeApp() {
             </div>
           ))}
         </div>
-        <div className="af-sidebar-footer">
+        <div className="af-sidebar-signin">
             <a href="/sign-in" style={{ display:"flex", alignItems:"center", gap:8, padding:"8px 12px", borderRadius:6, background:"rgba(178,53,49,0.1)", border:"1px solid rgba(178,53,49,0.2)", textDecoration:"none", marginBottom:12 }}>
               <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:"#B23531", letterSpacing:"0.06em" }}>Sign In →</span>
             </a>
