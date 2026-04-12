@@ -74,6 +74,8 @@ const pageStyles = `
 
   @keyframes wbPulse { 0%, 100% { opacity: 0.92; } 50% { opacity: 1; } }
 
+  .wb-request-btn:hover { background: #2563EB !important; }
+
   @media (prefers-reduced-motion: reduce) {
     .wb-pulse-tile { animation: none !important; }
   }
@@ -321,6 +323,25 @@ export default function WorkBenchPage() {
           })}
         </div>
       </section>
+
+      {/* ── REQUEST A MODULE CTA ── */}
+      <div style={{ background: W.cloud, padding: "0 0 64px", textAlign: "center" }}>
+        <div style={{ maxWidth: 560, margin: "0 auto" }}>
+          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 18, fontWeight: 600, color: W.slate }}>
+            Don&apos;t see what you need?
+          </div>
+          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, color: W.steel, marginTop: 6 }}>
+            Tell us which module would make WorkBench worth it for you.
+          </div>
+          <a
+            className="wb-request-btn"
+            href="mailto:hello@dropdownlogistics.com?subject=WorkBench Module Request"
+            style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 20, background: W.sky, color: "#FFFFFF", fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 600, padding: "12px 28px", borderRadius: 8, textDecoration: "none", letterSpacing: "-0.01em" }}
+          >
+            Request a module →
+          </a>
+        </div>
+      </div>
 
       {/* ── SECTION 6 — PITCH ROW ── */}
       <div className="wb-pitch" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, padding: "64px 48px", maxWidth: 900, margin: "0 auto" }}>
