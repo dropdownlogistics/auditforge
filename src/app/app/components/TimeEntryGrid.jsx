@@ -40,7 +40,10 @@ export default function TimeEntryGrid({ audits, currentAuditor }) {
   useEffect(() => {
     if (!selectedAuditId || !currentAuditor) return;
     fetch(`/api/time-entries?auditId=${selectedAuditId}&auditorId=${currentAuditor.id}&monthTag=${monthTag}`)
-      .then(r => r.json())
+      .then(r => {
+        if (!r.ok) throw new Error(`GET /api/time-entries failed: ${r.status} ${r.statusText}`);
+        return r.json();
+      })
       .then(data => {
         setExisting(data.entries || []);
         setSummary(data.summary || null);
@@ -51,6 +54,9 @@ export default function TimeEntryGrid({ audits, currentAuditor }) {
           filled[key] = e.hours;
         });
         setGrid(filled);
+      })
+      .catch(err => {
+        console.error('TimeEntryGrid load fetch failed:', err);
       });
   }, [selectedAuditId, weekOf, currentAuditor]);
 
@@ -112,8 +118,14 @@ export default function TimeEntryGrid({ audits, currentAuditor }) {
         setSaved(true);
         // Refresh summary
         fetch(`/api/time-entries?auditId=${selectedAuditId}&auditorId=${currentAuditor.id}&monthTag=${monthTag}`)
-          .then(r => r.json())
-          .then(d => setSummary(d.summary));
+          .then(r => {
+            if (!r.ok) throw new Error(`GET /api/time-entries failed: ${r.status} ${r.statusText}`);
+            return r.json();
+          })
+          .then(d => setSummary(d.summary))
+          .catch(err => {
+            console.error('TimeEntryGrid summary refresh failed:', err);
+          });
       }
     } catch (e) {
       console.error(e);
