@@ -68,9 +68,6 @@ const INNER_MODULES = ["Controls", "Teams", "Time Tracking", "Analytics"];
 const INNER_ANGLES = [-90, 0, 90, 180];
 const OUTER_MODULES = MODULES.filter((m) => m.status === "COMING SOON");
 
-// Short labels for outer ring (fit inside r=28 circles)
-const SHORT_LABELS = { "HR & People": "HR", "Capacity Planning": "CAPACITY", "Ledger Cards": "LEDGER", "Client Portal": "CLIENT", "Integrations": "INTEGR." };
-
 // ── Injected styles ──
 const pageStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
@@ -189,7 +186,7 @@ function OrbitalDiagram() {
         {/* Outer ring nodes — positioned directly */}
         {liveOuter.map((n) => {
           const isHovered = hoveredNode === n.name;
-          const shortLabel = SHORT_LABELS[n.name] || n.name.toUpperCase();
+
           return (
             <g key={n.name} onMouseEnter={() => setHoveredNode(n.name)} style={{ cursor: "pointer" }}>
               <circle cx={n.x} cy={n.y} r={OC.outerNodeR} fill={isHovered ? "#FEF3C7" : W.amberBg} stroke={isHovered ? "#92400E" : W.amber} strokeWidth={isHovered ? 2 : 1} strokeDasharray="4 3" />
