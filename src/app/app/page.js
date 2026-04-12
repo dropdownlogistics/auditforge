@@ -254,7 +254,7 @@ export default function AuditForgeApp() {
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: C.slate, lineHeight: 1.6 }}>
             Dropdown Logistics<br />Chaos → Structured → Automated
           </div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: C.copper, marginTop: 8 }}>CO-DDL · FY2025 · v0.4</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: C.copper, marginTop: 8 }}>Dropdown Logistics · Demo · v0.4</div>
         </div>
       </nav>
 
