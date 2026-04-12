@@ -20,6 +20,44 @@ const AUDIT_BG = { PLANNING: "#DBEAFE", FIELDWORK: "#FEF3C7", REPORTING: "#E0E7F
 function fmtEnum(v) { return v ? v.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()) : ""; }
 function Badge({ children, bg }) { return <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 4, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 500, background: bg || "#F3F4F6", color: "#0D1B2A" }}>{children}</span>; }
 
+// ── Auditors view: constants + helpers ──
+const ROLE_BG = { PARTNER: "#FECACA", DIRECTOR: "#FED7AA", MANAGER: "#DBEAFE", SENIOR: "#D1FAE5", STAFF: "#E5E7EB" };
+const ROLE_ORDER = { PARTNER: 0, DIRECTOR: 1, MANAGER: 2, SENIOR: 3, STAFF: 4 };
+const TEAM_LABELS = {
+  AUD:  "Leadership",
+  ITGC: "IT General Controls",
+  GOV:  "Governance & Oversight",
+  FIN:  "Financial Reporting",
+  VND:  "Vendor & Third-Party",
+  HR:   "HR & Workforce",
+  COMM: "Communications & Ethics",
+  OPS:  "Operations & Change",
+  RI:   "Revenue Integrity",
+  DGA:  "Data Gov. & AI",
+};
+const STR_DIMS = [
+  { id: 1, label: "Leadership" },
+  { id: 2, label: "Technical" },
+  { id: 3, label: "Communication" },
+  { id: 4, label: "Judgment" },
+  { id: 5, label: "Methodology" },
+  { id: 6, label: "Independence" },
+  { id: 7, label: "Documentation" },
+  { id: 8, label: "Breadth" },
+];
+function teamFromAuditorId(auditorId) {
+  if (!auditorId) return "AUD";
+  const prefix = auditorId.split("-")[0];
+  return TEAM_LABELS[prefix] ? prefix : "AUD";
+}
+function parseTokens(str) {
+  if (!str) return [];
+  return str.split(",").map(t => t.trim()).filter(Boolean);
+}
+function AuditorsIcon({ size = 16 }) {
+  return <span style={{ fontSize: size, lineHeight: 1, display: "inline-block", fontFamily: "'JetBrains Mono', monospace", width: size, textAlign: "center" }}>◈</span>;
+}
+
 // ── Main App ──
 
 /* ── Mobile Responsive ─────────────────────────────────────── */
@@ -162,6 +200,7 @@ export default function AuditForgeApp() {
     { id: "risks", icon: AlertTriangle, label: "Risks" },
     { id: "processes", icon: Network, label: "Processes" },
     { id: "audits", icon: BookOpen, label: "Audits" },
+    { id: "auditors", icon: AuditorsIcon, label: "Auditors" },
     { id: "review", icon: ClipboardCheck, label: "Review" },
     { id: "generate", icon: FileOutput, label: "Generate" },
     { id: "import", icon: Upload, label: "Import" },
@@ -200,6 +239,7 @@ export default function AuditForgeApp() {
               <n.icon size={16} style={{ minWidth: 16 }} />
               {n.label}
               {n.id === "audits" && audits.length > 0 && <span className="af-nav-badge" style={{ marginLeft: "auto", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.copper }}>{audits.length}</span>}
+              {n.id === "auditors" && auditors.length > 0 && <span className="af-nav-badge" style={{ marginLeft: "auto", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.copper }}>{auditors.length}</span>}
             </div>
           ))}
         </div>
@@ -247,6 +287,7 @@ export default function AuditForgeApp() {
         {view === "risks" && <RisksView risks={risks} controls={controls} loading={loading} />}
         {view === "processes" && <ProcessesView processes={processes} controls={controls} loading={loading} />}
         {view === "audits" && <AuditsView audits={audits} controls={controls} auditors={auditors} loading={loading} onRefresh={async () => { const r = await fetch("/api/audits?companyId=CO-DDL"); const d = await r.json(); setAudits(d.audits || []); }} />}
+        {view === "auditors" && <AuditorsView auditors={auditors} loading={loading} />}
         {view === "review" && <ReviewView controls={controls} loading={loading} onRefresh={refetchControls} />}
         {view === "generate" && <GenerateView controls={controls} />}
         {view === "time" && (
@@ -1384,6 +1425,337 @@ function AuditsView({ audits, controls, auditors, loading, onRefresh }) {
           );
         })}
       </div>
+    </>
+  );
+}
+
+// ── Auditors: firm roster view with basketball card modal ──
+
+function StrengthDots({ tokens }) {
+  const set = new Set(parseTokens(tokens));
+  return (
+    <div style={{ display: "inline-flex", gap: 3 }}>
+      {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => {
+        const filled = set.has(`STR-0${i}`);
+        return (
+          <div
+            key={i}
+            style={{
+              width: 5,
+              height: 5,
+              borderRadius: "50%",
+              background: filled ? C.copper : "rgba(245,241,235,0.12)",
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function StrengthRadar({ strengthTokens, weaknessTokens }) {
+  const strSet = new Set(parseTokens(strengthTokens));
+  const wksSet = new Set(parseTokens(weaknessTokens));
+
+  const cx = 200, cy = 200, maxR = 130;
+  const scoreFor = (dimId) => {
+    if (strSet.has(`STR-0${dimId}`)) return 8;
+    if (wksSet.has(`WKS-0${dimId}`)) return 2;
+    return 5;
+  };
+  const angle = (i) => -Math.PI / 2 + i * (Math.PI / 4);
+  const xy = (r, a) => [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+
+  const rings = [2, 4, 6, 8].map((score) => {
+    const r = (score / 8) * maxR;
+    return STR_DIMS.map((_, i) => xy(r, angle(i)).join(",")).join(" ");
+  });
+
+  const axisEnds = STR_DIMS.map((_, i) => xy(maxR, angle(i)));
+
+  const dataPoints = STR_DIMS.map((dim, i) => {
+    const score = scoreFor(dim.id);
+    return {
+      score,
+      point: xy((score / 8) * maxR, angle(i)),
+      labelXY: xy(maxR + 22, angle(i)),
+    };
+  });
+
+  const polygonPoints = dataPoints.map((p) => p.point.join(",")).join(" ");
+
+  return (
+    <svg viewBox="0 0 400 400" style={{ width: "100%", maxWidth: 380, display: "block", margin: "0 auto" }}>
+      {rings.map((pts, i) => (
+        <polygon key={`ring-${i}`} points={pts} fill="none" stroke="rgba(245,241,235,0.08)" strokeWidth="1" />
+      ))}
+      {axisEnds.map(([x, y], i) => (
+        <line key={`axis-${i}`} x1={cx} y1={cy} x2={x} y2={y} stroke="rgba(245,241,235,0.08)" strokeWidth="1" />
+      ))}
+      <polygon points={polygonPoints} fill="rgba(178,53,49,0.22)" stroke={C.crimson} strokeWidth="2" />
+      {dataPoints.map((p, i) => (
+        <circle key={`pt-${i}`} cx={p.point[0]} cy={p.point[1]} r="3.5" fill={C.crimson} />
+      ))}
+      {dataPoints.map((p, i) => {
+        const [lx, ly] = p.labelXY;
+        const anchor = lx < cx - 5 ? "end" : lx > cx + 5 ? "start" : "middle";
+        return (
+          <text
+            key={`lbl-${i}`}
+            x={lx}
+            y={ly + 3}
+            fontSize="10"
+            fill={C.cream}
+            textAnchor={anchor}
+            fontFamily="'JetBrains Mono', monospace"
+          >
+            {STR_DIMS[i].label}
+          </text>
+        );
+      })}
+    </svg>
+  );
+}
+
+function AuditorCardModal({ auditor, onClose }) {
+  const strTokens = parseTokens(auditor.strengthTokens);
+  const wksTokens = parseTokens(auditor.weaknessTokens);
+  const teamKey = teamFromAuditorId(auditor.auditorId);
+  const teamLabel = TEAM_LABELS[teamKey] || teamKey;
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(13,27,42,0.85)",
+        zIndex: 1000,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backdropFilter: "blur(4px)",
+        padding: 20,
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: C.card,
+          borderLeft: `4px solid ${C.crimson}`,
+          borderRadius: 8,
+          padding: "32px 40px",
+          maxWidth: 720,
+          width: "100%",
+          maxHeight: "90vh",
+          overflowY: "auto",
+          position: "relative",
+        }}
+      >
+        <button
+          onClick={onClose}
+          aria-label="Close"
+          style={{
+            position: "absolute",
+            top: 14,
+            right: 18,
+            background: "none",
+            border: "none",
+            color: C.steel,
+            fontSize: 18,
+            cursor: "pointer",
+            padding: 4,
+            lineHeight: 1,
+          }}
+        >
+          ✕
+        </button>
+
+        {/* Header */}
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.copper, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 6 }}>
+            {auditor.auditorId}
+          </div>
+          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 24, fontWeight: 700, color: C.cream, marginBottom: 4 }}>
+            {auditor.auditorName}
+          </div>
+          <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 13, color: C.steel, marginBottom: 10 }}>
+            {auditor.title || "—"}
+          </div>
+          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>
+              {auditor.firm || "—"}
+            </span>
+            {auditor.certifications && (
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, padding: "3px 10px", borderRadius: 4, background: "rgba(196,154,60,0.15)", color: C.copper, fontWeight: 600, letterSpacing: "0.04em" }}>
+                {auditor.certifications}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Radar */}
+        <div style={{ marginBottom: 28 }}>
+          <div style={{ textAlign: "center", fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 12 }}>
+            Competency Profile · How am I getting better?
+          </div>
+          <StrengthRadar strengthTokens={auditor.strengthTokens} weaknessTokens={auditor.weaknessTokens} />
+        </div>
+
+        {/* Strengths + Gaps */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 24 }}>
+          <div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.green, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 10, paddingBottom: 6, borderBottom: `1px solid ${C.border}` }}>
+              Strengths
+            </div>
+            {strTokens.length > 0 ? (
+              strTokens.map((t) => {
+                const dimId = parseInt(t.replace("STR-", ""), 10);
+                const dim = STR_DIMS.find((d) => d.id === dimId);
+                return (
+                  <div key={t} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.cream, padding: "4px 0" }}>
+                    <span style={{ color: C.green, marginRight: 8 }}>●</span>
+                    {dim?.label || t}
+                  </div>
+                );
+              })
+            ) : (
+              <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 11, color: C.steel, fontStyle: "italic" }}>
+                No strengths flagged
+              </div>
+            )}
+          </div>
+          <div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.crimson, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 10, paddingBottom: 6, borderBottom: `1px solid ${C.border}` }}>
+              Gaps
+            </div>
+            {wksTokens.length > 0 ? (
+              wksTokens.map((t) => {
+                const dimId = parseInt(t.replace("WKS-", ""), 10);
+                const dim = STR_DIMS.find((d) => d.id === dimId);
+                return (
+                  <div key={t} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.cream, padding: "4px 0" }}>
+                    <span style={{ color: C.crimson, marginRight: 8 }}>○</span>
+                    {dim?.label || t}
+                  </div>
+                );
+              })
+            ) : (
+              <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 11, color: C.steel, fontStyle: "italic" }}>
+                No gaps flagged
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={{ display: "flex", gap: 8, paddingTop: 16, borderTop: `1px solid ${C.border}`, flexWrap: "wrap" }}>
+          <Badge bg={ROLE_BG[auditor.role] || "#E5E7EB"}>{auditor.role || "—"}</Badge>
+          <Badge bg="#DBEAFE">{auditor.independence || "—"}</Badge>
+          <Badge bg="#FEF3C7">{teamLabel}</Badge>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AuditorsView({ auditors, loading }) {
+  const [selected, setSelected] = useState(null);
+
+  if (loading) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 200, fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.steel }}>
+        Loading auditors...
+      </div>
+    );
+  }
+
+  // Group by team prefix in auditorId
+  const byTeam = {};
+  for (const a of auditors) {
+    const key = teamFromAuditorId(a.auditorId);
+    if (!byTeam[key]) byTeam[key] = [];
+    byTeam[key].push(a);
+  }
+  // Sort teams alphabetically by friendly label
+  const teamKeys = Object.keys(byTeam).sort((a, b) =>
+    (TEAM_LABELS[a] || a).localeCompare(TEAM_LABELS[b] || b)
+  );
+  // Sort within each team: role order, then auditorName
+  for (const key of teamKeys) {
+    byTeam[key].sort((a, b) => {
+      const ra = ROLE_ORDER[a.role] ?? 99;
+      const rb = ROLE_ORDER[b.role] ?? 99;
+      if (ra !== rb) return ra - rb;
+      return (a.auditorName || "").localeCompare(b.auditorName || "");
+    });
+  }
+
+  const thStyle = {
+    padding: "12px 16px",
+    textAlign: "left",
+    fontFamily: "'JetBrains Mono', monospace",
+    fontSize: 9,
+    color: C.steel,
+    letterSpacing: "0.1em",
+    textTransform: "uppercase",
+    fontWeight: 600,
+    borderBottom: `1px solid ${C.border}`,
+  };
+  const tdBase = {
+    padding: "12px 16px",
+    fontFamily: "'Source Serif 4', serif",
+    fontSize: 12,
+    color: C.cream,
+    borderBottom: `1px solid ${C.borderLight}`,
+  };
+
+  return (
+    <>
+      <Header title="Auditors" meta={`Firm roster · ${auditors.length} auditors · ${teamKeys.length} teams`} />
+      <div style={{ padding: "24px 32px 48px" } /* af-content-pad */}>
+        <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, overflow: "hidden" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr>
+                <th style={thStyle}>Name</th>
+                <th style={thStyle}>Title</th>
+                <th style={thStyle}>Certs</th>
+                <th style={thStyle}>Role</th>
+                <th style={thStyle}>Indep</th>
+                <th style={{ ...thStyle, textAlign: "center" }}>Coverage</th>
+              </tr>
+            </thead>
+            <tbody>
+              {teamKeys.flatMap((key) => [
+                <tr key={`hdr-${key}`} style={{ background: "rgba(196,154,60,0.08)", borderTop: `1px solid ${C.border}` }}>
+                  <td colSpan={6} style={{ padding: "10px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.copper, letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 700 }}>
+                    {TEAM_LABELS[key] || key}
+                    <span style={{ color: C.steel, marginLeft: 10, fontWeight: 400 }}>· {byTeam[key].length}</span>
+                  </td>
+                </tr>,
+                ...byTeam[key].map((a) => (
+                  <tr
+                    key={a.id}
+                    onClick={() => setSelected(a)}
+                    style={{ cursor: "pointer", transition: "background 120ms ease" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(245,241,235,0.03)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                  >
+                    <td style={tdBase}>{a.auditorName || "—"}</td>
+                    <td style={{ ...tdBase, color: C.steel, fontSize: 11 }}>{a.title || "—"}</td>
+                    <td style={{ ...tdBase, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.copper }}>{a.certifications || "—"}</td>
+                    <td style={tdBase}><Badge bg={ROLE_BG[a.role] || "#E5E7EB"}>{a.role || "—"}</Badge></td>
+                    <td style={{ ...tdBase, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>{a.independence || "—"}</td>
+                    <td style={{ ...tdBase, textAlign: "center" }}><StrengthDots tokens={a.strengthTokens} /></td>
+                  </tr>
+                )),
+              ])}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {selected && <AuditorCardModal auditor={selected} onClose={() => setSelected(null)} />}
     </>
   );
 }
