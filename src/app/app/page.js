@@ -1670,9 +1670,17 @@ function AuditorsView({ auditors, loading }) {
     );
   }
 
+  // Deduplicate by auditorName, keeping the most senior role (lowest ROLE_ORDER)
+  const dedupMap = new Map();
+  for (const a of auditors) {
+    const prev = dedupMap.get(a.auditorName);
+    if (!prev || (ROLE_ORDER[a.role] ?? 99) < (ROLE_ORDER[prev.role] ?? 99)) dedupMap.set(a.auditorName, a);
+  }
+  const roster = [...dedupMap.values()];
+
   // Group by team prefix in auditorId
   const byTeam = {};
-  for (const a of auditors) {
+  for (const a of roster) {
     const key = teamFromAuditorId(a.auditorId);
     if (!byTeam[key]) byTeam[key] = [];
     byTeam[key].push(a);
@@ -1712,7 +1720,7 @@ function AuditorsView({ auditors, loading }) {
 
   return (
     <>
-      <Header title="Auditors" meta={`Firm roster · ${auditors.length} auditors · ${teamKeys.length} teams`} />
+      <Header title="Auditors" meta={`Firm roster · ${roster.length} auditors · ${teamKeys.length} teams`} />
       <div style={{ padding: "24px 32px 48px" } /* af-content-pad */}>
         <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, overflow: "hidden" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
