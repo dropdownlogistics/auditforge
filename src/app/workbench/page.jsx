@@ -84,7 +84,7 @@ const pageStyles = `
   @media (max-width: 768px) {
     .wb-nav { padding: 16px !important; flex-wrap: wrap; gap: 12px !important; }
     .wb-hero { padding: 40px 16px !important; }
-    .wb-headline { font-size: 32px !important; }
+    .wb-headline { font-size: 40px !important; }
     .wb-subhead { font-size: 14px !important; }
     .wb-chip-row { flex-wrap: wrap !important; justify-content: center !important; }
     .wb-svg-wrap { padding: 0 12px 48px !important; }
@@ -165,7 +165,7 @@ function OrbitalDiagram() {
           const na = liveNodeMap[a], nb = liveNodeMap[b];
           if (!na || !nb) return null;
           const isHighlighted = hoveredNode && (a === hoveredNode || b === hoveredNode);
-          return <line key={`conn-${i}`} x1={na.x} y1={na.y} x2={nb.x} y2={nb.y} stroke={isHighlighted ? "rgba(59,130,246,0.5)" : "rgba(59,130,246,0.12)"} strokeWidth={isHighlighted ? 1.5 : 1} />;
+          return <line key={`conn-${i}`} x1={na.x} y1={na.y} x2={nb.x} y2={nb.y} stroke={isHighlighted ? "rgba(59,130,246,0.5)" : "rgba(59,130,246,0.08)"} strokeWidth={isHighlighted ? 1.5 : 1} />;
         })}
 
         {/* Center hub */}
@@ -194,7 +194,7 @@ function OrbitalDiagram() {
             <g key={n.name} onMouseEnter={() => setHoveredNode(n.name)} style={{ cursor: "pointer" }}>
               <circle cx={n.x} cy={n.y} r={OC.outerNodeR} fill={isHovered ? "#FEF3C7" : W.amberBg} stroke={isHovered ? "#92400E" : W.amber} strokeWidth={isHovered ? 2 : 1} strokeDasharray="4 3" />
               <text x={n.x} y={n.y - 3} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="13" fill={W.amber}>{n.icon}</text>
-              <text x={n.x} y={n.y + 14} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="6" fill={W.steel} letterSpacing="0.08em">{shortLabel}</text>
+
             </g>
           );
         })}
@@ -295,7 +295,6 @@ export default function WorkBenchPage() {
       {/* ── SECTION 4 — ORBITAL ── */}
       <section className="wb-orbital-section" style={{ background: W.white, padding: "80px 48px", textAlign: "center" }}>
         <div style={{ maxWidth: 600, margin: "0 auto 48px" }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: W.sky, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 12, fontWeight: 500 }}>ONE DATA LAYER</div>
           <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 36, fontWeight: 700, color: W.slate, letterSpacing: "-0.02em", margin: "0 0 12px" }}>One layer. Every module connected.</h2>
           <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 16, color: W.steel, lineHeight: 1.5 }}>You don&apos;t configure the connections. They&apos;re already there.</p>
         </div>
@@ -329,8 +328,8 @@ export default function WorkBenchPage() {
       {/* ── SECTION 6 — PITCH ROW ── */}
       <div className="wb-pitch" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, padding: "64px 48px", maxWidth: 900, margin: "0 auto" }}>
         <div style={{ background: W.white, border: `1px solid ${W.mist}`, borderRadius: 10, padding: "40px 36px" }}>
-          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 26, fontWeight: 700, color: W.slate, marginBottom: 14 }}>One layer.</div>
-          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, color: W.steel, lineHeight: 1.6, margin: 0 }}>Every module runs on the same data layer. Time feeds payroll. Controls feed analytics. Teams feed capacity. You don&apos;t configure the connections — they&apos;re already there.</p>
+          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 26, fontWeight: 700, color: W.slate, marginBottom: 14 }}>Your pace.</div>
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, color: W.steel, lineHeight: 1.6, margin: 0 }}>Start with Time Tracking. Add Payroll when you&apos;re ready. Add Invoicing after that. The connections are already wired. You just decide the order.</p>
         </div>
         <div style={{ background: W.skyBg, border: "1px solid rgba(59,130,246,0.2)", borderRadius: 10, padding: "40px 36px" }}>
           <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 26, fontWeight: 700, color: W.slate, marginBottom: 14 }}>Pick what fits.</div>
