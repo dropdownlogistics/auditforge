@@ -38,11 +38,11 @@ const TEAM_LABELS = {
 const STR_DIMS = [
   { id: 1, label: "Leadership" },
   { id: 2, label: "Technical" },
-  { id: 3, label: "Communication" },
+  { id: 3, label: "Comms" },
   { id: 4, label: "Judgment" },
   { id: 5, label: "Methodology" },
   { id: 6, label: "Independence" },
-  { id: 7, label: "Documentation" },
+  { id: 7, label: "Docs" },
   { id: 8, label: "Breadth" },
 ];
 function teamFromAuditorId(auditorId) {
@@ -146,6 +146,8 @@ const mobileStyles = `
       padding: 8px 12px !important;
     }
   }
+  @keyframes afFadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes afScaleIn { from { transform: scale(0.96); } to { transform: scale(1); } }
 `;
 
 
@@ -1458,6 +1460,7 @@ function StrengthRadar({ strengthTokens, weaknessTokens }) {
   const wksSet = new Set(parseTokens(weaknessTokens));
 
   const cx = 200, cy = 200, maxR = 130;
+  // STR wins: a dimension flagged as both strength and gap scores as a strength
   const scoreFor = (dimId) => {
     if (strSet.has(`STR-0${dimId}`)) return 8;
     if (wksSet.has(`WKS-0${dimId}`)) return 2;
@@ -1520,6 +1523,9 @@ function StrengthRadar({ strengthTokens, weaknessTokens }) {
 function AuditorCardModal({ auditor, onClose }) {
   const strTokens = parseTokens(auditor.strengthTokens);
   const wksTokens = parseTokens(auditor.weaknessTokens);
+  // STR wins: filter gaps whose STR counterpart is already flagged as a strength
+  const strDimIds = new Set(strTokens.map((t) => parseInt(t.replace("STR-", ""), 10)));
+  const activeGaps = wksTokens.filter((t) => !strDimIds.has(parseInt(t.replace("WKS-", ""), 10)));
   const teamKey = teamFromAuditorId(auditor.auditorId);
   const teamLabel = TEAM_LABELS[teamKey] || teamKey;
 
@@ -1536,6 +1542,7 @@ function AuditorCardModal({ auditor, onClose }) {
         justifyContent: "center",
         backdropFilter: "blur(4px)",
         padding: 20,
+        animation: "afFadeIn 180ms ease-out",
       }}
     >
       <div
@@ -1550,6 +1557,7 @@ function AuditorCardModal({ auditor, onClose }) {
           maxHeight: "90vh",
           overflowY: "auto",
           position: "relative",
+          animation: "afScaleIn 180ms ease-out",
         }}
       >
         <button
@@ -1629,8 +1637,8 @@ function AuditorCardModal({ auditor, onClose }) {
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.crimson, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 10, paddingBottom: 6, borderBottom: `1px solid ${C.border}` }}>
               Gaps
             </div>
-            {wksTokens.length > 0 ? (
-              wksTokens.map((t) => {
+            {activeGaps.length > 0 ? (
+              activeGaps.map((t) => {
                 const dimId = parseInt(t.replace("WKS-", ""), 10);
                 const dim = STR_DIMS.find((d) => d.id === dimId);
                 return (
@@ -1661,6 +1669,13 @@ function AuditorCardModal({ auditor, onClose }) {
 
 function AuditorsView({ auditors, loading }) {
   const [selected, setSelected] = useState(null);
+  const [hovered, setHovered] = useState(null); // { auditor, top }
+  const hoveredTop2 = hovered
+    ? parseTokens(hovered.auditor.strengthTokens).slice(0, 2).map((t) => {
+        const dimId = parseInt(t.replace("STR-", ""), 10);
+        return STR_DIMS.find((d) => d.id === dimId)?.label || t;
+      })
+    : [];
 
   if (loading) {
     return (
@@ -1747,8 +1762,15 @@ function AuditorsView({ auditors, loading }) {
                     key={a.id}
                     onClick={() => setSelected(a)}
                     style={{ cursor: "pointer", transition: "background 120ms ease" }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(245,241,235,0.03)"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "rgba(245,241,235,0.03)";
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setHovered({ auditor: a, top: rect.top + rect.height / 2 });
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "transparent";
+                      setHovered(null);
+                    }}
                   >
                     <td style={tdBase}>{a.auditorName || "—"}</td>
                     <td style={{ ...tdBase, color: C.steel, fontSize: 11 }}>{a.title || "—"}</td>
@@ -1764,6 +1786,60 @@ function AuditorsView({ auditors, loading }) {
         </div>
       </div>
       {selected && <AuditorCardModal auditor={selected} onClose={() => setSelected(null)} />}
+      {hovered && (
+        <div
+          style={{
+            position: "fixed",
+            top: hovered.top,
+            right: 48,
+            transform: "translateY(-50%)",
+            background: C.card,
+            border: `1px solid ${C.border}`,
+            borderLeft: `3px solid ${C.crimson}`,
+            borderRadius: 6,
+            padding: "12px 16px",
+            minWidth: 240,
+            maxWidth: 280,
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: 11,
+            color: C.cream,
+            zIndex: 500,
+            pointerEvents: "none",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+            animation: "afFadeIn 140ms ease-out",
+          }}
+        >
+          <div style={{ marginBottom: 10 }}>
+            <Badge bg={ROLE_BG[hovered.auditor.role] || "#E5E7EB"}>{hovered.auditor.role || "—"}</Badge>
+          </div>
+          <div style={{ fontSize: 9, color: C.green, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4 }}>
+            Top Strengths
+          </div>
+          <div style={{ marginBottom: 10 }}>
+            {hoveredTop2.length > 0 ? (
+              hoveredTop2.map((label, i) => (
+                <div key={i} style={{ padding: "2px 0", fontSize: 10 }}>
+                  <span style={{ color: C.green, marginRight: 6 }}>●</span>
+                  {label}
+                </div>
+              ))
+            ) : (
+              <div style={{ color: C.steel, fontStyle: "italic", fontSize: 10 }}>None flagged</div>
+            )}
+          </div>
+          {hovered.auditor.certifications && (
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ fontSize: 9, color: C.copper, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 3 }}>
+                Certifications
+              </div>
+              <div style={{ color: C.copper, fontSize: 10 }}>{hovered.auditor.certifications}</div>
+            </div>
+          )}
+          <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 8, marginTop: 4, color: C.steel, fontSize: 9, letterSpacing: "0.06em" }}>
+            Click for full profile →
+          </div>
+        </div>
+      )}
     </>
   );
 }
