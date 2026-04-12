@@ -3,7 +3,7 @@
 // Standalone public marketing page. No app shell, no auth.
 // WorkBench Light design system — light mode only.
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 // ── WorkBench Light palette ──
 const W = {
@@ -66,22 +66,7 @@ function polar(cx, cy, r, angleDeg) {
 
 const INNER_MODULES = ["Controls", "Teams", "Time Tracking", "Analytics"];
 const INNER_ANGLES = [-90, 0, 90, 180];
-const innerNodes = INNER_MODULES.map((name, i) => {
-  const m = MODULES.find((mod) => mod.name === name);
-  const [x, y] = polar(OC.cx, OC.cy, OC.innerR, INNER_ANGLES[i]);
-  return { ...m, x, y, angle: INNER_ANGLES[i] };
-});
-
 const OUTER_MODULES = MODULES.filter((m) => m.status === "COMING SOON");
-const outerNodes = OUTER_MODULES.map((m, i) => {
-  const angle = -90 + i * (360 / 13);
-  const [x, y] = polar(OC.cx, OC.cy, OC.outerR, angle);
-  return { ...m, x, y, angle };
-});
-
-const allOrbitalNodes = [...innerNodes, ...outerNodes];
-const nodeMap = {};
-allOrbitalNodes.forEach((n) => { nodeMap[n.name] = n; });
 
 // Short labels for outer ring (fit inside r=28 circles)
 const SHORT_LABELS = { "HR & People": "HR", "Capacity Planning": "CAPACITY", "Ledger Cards": "LEDGER", "Client Portal": "CLIENT", "Integrations": "INTEGR." };
@@ -91,12 +76,9 @@ const pageStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
   @keyframes wbPulse { 0%, 100% { opacity: 0.92; } 50% { opacity: 1; } }
-  @keyframes wbRotateCW  { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-  @keyframes wbRotateCCW { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
 
   @media (prefers-reduced-motion: reduce) {
-    .wb-pulse-tile, .wb-orbital-inner, .wb-orbital-outer,
-    .wb-inner-content, .wb-outer-content { animation: none !important; }
+    .wb-pulse-tile { animation: none !important; }
   }
 
   @media (max-width: 768px) {
@@ -133,11 +115,109 @@ function WBMark({ size = 36 }) {
   );
 }
 
+// ── Orbital diagram — isolated component with its own rAF rotation loop ──
+function OrbitalDiagram() {
+  const [innerAngle, setInnerAngle] = useState(0);
+  const [outerAngle, setOuterAngle] = useState(0);
+  const [hoveredNode, setHoveredNode] = useState(null);
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+  const startRef = useRef(null);
+  const rafRef = useRef(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (mq.matches) return; // respect reduced-motion: render at base positions
+
+    function tick(ts) {
+      if (!startRef.current) startRef.current = ts;
+      const elapsed = ts - startRef.current;
+      setInnerAngle((elapsed / 60000) * 360);
+      setOuterAngle(-(elapsed / 90000) * 360);
+      rafRef.current = requestAnimationFrame(tick);
+    }
+    rafRef.current = requestAnimationFrame(tick);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, []);
+
+  // Compute live node positions from current rotation angles
+  const liveInner = INNER_MODULES.map((name, i) => {
+    const m = MODULES.find((mod) => mod.name === name);
+    const [x, y] = polar(OC.cx, OC.cy, OC.innerR, INNER_ANGLES[i] + innerAngle);
+    return { ...m, x, y };
+  });
+  const liveOuter = OUTER_MODULES.map((m, i) => {
+    const [x, y] = polar(OC.cx, OC.cy, OC.outerR, -90 + i * (360 / 13) + outerAngle);
+    return { ...m, x, y };
+  });
+  const liveNodeMap = {};
+  [...liveInner, ...liveOuter].forEach((n) => { liveNodeMap[n.name] = n; });
+
+  function getConnectionsFor(name) {
+    return CONNECTIONS.filter(([a, b]) => a === name || b === name).map(([a, b]) => (a === name ? b : a));
+  }
+
+  return (
+    <>
+      <svg viewBox="0 0 700 700" style={{ width: "100%", maxWidth: 700, display: "block", margin: "0 auto" }} onMouseMove={(e) => setTooltipPos({ x: e.clientX + 16, y: e.clientY + 16 })} onMouseLeave={() => setHoveredNode(null)}>
+        {/* Connection lines — use live positions so they track rotating nodes */}
+        {CONNECTIONS.map(([a, b], i) => {
+          const na = liveNodeMap[a], nb = liveNodeMap[b];
+          if (!na || !nb) return null;
+          const isHighlighted = hoveredNode && (a === hoveredNode || b === hoveredNode);
+          return <line key={`conn-${i}`} x1={na.x} y1={na.y} x2={nb.x} y2={nb.y} stroke={isHighlighted ? "rgba(59,130,246,0.5)" : "rgba(59,130,246,0.12)"} strokeWidth={isHighlighted ? 1.5 : 1} />;
+        })}
+
+        {/* Center hub */}
+        <circle cx={OC.cx} cy={OC.cy} r={OC.hubR} fill={W.skyBg} stroke={W.sky} strokeWidth="2" />
+        <text x={OC.cx} y={OC.cy - 4} textAnchor="middle" fontFamily="'Space Grotesk', sans-serif" fontSize="11" fontWeight="700" fill={W.sky}>DATA</text>
+        <text x={OC.cx} y={OC.cy + 10} textAnchor="middle" fontFamily="'Space Grotesk', sans-serif" fontSize="11" fontWeight="700" fill={W.sky}>LAYER</text>
+
+        {/* Inner ring nodes — positioned directly, no CSS rotation wrapper */}
+        {liveInner.map((n) => {
+          const isHovered = hoveredNode === n.name;
+          return (
+            <g key={n.name} onMouseEnter={() => setHoveredNode(n.name)} style={{ cursor: "pointer" }}>
+              <circle cx={n.x} cy={n.y} r={OC.innerNodeR} fill={W.skyBg} stroke={isHovered ? "#1D4ED8" : W.sky} strokeWidth={isHovered ? 3 : 2} />
+              <text x={n.x} y={n.y - 4} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="16" fill={W.sky}>{n.icon}</text>
+              <text x={n.x} y={n.y + 18} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="7" fill={W.slate} letterSpacing="0.08em" fontWeight="600">{n.name.toUpperCase()}</text>
+              <circle cx={n.x} cy={n.y + 32} r="4" fill={W.green} />
+            </g>
+          );
+        })}
+
+        {/* Outer ring nodes — positioned directly */}
+        {liveOuter.map((n) => {
+          const isHovered = hoveredNode === n.name;
+          const shortLabel = SHORT_LABELS[n.name] || n.name.toUpperCase();
+          return (
+            <g key={n.name} onMouseEnter={() => setHoveredNode(n.name)} style={{ cursor: "pointer" }}>
+              <circle cx={n.x} cy={n.y} r={OC.outerNodeR} fill={isHovered ? "#FEF3C7" : W.amberBg} stroke={isHovered ? "#92400E" : W.amber} strokeWidth={isHovered ? 2 : 1} strokeDasharray="4 3" />
+              <text x={n.x} y={n.y - 3} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="13" fill={W.amber}>{n.icon}</text>
+              <text x={n.x} y={n.y + 14} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="6" fill={W.steel} letterSpacing="0.08em">{shortLabel}</text>
+            </g>
+          );
+        })}
+      </svg>
+
+      {/* Tooltip */}
+      {hoveredNode && liveNodeMap[hoveredNode] && (
+        <div style={{ position: "fixed", left: Math.min(tooltipPos.x, typeof window !== "undefined" ? window.innerWidth - 260 : 600), top: Math.min(tooltipPos.y, typeof window !== "undefined" ? window.innerHeight - 160 : 500), background: W.white, border: `1px solid ${W.mist}`, borderRadius: 8, padding: "12px 16px", boxShadow: "0 4px 16px rgba(0,0,0,0.08)", pointerEvents: "none", zIndex: 100, minWidth: 200, maxWidth: 260, textAlign: "left" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: W.slate }}>{hoveredNode}</span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", color: liveNodeMap[hoveredNode].status === "LIVE" ? W.green : W.amber, padding: "2px 8px", borderRadius: 10, background: liveNodeMap[hoveredNode].status === "LIVE" ? W.greenBg : W.amberBg, border: `1px solid ${liveNodeMap[hoveredNode].status === "LIVE" ? "rgba(74,158,107,0.25)" : "rgba(196,154,60,0.25)"}` }}>{liveNodeMap[hoveredNode].status}</span>
+          </div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: W.steel, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 4 }}>Connects to:</div>
+          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: W.iron, lineHeight: 1.4 }}>{getConnectionsFor(hoveredNode).join(", ") || "\u2014"}</div>
+        </div>
+      )}
+    </>
+  );
+}
+
 export default function WorkBenchPage() {
   // ── State ──
   const [barWidth, setBarWidth] = useState(0);
-  const [hoveredNode, setHoveredNode] = useState(null);
-  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const t = setTimeout(() => setBarWidth(Math.round(500 * (4 / 17))), 100);
@@ -151,21 +231,6 @@ export default function WorkBenchPage() {
     const col = i % 3, row = Math.floor(i / 3);
     return { ...m, x: gridX + col * (cellW + gap), y: row * (cellH + gap), isLive: m.status === "LIVE" };
   });
-
-  // ── Orbital hover helpers ──
-  const hoveredConnections = hoveredNode
-    ? CONNECTIONS.filter(([a, b]) => a === hoveredNode || b === hoveredNode)
-    : [];
-  const connectedNames = new Set();
-  hoveredConnections.forEach(([a, b]) => { connectedNames.add(a); connectedNames.add(b); });
-
-  function getConnectionsFor(name) {
-    return CONNECTIONS.filter(([a, b]) => a === name || b === name).map(([a, b]) => (a === name ? b : a));
-  }
-
-  function handleSvgMouseMove(e) {
-    setTooltipPos({ x: e.clientX + 16, y: e.clientY + 16 });
-  }
 
   return (
     <div style={{ minHeight: "100vh", background: W.fog, color: W.slate, fontFamily: "'Inter', sans-serif" }}>
@@ -235,66 +300,7 @@ export default function WorkBenchPage() {
           <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, color: W.steel, lineHeight: 1.5 }}>You don&apos;t configure the connections. They&apos;re already there.</p>
         </div>
 
-        <svg viewBox="0 0 700 700" style={{ width: "100%", maxWidth: 700, display: "block", margin: "0 auto" }} onMouseMove={handleSvgMouseMove} onMouseLeave={() => setHoveredNode(null)}>
-          {/* Connection lines — drawn first, behind nodes */}
-          {CONNECTIONS.map(([a, b], i) => {
-            const na = nodeMap[a], nb = nodeMap[b];
-            if (!na || !nb) return null;
-            const isHighlighted = hoveredNode && (a === hoveredNode || b === hoveredNode);
-            return <line key={`conn-${i}`} x1={na.x} y1={na.y} x2={nb.x} y2={nb.y} stroke={isHighlighted ? "rgba(59,130,246,0.5)" : "rgba(59,130,246,0.12)"} strokeWidth={isHighlighted ? 1.5 : 1} style={{ transition: "stroke 200ms, stroke-width 200ms" }} />;
-          })}
-
-          {/* Center hub */}
-          <circle cx={OC.cx} cy={OC.cy} r={OC.hubR} fill={W.skyBg} stroke={W.sky} strokeWidth="2" />
-          <text x={OC.cx} y={OC.cy - 4} textAnchor="middle" fontFamily="'Space Grotesk', sans-serif" fontSize="11" fontWeight="700" fill={W.sky}>DATA</text>
-          <text x={OC.cx} y={OC.cy + 10} textAnchor="middle" fontFamily="'Space Grotesk', sans-serif" fontSize="11" fontWeight="700" fill={W.sky}>LAYER</text>
-
-          {/* Inner ring — rotating CW */}
-          <g className="wb-orbital-inner" style={{ animation: "wbRotateCW 60s linear infinite", transformOrigin: `${OC.cx}px ${OC.cy}px` }}>
-            {innerNodes.map((n) => {
-              const isHovered = hoveredNode === n.name;
-              return (
-                <g key={n.name} onMouseEnter={() => setHoveredNode(n.name)} style={{ cursor: "pointer" }}>
-                  <circle cx={n.x} cy={n.y} r={OC.innerNodeR} fill={W.skyBg} stroke={isHovered ? "#1D4ED8" : W.sky} strokeWidth={isHovered ? 3 : 2} style={{ transition: "stroke 150ms, stroke-width 150ms" }} />
-                  <g className="wb-inner-content" style={{ animation: "wbRotateCCW 60s linear infinite", transformOrigin: `${n.x}px ${n.y}px` }}>
-                    <text x={n.x} y={n.y - 4} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="16" fill={W.sky}>{n.icon}</text>
-                    <text x={n.x} y={n.y + 18} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="7" fill={W.slate} letterSpacing="0.08em" fontWeight="600">{n.name.toUpperCase()}</text>
-                    <circle cx={n.x} cy={n.y + 32} r="4" fill={W.green} />
-                  </g>
-                </g>
-              );
-            })}
-          </g>
-
-          {/* Outer ring — rotating CCW */}
-          <g className="wb-orbital-outer" style={{ animation: "wbRotateCCW 90s linear infinite", transformOrigin: `${OC.cx}px ${OC.cy}px` }}>
-            {outerNodes.map((n) => {
-              const isHovered = hoveredNode === n.name;
-              const shortLabel = SHORT_LABELS[n.name] || n.name.toUpperCase();
-              return (
-                <g key={n.name} onMouseEnter={() => setHoveredNode(n.name)} style={{ cursor: "pointer" }}>
-                  <circle cx={n.x} cy={n.y} r={OC.outerNodeR} fill={isHovered ? "#FEF3C7" : W.amberBg} stroke={isHovered ? "#92400E" : W.amber} strokeWidth={isHovered ? 2 : 1} strokeDasharray="4 3" style={{ transition: "stroke 150ms, fill 150ms" }} />
-                  <g className="wb-outer-content" style={{ animation: "wbRotateCW 90s linear infinite", transformOrigin: `${n.x}px ${n.y}px` }}>
-                    <text x={n.x} y={n.y - 3} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="13" fill={W.amber}>{n.icon}</text>
-                    <text x={n.x} y={n.y + 14} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="6" fill={W.steel} letterSpacing="0.08em">{shortLabel}</text>
-                  </g>
-                </g>
-              );
-            })}
-          </g>
-        </svg>
-
-        {/* Tooltip */}
-        {hoveredNode && nodeMap[hoveredNode] && (
-          <div style={{ position: "fixed", left: Math.min(tooltipPos.x, typeof window !== "undefined" ? window.innerWidth - 260 : 600), top: Math.min(tooltipPos.y, typeof window !== "undefined" ? window.innerHeight - 160 : 500), background: W.white, border: `1px solid ${W.mist}`, borderRadius: 8, padding: "12px 16px", boxShadow: "0 4px 16px rgba(0,0,0,0.08)", pointerEvents: "none", zIndex: 100, minWidth: 200, maxWidth: 260, textAlign: "left" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: W.slate }}>{hoveredNode}</span>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", color: nodeMap[hoveredNode].status === "LIVE" ? W.green : W.amber, padding: "2px 8px", borderRadius: 10, background: nodeMap[hoveredNode].status === "LIVE" ? W.greenBg : W.amberBg, border: `1px solid ${nodeMap[hoveredNode].status === "LIVE" ? "rgba(74,158,107,0.25)" : "rgba(196,154,60,0.25)"}` }}>{nodeMap[hoveredNode].status}</span>
-            </div>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: W.steel, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 4 }}>Connects to:</div>
-            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: W.iron, lineHeight: 1.4 }}>{getConnectionsFor(hoveredNode).join(", ") || "—"}</div>
-          </div>
-        )}
+        <OrbitalDiagram />
       </section>
 
       {/* ── SECTION 5 — MODULE CARDS ── */}
