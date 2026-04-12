@@ -39,12 +39,18 @@ export default function TimeAnalyticsDash() {
 
   useEffect(() => {
     fetch('/api/time-entries')
-      .then(r => r.json())
+      .then(r => {
+        if (!r.ok) throw new Error(`GET /api/time-entries failed: ${r.status} ${r.statusText}`);
+        return r.json();
+      })
       .then(d => {
         setData(d);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(err => {
+        console.error('TimeAnalyticsDash fetch failed:', err);
+        setLoading(false);
+      });
   }, []);
 
   if (loading) return (
