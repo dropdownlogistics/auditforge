@@ -1456,6 +1456,27 @@ function EngagementOrbital({ audit, onBack }) {
   const scope = audit.controlScope || [];
   const [downloading, setDownloading] = useState(null);
   const [hoveredNode, setHoveredNode] = useState(null);
+  // Time entries fetched on demand for the analytics panel
+  const [timeData, setTimeData] = useState({ entries: [], summary: null });
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/time-entries?auditId=${audit.id}`)
+      .then((r) => {
+        if (!r.ok) throw new Error(`GET /api/time-entries failed: ${r.status} ${r.statusText}`);
+        return r.json();
+      })
+      .then((d) => {
+        if (cancelled) return;
+        setTimeData(d || { entries: [], summary: null });
+      })
+      .catch((err) => {
+        console.error("EngagementOrbital time-entries fetch failed:", err);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [audit.id]);
 
   function formatMonth(d) {
     if (!d) return "—";
@@ -1469,6 +1490,16 @@ function EngagementOrbital({ audit, onBack }) {
   const distinctAreas = new Set(scope.map((s) => s.control?.process?.processArea).filter(Boolean)).size;
   const totalBudget = team.reduce((sum, t) => sum + (t.budgetHours || 0), 0);
   const leadFirstName = audit.leadAuditor?.auditorName?.split(" ")[0] || "—";
+
+  // Derived values for the analytics panel
+  const loggedHours = timeData.summary?.totalHours || 0;
+  const billableHours = timeData.summary?.billableHours || 0;
+  const nonBillableHours = timeData.summary?.nonBillableHours || 0;
+  const billablePct = loggedHours > 0 ? (billableHours / loggedHours) * 100 : 0;
+  const budgetRemaining = totalBudget - loggedHours;
+  const loggedPct = totalBudget > 0 ? Math.min(100, (loggedHours / totalBudget) * 100) : 0;
+  const testedCount = scope.filter((s) => s.control?.reviewStatus === "APPROVED" || s.control?.reviewStatus === "REVIEWED").length;
+  const testedPct = scope.length > 0 ? (testedCount / scope.length) * 100 : 0;
 
   // Orbital geometry — per task spec: center (350, 250), orbital radius 180, center r 52, node r 38
   const cx = 350, cy = 250, orbitalR = 180, centerR = 52, nodeR = 38;
@@ -1636,10 +1667,10 @@ function EngagementOrbital({ audit, onBack }) {
           ))}
         </svg>
 
-        {/* Three panels */}
+        {/* Four panels — 2×2 grid (mobile CSS collapses af-breakdowns-grid to 1 column) */}
         <div
           className="af-breakdowns-grid"
-          style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}
+          style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}
         >
           {/* Panel 1 — Team Roster */}
           <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "20px 24px" }}>
@@ -1872,6 +1903,76 @@ function EngagementOrbital({ audit, onBack }) {
                     {downloading === btn.type ? "…" : `↓ ${btn.label}`}
                   </button>
                 ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Panel 4 — Engagement Analytics */}
+          <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "20px 24px" }}>
+            <div
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 10,
+                color: C.copper,
+                letterSpacing: "0.12em",
+                marginBottom: 14,
+                textTransform: "uppercase",
+                fontWeight: 700,
+              }}
+            >
+              Engagement Analytics
+            </div>
+
+            {/* Section 1 — Hours */}
+            <div style={{ marginBottom: 16, paddingBottom: 14, borderBottom: `1px solid ${C.borderLight}` }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.copper, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 8 }}>
+                Hours
+              </div>
+              {[
+                { label: "Budget",    value: `${totalBudget}h`,                color: C.cream },
+                { label: "Logged",    value: `${loggedHours.toFixed(1)}h`,     color: C.crimson },
+                { label: "Remaining", value: `${budgetRemaining.toFixed(1)}h`, color: C.steel },
+              ].map((row) => (
+                <div key={row.label} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>{row.label}</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: row.color, fontWeight: 600 }}>{row.value}</span>
+                </div>
+              ))}
+              <div style={{ height: 6, background: "rgba(245,241,235,0.08)", borderRadius: 3, marginTop: 10, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${loggedPct}%`, background: C.crimson, borderRadius: 3, transition: "width 300ms ease" }} />
+              </div>
+            </div>
+
+            {/* Section 2 — Billable % */}
+            <div style={{ marginBottom: 16, paddingBottom: 14, borderBottom: `1px solid ${C.borderLight}` }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.copper, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 8 }}>
+                Billable %
+              </div>
+              {[
+                { label: "Billable",     value: `${billableHours.toFixed(1)}h`,    color: C.green },
+                { label: "Non-Billable", value: `${nonBillableHours.toFixed(1)}h`, color: C.copper },
+                { label: "Billable %",   value: `${billablePct.toFixed(1)}%`,      color: billablePct >= 75 ? C.green : C.crimson },
+              ].map((row) => (
+                <div key={row.label} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>{row.label}</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: row.color, fontWeight: 600 }}>{row.value}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Section 3 — Control Coverage */}
+            <div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.copper, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 8 }}>
+                Control Coverage
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>Tested</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.cream, fontWeight: 600 }}>
+                  {testedCount} of {scope.length}
+                </span>
+              </div>
+              <div style={{ height: 6, background: "rgba(245,241,235,0.08)", borderRadius: 3, marginTop: 10, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${testedPct}%`, background: C.green, borderRadius: 3, transition: "width 300ms ease" }} />
               </div>
             </div>
           </div>
