@@ -297,7 +297,7 @@ model Auditor {
   ledAudits        Audit[]             @relation("LeadAuditor")
   scopeAssignments AuditControlScope[] @relation("ScopeAssignee")
   teamAssignments  AuditAuditor[]
-  factTimeEntries  Fact_TimeEntry[]
+  factTimeEntries  TimeEntry[]
 
   @@index([companyId])
   @@map("dim_auditor")
@@ -404,7 +404,7 @@ model Audit {
   leadAuditor     Auditor             @relation("LeadAuditor", fields: [leadAuditorId], references: [id])
   controlScope    AuditControlScope[]
   team            AuditAuditor[]
-  factTimeEntries Fact_TimeEntry[]
+  factTimeEntries TimeEntry[]
 
   @@index([companyId])
   @@index([periodId])
@@ -754,7 +754,7 @@ model AuditAuditor {
   @@map("bridge_audit_auditor")
 }
 
-model Fact_TimeEntry {
+model TimeEntry {
   id           String   @id @default(cuid())
   auditorId    String
   engagementId String
@@ -769,4 +769,6 @@ model Fact_TimeEntry {
 
   auditor    Auditor @relation(fields: [auditorId], references: [id])
   engagement Audit   @relation(fields: [engagementId], references: [id])
+
+  @@map("fact_time_entry")
 }

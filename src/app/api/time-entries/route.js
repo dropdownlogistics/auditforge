@@ -14,7 +14,7 @@ export async function GET(request) {
     if (auditorId) where.auditorId = auditorId;
     if (monthTag) where.monthTag = monthTag;
 
-    const entries = await prisma.fact_TimeEntry.findMany({
+    const entries = await prisma.timeEntry.findMany({
       where,
       include: {
         auditor: { select: { auditorName: true, role: true } },
@@ -55,7 +55,7 @@ export async function POST(request) {
 
       const monthTag = new Date(date).toISOString().slice(0, 7); // 2026-03
 
-      const entry = await prisma.fact_TimeEntry.create({
+      const entry = await prisma.timeEntry.create({
         data: {
           auditorId,
           engagementId,
@@ -86,7 +86,7 @@ export async function POST(request) {
         comments: e.comments || null,
       })).filter(e => e.hours > 0); // skip zeros like your TimeDump
 
-      const result = await prisma.fact_TimeEntry.createMany({ data });
+      const result = await prisma.timeEntry.createMany({ data });
 
       return NextResponse.json({ count: result.count }, { status: 201 });
     }
@@ -105,7 +105,7 @@ export async function DELETE(request) {
     const id = searchParams.get('id');
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 });
 
-    await prisma.fact_TimeEntry.delete({ where: { id } });
+    await prisma.timeEntry.delete({ where: { id } });
     return NextResponse.json({ deleted: true });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

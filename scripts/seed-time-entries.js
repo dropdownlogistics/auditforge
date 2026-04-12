@@ -5,7 +5,7 @@
 // Part 1: Restructures AuditAuditor records for all 4 FY2025 engagements
 //         to the canonical Partner/Manager/Staff model (deletes existing
 //         DIRECTOR/SENIOR/ENGAGEMENT_LEAD entries).
-// Part 2: Seeds ~1,100 Fact_TimeEntry rows across 4 engagements. Each
+// Part 2: Seeds ~1,100 TimeEntry rows across 4 engagements. Each
 //         engagement runs 6 weeks from its startDate with phases
 //         weeks 1-2 Planning, 3-5 Fieldwork, 6 Reporting.
 //
@@ -245,7 +245,7 @@ async function restructureTeams(company) {
 // ── PART 2 — TIME ENTRY SEEDING ─────────────────────────────────────
 
 async function seedTimeEntries(company) {
-  console.log('\n=== PART 2: Seeding Fact_TimeEntry rows ===\n');
+  console.log('\n=== PART 2: Seeding TimeEntry rows ===\n');
 
   const rng = mulberry32(20260411); // deterministic seed for reproducibility
 
@@ -315,7 +315,7 @@ async function seedTimeEntries(company) {
           const timeType = NON_BILLABLE_COMPONENTS.has(component) ? 'NON_BILLABLE' : 'BILLABLE';
 
           // Fine-grained idempotency: skip if entry exists for this exact slot
-          const existing = await prisma.fact_TimeEntry.findFirst({
+          const existing = await prisma.timeEntry.findFirst({
             where: {
               engagementId: audit.id,
               auditorId:    member.auditor.id,
@@ -328,7 +328,7 @@ async function seedTimeEntries(company) {
             continue;
           }
 
-          await prisma.fact_TimeEntry.create({
+          await prisma.timeEntry.create({
             data: {
               auditorId:    member.auditor.id,
               engagementId: audit.id,
@@ -374,7 +374,7 @@ async function main() {
   console.log(`Part 1 — AuditAuditor:`);
   console.log(`  deleted: ${p1.deleted}`);
   console.log(`  created: ${p1.created}`);
-  console.log(`Part 2 — Fact_TimeEntry:`);
+  console.log(`Part 2 — TimeEntry:`);
   console.log(`  created: ${p2.created}`);
   console.log(`  skipped: ${p2.skipped} (idempotent re-runs)`);
   console.log(`  total hours by engagement:`);
