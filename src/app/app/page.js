@@ -1446,40 +1446,11 @@ function AuditsView({ audits, controls, auditors, loading, onRefresh }) {
 // ── Engagement Orbital: full-screen detail view for a single audit ──
 
 function EngagementOrbital({ audit, onBack }) {
-  const [team, setTeam] = useState([]);
-  const [scope, setScope] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Audit prop already has team + controlScope populated by the parent /api/audits GET
+  const team = audit.team || [];
+  const scope = audit.controlScope || [];
   const [downloading, setDownloading] = useState(null);
   const [hoveredNode, setHoveredNode] = useState(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      try {
-        const [teamRes, scopeRes] = await Promise.all([
-          fetch(`/api/audits/${audit.id}/team`).then((r) => {
-            if (!r.ok) throw new Error(`GET /api/audits/${audit.id}/team failed: ${r.status} ${r.statusText}`);
-            return r.json();
-          }),
-          fetch(`/api/audits/${audit.id}/scope`).then((r) => {
-            if (!r.ok) throw new Error(`GET /api/audits/${audit.id}/scope failed: ${r.status} ${r.statusText}`);
-            return r.json();
-          }),
-        ]);
-        if (cancelled) return;
-        setTeam(teamRes.team || []);
-        setScope(scopeRes.scope || []);
-      } catch (err) {
-        console.error("EngagementOrbital fetch failed:", err);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, [audit.id]);
 
   function formatMonth(d) {
     if (!d) return "—";
@@ -1660,20 +1631,6 @@ function EngagementOrbital({ audit, onBack }) {
           ))}
         </svg>
 
-        {loading && (
-          <div
-            style={{
-              textAlign: "center",
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 11,
-              color: C.steel,
-              marginBottom: 24,
-            }}
-          >
-            Loading team and scope...
-          </div>
-        )}
-
         {/* Three panels */}
         <div
           className="af-breakdowns-grid"
@@ -1696,7 +1653,7 @@ function EngagementOrbital({ audit, onBack }) {
             </div>
             {team.length === 0 ? (
               <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 11, color: C.steel, fontStyle: "italic" }}>
-                {loading ? "Loading..." : "No team assigned"}
+                No team assigned
               </div>
             ) : (
               team.map((m) => (
@@ -1767,7 +1724,7 @@ function EngagementOrbital({ audit, onBack }) {
             </div>
             {scope.length === 0 ? (
               <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 11, color: C.steel, fontStyle: "italic" }}>
-                {loading ? "Loading..." : "No controls in scope"}
+                No controls in scope
               </div>
             ) : (
               scope.map((s) => (
