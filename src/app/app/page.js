@@ -3,8 +3,9 @@ import TimeAnalyticsDash from "./components/TimeAnalyticsDash";
 import BillingDash from "./components/BillingDash";
 import EffectivenessDash from "./components/EffectivenessDash";
 import HealthScorecard from "./components/HealthScorecard";
+import FindingsView from "./components/FindingsView";
 import TimeEntryGrid from "./components/TimeEntryGrid";
-import { LayoutDashboard, BarChart2, Shield, AlertTriangle, Network, BookOpen, FileOutput, Upload, ClipboardCheck, Clock, DollarSign } from "lucide-react";
+import { LayoutDashboard, BarChart2, Shield, AlertTriangle, Network, BookOpen, FileOutput, Upload, ClipboardCheck, Clock, DollarSign, FileWarning } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 
 // ── CottageHumble Tokens ──
@@ -212,6 +213,7 @@ export default function AuditForgeApp() {
     { id: "import", icon: Upload, label: "Import" },
     { id: "time", icon: Clock, label: "Time" },
     { id: "billing", icon: DollarSign, label: "Billing" },
+    { id: "findings", icon: FileWarning, label: "Findings" },
   ];
 
   const draftCount = controls.filter(c => c.reviewStatus === "DRAFT").length;
@@ -308,6 +310,7 @@ export default function AuditForgeApp() {
           </div>
         )}
         {view === "billing" && <BillingDash companyId="CO-DDL" />}
+        {view === "findings" && <FindingsView companyId="CO-DDL" />}
 
       </main>
       <GlobalSearch
