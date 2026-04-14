@@ -1,6 +1,7 @@
 'use client';
 import TimeAnalyticsDash from "./components/TimeAnalyticsDash";
 import BillingDash from "./components/BillingDash";
+import EffectivenessDash from "./components/EffectivenessDash";
 import TimeEntryGrid from "./components/TimeEntryGrid";
 import { LayoutDashboard, BarChart2, Shield, AlertTriangle, Network, BookOpen, FileOutput, Upload, ClipboardCheck, Clock, DollarSign } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -2504,6 +2505,12 @@ function GenerateView({ controls }) {
 function AnalyticsView({ controls, risks, loading }) {
   if (loading) return <div style={{ padding: 32, color: C.steel }}>Loading...</div>;
 
+  const EFFECTIVENESS_BLOCK = (
+    <div style={{ marginBottom: 32 }}>
+      <EffectivenessDash companyId="CO-DDL" />
+    </div>
+  );
+
   // ── Computed metrics ──────────────────────────────────────────────────────
 
   // 1. Risk coverage — risks with at least one mapped control
@@ -2592,6 +2599,8 @@ function AnalyticsView({ controls, risks, loading }) {
     <>
       <Header title="Analytics" meta={`Control environment health · ${controls.length} controls · ${risks.length} risks`} />
       <div style={{ padding: "24px 32px 48px" } /* af-content-pad */}>
+
+        {EFFECTIVENESS_BLOCK}
 
         {/* ── Row 1: Action Cards ── */}
         <div className="af-analytics-cards" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 24 }}>
