@@ -1,0 +1,726 @@
+{
+  "takenAt": "2026-04-14T22:56:08.441Z",
+  "audits": [
+    {
+      "id": "cmmpm747j00035opcxg9a6ff1",
+      "auditId": "AUD-2025-001",
+      "companyId": "cmmozlolj001i5orssht3ulu4",
+      "periodId": "cmmozlou3001k5ors7bn4p45e",
+      "auditName": "Annual CAE Review — FY2025 Full Universe",
+      "auditType": "INTERNAL",
+      "status": "PLANNING",
+      "leadAuditorId": "cmmr6jecx000l5o0ohpjyy58d",
+      "startDate": "2025-09-22T00:00:00.000Z",
+      "endDate": "2025-12-19T00:00:00.000Z",
+      "reportDate": null,
+      "scope": "Full-universe review of all 106 DDL controls across all 9 process areas. This is the annual CAE-level review that synthesizes findings from earlier engagements, closes open items, and produces the definitive governance state assessment for FY2025.",
+      "methodology": "The Annual CAE Review operates as an integrative engagement — it does not re-perform the detailed fieldwork from AUD-2025-002, -003, and -004, but instead validates that all prior findings were addressed, tests the subset of controls not covered in domain engagements, and produces the FY2025 control environment opinion at the program level. Each Director is responsible for testing and conclusions in their respective process area. The engagement closes with a formal program-level deliverable suitable for operator sign-off and external stakeholder review.",
+      "cancelReason": null,
+      "version": 1,
+      "changeReason": null,
+      "createdAt": "2026-03-14T00:55:59.503Z",
+      "updatedAt": "2026-03-17T23:42:52.175Z",
+      "period": {
+        "id": "cmmozlou3001k5ors7bn4p45e",
+        "companyId": "cmmozlolj001i5orssht3ulu4",
+        "periodLabel": "FY2025",
+        "periodStart": "2025-01-01T00:00:00.000Z",
+        "periodEnd": "2025-12-31T00:00:00.000Z",
+        "periodType": "ANNUAL",
+        "createdAt": "2026-03-13T14:23:28.251Z"
+      }
+    },
+    {
+      "id": "cmmv9c8wf00015o88fvcs36tc",
+      "auditId": "AUD-2025-002",
+      "companyId": "cmmozlolj001i5orssht3ulu4",
+      "periodId": "cmmozlou3001k5ors7bn4p45e",
+      "auditName": "Technology and Infrastructure Review — FY2025",
+      "auditType": "INTERNAL",
+      "status": "PLANNING",
+      "leadAuditorId": "cmmr6jecx000l5o0ohpjyy58d",
+      "startDate": "2025-02-03T00:00:00.000Z",
+      "endDate": "2025-04-11T00:00:00.000Z",
+      "reportDate": null,
+      "scope": "End-to-end review of DDL technical control environment covering IT General Controls, Operations and Change Management, and Data Governance and AI Integrity. Priority focus on local AI infrastructure governance, deployment pipeline integrity, and corpus access controls.",
+      "methodology": "This engagement applies a risk-stratified approach beginning with walkthroughs of DDL deployment pipeline (GitHub to Vercel), local AI infrastructure (Ollama Modelfile governance, ChromaDB corpus integrity), and access controls across all three process areas. Fieldwork prioritizes key controls first — particularly those governing model version deployment, corpus constitutional hierarchy enforcement, and secret management — before moving to detective and monitoring controls. The AI Integrity process area will be tested using both documentary evidence review and live system validation given the absence of established audit precedent for RAG pipeline controls.",
+      "cancelReason": null,
+      "version": 1,
+      "changeReason": null,
+      "createdAt": "2026-03-17T23:42:40.909Z",
+      "updatedAt": "2026-03-17T23:42:40.909Z",
+      "period": {
+        "id": "cmmozlou3001k5ors7bn4p45e",
+        "companyId": "cmmozlolj001i5orssht3ulu4",
+        "periodLabel": "FY2025",
+        "periodStart": "2025-01-01T00:00:00.000Z",
+        "periodEnd": "2025-12-31T00:00:00.000Z",
+        "periodType": "ANNUAL",
+        "createdAt": "2026-03-13T14:23:28.251Z"
+      }
+    },
+    {
+      "id": "cmmv9ccmi002v5o88zdtyo6t1",
+      "auditId": "AUD-2025-003",
+      "companyId": "cmmozlolj001i5orssht3ulu4",
+      "periodId": "cmmozlou3001k5ors7bn4p45e",
+      "auditName": "Governance and Compliance Review — FY2025",
+      "auditType": "INTERNAL",
+      "status": "PLANNING",
+      "leadAuditorId": "cmmr6jecx000l5o0ohpjyy58d",
+      "startDate": "2025-04-28T00:00:00.000Z",
+      "endDate": "2025-06-27T00:00:00.000Z",
+      "reportDate": null,
+      "scope": "Structured review of DDL internal governance framework, ethical obligations, and workforce controls. Covers Governance and Oversight, Communications and Ethics, and HR and Workforce Governance. Particular focus on council ratification integrity, manifest currency, publication governance, and contractor lifecycle controls.",
+      "methodology": "The engagement opens with a standards registry completeness review and manifest currency check to establish whether the governance documentation layer is coherent before testing individual controls. Governance and Oversight fieldwork focuses on ADR immutability, council ratification protocols, and audit trail integrity. Communications and Ethics testing centers on pre-publication approval workflows and conflict of interest disclosures. HR fieldwork covers the contractor lifecycle from identity verification through offboarding, with emphasis on IP assignment documentation and access recertification completeness.",
+      "cancelReason": null,
+      "version": 1,
+      "changeReason": null,
+      "createdAt": "2026-03-17T23:42:45.738Z",
+      "updatedAt": "2026-04-12T00:12:31.062Z",
+      "period": {
+        "id": "cmmozlou3001k5ors7bn4p45e",
+        "companyId": "cmmozlolj001i5orssht3ulu4",
+        "periodLabel": "FY2025",
+        "periodStart": "2025-01-01T00:00:00.000Z",
+        "periodEnd": "2025-12-31T00:00:00.000Z",
+        "periodType": "ANNUAL",
+        "createdAt": "2026-03-13T14:23:28.251Z"
+      }
+    },
+    {
+      "id": "cmmv9cfcn005p5o88m63odta5",
+      "auditId": "AUD-2025-004",
+      "companyId": "cmmozlolj001i5orssht3ulu4",
+      "periodId": "cmmozlou3001k5ors7bn4p45e",
+      "auditName": "Financial Integrity Review — FY2025",
+      "auditType": "INTERNAL",
+      "status": "PLANNING",
+      "leadAuditorId": "cmmr6jecx000l5o0ohpjyy58d",
+      "startDate": "2025-07-07T00:00:00.000Z",
+      "endDate": "2025-09-05T00:00:00.000Z",
+      "reportDate": null,
+      "scope": "Revenue accuracy, commission integrity, and third-party financial risk across Financial Reporting and Revenue, Revenue Integrity and Commissions, and Vendor and Third-Party Management. Focus on whether DDL revenue recognition, commission payout logic, and vendor cost governance are operating as designed and producing defensible auditable outputs.",
+      "methodology": "The engagement begins with a source-to-output population reconciliation across all three process areas — billing records to recognized revenue, revenue to commission payout, and contracted vendor commitments to actual costs — before any individual control testing begins. This population integrity check determines whether the data layer is reliable enough to support the controls that depend on it. Revenue recognition cut-off testing, commission formula integrity sampling, and vendor SLA monitoring validation are the highest-priority fieldwork areas.",
+      "cancelReason": null,
+      "version": 1,
+      "changeReason": null,
+      "createdAt": "2026-03-17T23:42:49.272Z",
+      "updatedAt": "2026-04-12T00:12:31.062Z",
+      "period": {
+        "id": "cmmozlou3001k5ors7bn4p45e",
+        "companyId": "cmmozlolj001i5orssht3ulu4",
+        "periodLabel": "FY2025",
+        "periodStart": "2025-01-01T00:00:00.000Z",
+        "periodEnd": "2025-12-31T00:00:00.000Z",
+        "periodType": "ANNUAL",
+        "createdAt": "2026-03-13T14:23:28.251Z"
+      }
+    }
+  ],
+  "bridge": [
+    {
+      "id": "cmnuzlfv500015o7oj2bhqgx0",
+      "auditId": "cmmv9c8wf00015o88fvcs36tc",
+      "auditorId": "cmmr6jecx000l5o0ohpjyy58d",
+      "teamRole": "PARTNER",
+      "budgetHours": 48,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:36.017Z",
+      "audit": {
+        "auditId": "AUD-2025-002"
+      },
+      "auditor": {
+        "auditorId": "AUD-011",
+        "auditorName": "Dave Kitchens"
+      }
+    },
+    {
+      "id": "cmnuzlfy500035o7oirc5wfj8",
+      "auditId": "cmmv9c8wf00015o88fvcs36tc",
+      "auditorId": "cmmv89e0100015oswrwdsrulq",
+      "teamRole": "MANAGER",
+      "budgetHours": 150,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:36.126Z",
+      "audit": {
+        "auditId": "AUD-2025-002"
+      },
+      "auditor": {
+        "auditorId": "ITGC-MGR-001",
+        "auditorName": "Priya Desai"
+      }
+    },
+    {
+      "id": "cmnuzlg0d00055o7o12be347d",
+      "auditId": "cmmv9c8wf00015o88fvcs36tc",
+      "auditorId": "cmmv89e3q00035oswu6tbzh8x",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:36.206Z",
+      "audit": {
+        "auditId": "AUD-2025-002"
+      },
+      "auditor": {
+        "auditorId": "ITGC-SR-001",
+        "auditorName": "Daniel Carter"
+      }
+    },
+    {
+      "id": "cmnuzlg2q00075o7oubx1f6bu",
+      "auditId": "cmmv9c8wf00015o88fvcs36tc",
+      "auditorId": "cmmv89e5z00055oswngqo6etj",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:36.290Z",
+      "audit": {
+        "auditId": "AUD-2025-002"
+      },
+      "auditor": {
+        "auditorId": "ITGC-STF-001",
+        "auditorName": "Sophie Nguyen"
+      }
+    },
+    {
+      "id": "cmnuzlg7j00095o7o9bb5hdyd",
+      "auditId": "cmmv9c8wf00015o88fvcs36tc",
+      "auditorId": "cmmv89e8c00075osw0xgmqttb",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:36.463Z",
+      "audit": {
+        "auditId": "AUD-2025-002"
+      },
+      "auditor": {
+        "auditorId": "ITGC-STF-002",
+        "auditorName": "Ryan Patel"
+      }
+    },
+    {
+      "id": "cmnuzlgbo000b5o7ojmxr8t0c",
+      "auditId": "cmmv9c8wf00015o88fvcs36tc",
+      "auditorId": "cmmv89fms001f5oswmkx7qf71",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:36.612Z",
+      "audit": {
+        "auditId": "AUD-2025-002"
+      },
+      "auditor": {
+        "auditorId": "OPS-SR-001",
+        "auditorName": "Clara Hayes"
+      }
+    },
+    {
+      "id": "cmnuzlggp000d5o7oca9p6f2w",
+      "auditId": "cmmv9c8wf00015o88fvcs36tc",
+      "auditorId": "cmmv89fp0001h5oswild7yzjz",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:36.793Z",
+      "audit": {
+        "auditId": "AUD-2025-002"
+      },
+      "auditor": {
+        "auditorId": "OPS-STF-001",
+        "auditorName": "David Chen"
+      }
+    },
+    {
+      "id": "cmnuzlgiz000f5o7oao5ba1jt",
+      "auditId": "cmmv9c8wf00015o88fvcs36tc",
+      "auditorId": "cmmv89g5e001v5oswvllh52ob",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:36.876Z",
+      "audit": {
+        "auditId": "AUD-2025-002"
+      },
+      "auditor": {
+        "auditorId": "DGA-SR-001",
+        "auditorName": "Marcus Keller"
+      }
+    },
+    {
+      "id": "cmnuzlgor000h5o7o8w1zer3d",
+      "auditId": "cmmv9c8wf00015o88fvcs36tc",
+      "auditorId": "cmmv89g7q001x5oswls6r9x8u",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:37.084Z",
+      "audit": {
+        "auditId": "AUD-2025-002"
+      },
+      "auditor": {
+        "auditorId": "DGA-STF-001",
+        "auditorName": "Lena Cross"
+      }
+    },
+    {
+      "id": "cmnuzlgx9000j5o7oes0ebxfs",
+      "auditId": "cmmv9ccmi002v5o88zdtyo6t1",
+      "auditorId": "cmmr6jecx000l5o0ohpjyy58d",
+      "teamRole": "PARTNER",
+      "budgetHours": 48,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:37.390Z",
+      "audit": {
+        "auditId": "AUD-2025-003"
+      },
+      "auditor": {
+        "auditorId": "AUD-011",
+        "auditorName": "Dave Kitchens"
+      }
+    },
+    {
+      "id": "cmnuzlgzz000l5o7otofnlvkj",
+      "auditId": "cmmv9ccmi002v5o88zdtyo6t1",
+      "auditorId": "cmmv89eb300095oswbi2vcwb4",
+      "teamRole": "MANAGER",
+      "budgetHours": 150,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:37.488Z",
+      "audit": {
+        "auditId": "AUD-2025-003"
+      },
+      "auditor": {
+        "auditorId": "GOV-MGR-001",
+        "auditorName": "Nadia Okafor"
+      }
+    },
+    {
+      "id": "cmnuzlh4p000n5o7oby75vy2a",
+      "auditId": "cmmv9ccmi002v5o88zdtyo6t1",
+      "auditorId": "cmmv89edc000b5osw677hrrgv",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:37.657Z",
+      "audit": {
+        "auditId": "AUD-2025-003"
+      },
+      "auditor": {
+        "auditorId": "GOV-SR-001",
+        "auditorName": "Thomas Wyatt"
+      }
+    },
+    {
+      "id": "cmnuzlh99000p5o7oqv6v29nf",
+      "auditId": "cmmv9ccmi002v5o88zdtyo6t1",
+      "auditorId": "cmmv89efl000d5osw41e585y1",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:37.821Z",
+      "audit": {
+        "auditId": "AUD-2025-003"
+      },
+      "auditor": {
+        "auditorId": "GOV-STF-001",
+        "auditorName": "Rachel Tseng"
+      }
+    },
+    {
+      "id": "cmnuzlhb7000r5o7onz6y3g0p",
+      "auditId": "cmmv9ccmi002v5o88zdtyo6t1",
+      "auditorId": "cmmv89ehx000f5oswoozbmndy",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:37.892Z",
+      "audit": {
+        "auditId": "AUD-2025-003"
+      },
+      "auditor": {
+        "auditorId": "GOV-STF-002",
+        "auditorName": "Derek Langham"
+      }
+    },
+    {
+      "id": "cmnuzlhfw000t5o7opwklqtcq",
+      "auditId": "cmmv9ccmi002v5o88zdtyo6t1",
+      "auditorId": "cmmv89f4h000z5oswkq261l3m",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:38.061Z",
+      "audit": {
+        "auditId": "AUD-2025-003"
+      },
+      "auditor": {
+        "auditorId": "HR-SR-001",
+        "auditorName": "Marcus Li"
+      }
+    },
+    {
+      "id": "cmnuzlhkm000v5o7o8po406gb",
+      "auditId": "cmmv9ccmi002v5o88zdtyo6t1",
+      "auditorId": "cmmv89f6r00115oswannz952h",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:38.230Z",
+      "audit": {
+        "auditId": "AUD-2025-003"
+      },
+      "auditor": {
+        "auditorId": "HR-STF-001",
+        "auditorName": "Elena Garcia"
+      }
+    },
+    {
+      "id": "cmnuzlhmk000x5o7osesc7prf",
+      "auditId": "cmmv9ccmi002v5o88zdtyo6t1",
+      "auditorId": "cmmv89fdj00175oswmcaf4sze",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:38.301Z",
+      "audit": {
+        "auditId": "AUD-2025-003"
+      },
+      "auditor": {
+        "auditorId": "COMM-SR-001",
+        "auditorName": "Samuel Jones"
+      }
+    },
+    {
+      "id": "cmnuzlhsf000z5o7or16pdxbx",
+      "auditId": "cmmv9ccmi002v5o88zdtyo6t1",
+      "auditorId": "cmmv89ffs00195oswcrwtpzhh",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:38.512Z",
+      "audit": {
+        "auditId": "AUD-2025-003"
+      },
+      "auditor": {
+        "auditorId": "COMM-STF-001",
+        "auditorName": "Chloe Kim"
+      }
+    },
+    {
+      "id": "cmnuzli2q00115o7oa6fivigh",
+      "auditId": "cmmv9cfcn005p5o88m63odta5",
+      "auditorId": "cmmr6jecx000l5o0ohpjyy58d",
+      "teamRole": "PARTNER",
+      "budgetHours": 48,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:38.882Z",
+      "audit": {
+        "auditId": "AUD-2025-004"
+      },
+      "auditor": {
+        "auditorId": "AUD-011",
+        "auditorName": "Dave Kitchens"
+      }
+    },
+    {
+      "id": "cmnuzli7e00135o7o1swrq09k",
+      "auditId": "cmmv9cfcn005p5o88m63odta5",
+      "auditorId": "cmmv89ek6000h5oswtk22lj7h",
+      "teamRole": "MANAGER",
+      "budgetHours": 150,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:39.051Z",
+      "audit": {
+        "auditId": "AUD-2025-004"
+      },
+      "auditor": {
+        "auditorId": "FIN-MGR-001",
+        "auditorName": "Lauren Whitaker"
+      }
+    },
+    {
+      "id": "cmnuzli9f00155o7odbg61fc0",
+      "auditId": "cmmv9cfcn005p5o88m63odta5",
+      "auditorId": "cmmv89emh000j5oswpa9344zj",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:39.124Z",
+      "audit": {
+        "auditId": "AUD-2025-004"
+      },
+      "auditor": {
+        "auditorId": "FIN-SR-001",
+        "auditorName": "Marcus Delgado"
+      }
+    },
+    {
+      "id": "cmnuzlie300175o7olb2hqleu",
+      "auditId": "cmmv9cfcn005p5o88m63odta5",
+      "auditorId": "cmmv89eoq000l5osw1k18jydj",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:39.291Z",
+      "audit": {
+        "auditId": "AUD-2025-004"
+      },
+      "auditor": {
+        "auditorId": "FIN-STF-001",
+        "auditorName": "Sarah Chen"
+      }
+    },
+    {
+      "id": "cmnuzliit00195o7ovcxk6i6h",
+      "auditId": "cmmv9cfcn005p5o88m63odta5",
+      "auditorId": "cmmv89eqz000n5oswfkoj3i14",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:39.461Z",
+      "audit": {
+        "auditId": "AUD-2025-004"
+      },
+      "auditor": {
+        "auditorId": "FIN-STF-002",
+        "auditorName": "Tyler Nguyen"
+      }
+    },
+    {
+      "id": "cmnuzlil6001b5o7on8j5nk0o",
+      "auditId": "cmmv9cfcn005p5o88m63odta5",
+      "auditorId": "cmmv89fvq001n5osw7m0ko1qg",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:39.547Z",
+      "audit": {
+        "auditId": "AUD-2025-004"
+      },
+      "auditor": {
+        "auditorId": "RI-SR-001",
+        "auditorName": "Daniel Mercer"
+      }
+    },
+    {
+      "id": "cmnuzlipk001d5o7oz6gc1gs2",
+      "auditId": "cmmv9cfcn005p5o88m63odta5",
+      "auditorId": "cmmv89fyg001p5oswmb0be3d0",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:39.705Z",
+      "audit": {
+        "auditId": "AUD-2025-004"
+      },
+      "auditor": {
+        "auditorId": "RI-STF-001",
+        "auditorName": "Priya Holloway"
+      }
+    },
+    {
+      "id": "cmnuzliu4001f5o7oqoer2izo",
+      "auditId": "cmmv9cfcn005p5o88m63odta5",
+      "auditorId": "cmmv89evh000r5osw0tvy2cjd",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:39.869Z",
+      "audit": {
+        "auditId": "AUD-2025-004"
+      },
+      "auditor": {
+        "auditorId": "VND-SR-001",
+        "auditorName": "Raj Patel"
+      }
+    },
+    {
+      "id": "cmnuzliwa001h5o7o9ckuteqg",
+      "auditId": "cmmv9cfcn005p5o88m63odta5",
+      "auditorId": "cmmv89exq000t5oswe84zk3ju",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:39.947Z",
+      "audit": {
+        "auditId": "AUD-2025-004"
+      },
+      "auditor": {
+        "auditorId": "VND-STF-001",
+        "auditorName": "Sophia Chen"
+      }
+    },
+    {
+      "id": "cmnuzlj52001j5o7ow45prl78",
+      "auditId": "cmmpm747j00035opcxg9a6ff1",
+      "auditorId": "cmmr6jecx000l5o0ohpjyy58d",
+      "teamRole": "PARTNER",
+      "budgetHours": 48,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:40.262Z",
+      "audit": {
+        "auditId": "AUD-2025-001"
+      },
+      "auditor": {
+        "auditorId": "AUD-011",
+        "auditorName": "Dave Kitchens"
+      }
+    },
+    {
+      "id": "cmnuzlj7c001l5o7orp5zdpq7",
+      "auditId": "cmmpm747j00035opcxg9a6ff1",
+      "auditorId": "cmmv89fki001d5oswhwvki4v8",
+      "teamRole": "MANAGER",
+      "budgetHours": 150,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:40.344Z",
+      "audit": {
+        "auditId": "AUD-2025-001"
+      },
+      "auditor": {
+        "auditorId": "OPS-MGR-001",
+        "auditorName": "Julian Vance"
+      }
+    },
+    {
+      "id": "cmnuzlj9f001n5o7oerokc5ne",
+      "auditId": "cmmpm747j00035opcxg9a6ff1",
+      "auditorId": "cmmv89e3q00035oswu6tbzh8x",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:40.420Z",
+      "audit": {
+        "auditId": "AUD-2025-001"
+      },
+      "auditor": {
+        "auditorId": "ITGC-SR-001",
+        "auditorName": "Daniel Carter"
+      }
+    },
+    {
+      "id": "cmnuzljbp001p5o7ocfjltwo5",
+      "auditId": "cmmpm747j00035opcxg9a6ff1",
+      "auditorId": "cmmv89edc000b5osw677hrrgv",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:40.502Z",
+      "audit": {
+        "auditId": "AUD-2025-001"
+      },
+      "auditor": {
+        "auditorId": "GOV-SR-001",
+        "auditorName": "Thomas Wyatt"
+      }
+    },
+    {
+      "id": "cmnuzljdr001r5o7ov2u9kbho",
+      "auditId": "cmmpm747j00035opcxg9a6ff1",
+      "auditorId": "cmmv89emh000j5oswpa9344zj",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:40.575Z",
+      "audit": {
+        "auditId": "AUD-2025-001"
+      },
+      "auditor": {
+        "auditorId": "FIN-SR-001",
+        "auditorName": "Marcus Delgado"
+      }
+    },
+    {
+      "id": "cmnuzljfs001t5o7otqhy9gby",
+      "auditId": "cmmpm747j00035opcxg9a6ff1",
+      "auditorId": "cmmv89g9y001z5oswi5x9xix6",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:40.648Z",
+      "audit": {
+        "auditId": "AUD-2025-001"
+      },
+      "auditor": {
+        "auditorId": "DGA-STF-002",
+        "auditorName": "Simon Blake"
+      }
+    },
+    {
+      "id": "cmnuzljhx001v5o7oi5ngw9gn",
+      "auditId": "cmmpm747j00035opcxg9a6ff1",
+      "auditorId": "cmmv89fr9001j5oswhoqqx2c2",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:40.726Z",
+      "audit": {
+        "auditId": "AUD-2025-001"
+      },
+      "auditor": {
+        "auditorId": "OPS-STF-002",
+        "auditorName": "Maya Robinson"
+      }
+    },
+    {
+      "id": "cmnuzljjw001x5o7oke1sf42s",
+      "auditId": "cmmpm747j00035opcxg9a6ff1",
+      "auditorId": "cmmv89g0p001r5oswv103bec5",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:40.796Z",
+      "audit": {
+        "auditId": "AUD-2025-001"
+      },
+      "auditor": {
+        "auditorId": "RI-STF-002",
+        "auditorName": "Mason Ellery"
+      }
+    },
+    {
+      "id": "cmnuzljlw001z5o7ociy96830",
+      "auditId": "cmmpm747j00035opcxg9a6ff1",
+      "auditorId": "cmmv89fi8001b5osww05ax80r",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:40.868Z",
+      "audit": {
+        "auditId": "AUD-2025-001"
+      },
+      "auditor": {
+        "auditorId": "COMM-STF-002",
+        "auditorName": "Ben Carter"
+      }
+    },
+    {
+      "id": "cmnuzljnx00215o7o31ft0bfn",
+      "auditId": "cmmpm747j00035opcxg9a6ff1",
+      "auditorId": "cmmv89f9100135oswkyi2ji75",
+      "teamRole": "STAFF",
+      "budgetHours": 240,
+      "assignedPhase": "ALL",
+      "createdAt": "2026-04-11T23:49:40.941Z",
+      "audit": {
+        "auditId": "AUD-2025-001"
+      },
+      "auditor": {
+        "auditorId": "HR-STF-002",
+        "auditorName": "Jonah Park"
+      }
+    }
+  ],
+  "periods": [
+    {
+      "id": "cmmozlou3001k5ors7bn4p45e",
+      "companyId": "cmmozlolj001i5orssht3ulu4",
+      "periodLabel": "FY2025",
+      "periodStart": "2025-01-01T00:00:00.000Z",
+      "periodEnd": "2025-12-31T00:00:00.000Z",
+      "periodType": "ANNUAL",
+      "createdAt": "2026-03-13T14:23:28.251Z"
+    }
+  ]
+}
