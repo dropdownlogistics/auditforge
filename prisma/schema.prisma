@@ -127,6 +127,7 @@ model Company {
   billingRates BillingRate[]
   invoices     Invoice[]
   arEntries    AREntry[]
+  findings     Finding[]
 
   @@map("dim_company")
 }
@@ -366,6 +367,9 @@ model Control {
   // v0.4: Audit scope
   auditScope AuditControlScope[]
 
+  // Findings raised against this control
+  findings Finding[]
+
   @@unique([companyId, controlId, periodId, version])
   @@index([companyId])
   @@index([processId])
@@ -409,6 +413,7 @@ model Audit {
   team            AuditAuditor[]
   factTimeEntries TimeEntry[]
   invoices        Invoice[]
+  findings        Finding[]
 
   @@index([companyId])
   @@index([periodId])
@@ -867,4 +872,49 @@ enum ARStatus {
   PARTIAL
   PAID
   WRITTEN_OFF
+}
+
+// ============================================================
+// FINDINGS — Audit findings with severity, status, remediation
+// ============================================================
+
+model Finding {
+  id                 String           @id @default(cuid())
+  findingId          String           @unique @map("finding_id")
+  companyId          String           @map("company_id")
+  auditId            String           @map("audit_id")
+  controlId          String?          @map("control_id")
+  title              String
+  description        String
+  severity           FindingSeverity
+  status             FindingStatus    @default(OPEN)
+  owner              String
+  targetDate         DateTime?        @map("target_date")
+  closedDate         DateTime?        @map("closed_date")
+  managementResponse String?          @map("management_response")
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  audit   Audit   @relation(fields: [auditId], references: [id])
+  control Control? @relation(fields: [controlId], references: [id])
+
+  @@index([auditId])
+  @@index([severity])
+  @@index([status])
+  @@map("fact_finding")
+}
+
+enum FindingSeverity {
+  MATERIAL_WEAKNESS
+  SIGNIFICANT_DEFICIENCY
+  CONTROL_DEFICIENCY
+  OBSERVATION
+}
+
+enum FindingStatus {
+  OPEN
+  IN_REMEDIATION
+  CLOSED
+  ACCEPTED
 }
