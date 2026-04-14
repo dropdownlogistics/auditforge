@@ -258,7 +258,26 @@ export default function BillingDash({ companyId = "CO-DDL" }) {
             <tbody>
               {revenueByEngagement.map((e, i) => {
                 const real = e.realization;
-                const realColor = real >= 0.85 ? C.green : real >= 0.5 ? C.copper : C.crimson;
+                const isPlanning = e.status === "PLANNING" || e.billed === 0;
+                const isOverBudget = real > 1;
+                const isPostBilling = e.status === "REPORTING" || e.status === "COMPLETED";
+                let realColor, realDisplay;
+                if (isPlanning) {
+                  realColor = C.steel;
+                  realDisplay = "—";
+                } else if (isOverBudget) {
+                  realColor = C.copper;
+                  realDisplay = `${fmtPct(real)} · OVER`;
+                } else if (isPostBilling && real < 0.85) {
+                  realColor = C.crimson;
+                  realDisplay = fmtPct(real);
+                } else if (real >= 0.85) {
+                  realColor = C.green;
+                  realDisplay = fmtPct(real);
+                } else {
+                  realColor = C.copper;
+                  realDisplay = fmtPct(real);
+                }
                 const badge = AUDIT_BADGE[e.status] || AUDIT_BADGE.PLANNING;
                 return (
                   <tr
@@ -282,7 +301,7 @@ export default function BillingDash({ companyId = "CO-DDL" }) {
                     <td style={cellStyle()}>{fmtUSD(e.budget)}</td>
                     <td style={cellStyle(C.copper)}>{fmtUSD(e.billed)}</td>
                     <td style={cellStyle(C.green)}>{fmtUSD(e.collected)}</td>
-                    <td style={cellStyle(realColor)}>{fmtPct(real)}</td>
+                    <td style={cellStyle(realColor)}>{realDisplay}</td>
                     <td style={{ padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}` }}>
                       {e.status ? <Badge bg={badge.bg} fg={badge.fg}>{e.status}</Badge> : <span style={{ color: C.steel }}>—</span>}
                     </td>
@@ -585,7 +604,25 @@ export default function BillingDash({ companyId = "CO-DDL" }) {
             Budget ${"-> "}Billed ${"-> "}Collected. Engagements below 85% realization flagged crimson.
           </div>
           {revenueByEngagement.map((e) => {
-            const flagged = e.budget > 0 && e.realization < 0.85;
+            const isPlanning = e.status === "PLANNING" || e.billed === 0;
+            const isOverBudget = e.realization > 1;
+            const isPostBilling = e.status === "REPORTING" || e.status === "COMPLETED";
+            const crimsonFlag = !isPlanning && !isOverBudget && isPostBilling && e.realization < 0.85;
+            let pctColor;
+            let flagNote = null;
+            if (isPlanning) {
+              pctColor = C.steel;
+            } else if (isOverBudget) {
+              pctColor = C.copper;
+              flagNote = "⚠ OVER BUDGET";
+            } else if (crimsonFlag) {
+              pctColor = C.crimson;
+              flagNote = "⚠ BELOW 85%";
+            } else if (e.realization >= 0.85) {
+              pctColor = C.green;
+            } else {
+              pctColor = C.copper;
+            }
             const maxBar = Math.max(e.budget, e.billed, e.collected, 1);
             return (
               <div key={e.auditId + "-real"} style={{ marginBottom: 16 }}>
@@ -601,11 +638,11 @@ export default function BillingDash({ companyId = "CO-DDL" }) {
                       fontFamily: "'JetBrains Mono', monospace",
                       fontSize: 11,
                       fontWeight: 700,
-                      color: flagged ? C.crimson : C.green,
+                      color: pctColor,
                     }}
                   >
-                    {fmtPct(e.realization)}
-                    {flagged && <span style={{ marginLeft: 8, fontSize: 9 }}>⚠ BELOW 85%</span>}
+                    {isPlanning ? "—" : fmtPct(e.realization)}
+                    {flagNote && <span style={{ marginLeft: 8, fontSize: 9 }}>{flagNote}</span>}
                   </div>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -633,7 +670,7 @@ function cellStyle(color) {
 }
 
 function RealizationBar({ label, value, max, color }) {
-  const pct = max > 0 ? (value / max) * 100 : 0;
+  const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
       <div
