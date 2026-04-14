@@ -56,7 +56,14 @@ export async function GET(request) {
     const k = t.audit.auditId;
     budgetByAudit[k] = (budgetByAudit[k] || 0) + dollars;
   }
-  const totalBudget = Object.values(budgetByAudit).reduce((s, v) => s + v, 0);
+  // Portfolio realization is only meaningful for engagements actually billed.
+  // Scope the budget denominator to audits with at least one non-DRAFT invoice.
+  const billedAuditIds = new Set(
+    invoices.filter((i) => i.status !== "DRAFT").map((i) => i.audit.auditId)
+  );
+  const totalBudget = Object.entries(budgetByAudit)
+    .filter(([auditId]) => billedAuditIds.has(auditId))
+    .reduce((s, [, v]) => s + v, 0);
 
   // Revenue by engagement (billed + collected per audit)
   const byEngagement = {};
