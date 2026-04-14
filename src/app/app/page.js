@@ -261,12 +261,43 @@ export default function AuditForgeApp() {
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: C.slate, lineHeight: 1.6 }}>
             Dropdown Logistics<br />Chaos → Structured → Automated
           </div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: C.copper, marginTop: 8 }}>Dropdown Logistics · Demo · v0.5</div>
         </div>
       </nav>
 
       {/* Main */}
       <main className="af-main" style={{ flex: 1, overflow: "auto", background: C.navy }}>
+        {/* Demo mode banner */}
+        <div
+          style={{
+            height: 28,
+            background: "rgba(196,154,60,0.08)",
+            borderBottom: "1px solid rgba(196,154,60,0.2)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 10,
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: 9,
+            color: C.copper,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+            whiteSpace: "nowrap",
+          }}
+        >
+          <span>◈ DEMO MODE — Dropdown Logistics · AuditForge v0.5 · Sample data only</span>
+          <span style={{ opacity: 0.4 }}>·</span>
+          <a
+            href="/sign-in"
+            style={{
+              color: C.copper,
+              textDecoration: "none",
+              borderBottom: "1px solid rgba(196,154,60,0.4)",
+              paddingBottom: 1,
+            }}
+          >
+            Sign In →
+          </a>
+        </div>
         {/* Mobile search button */}
         <button
           onClick={() => setSearchOpen(true)}
