@@ -674,6 +674,7 @@ enum ReviewStatus {
   PREPARED
   REVIEWED
   APPROVED
+  RETURN_FOR_COMMENTS
 }
 
 enum ControlLifecycle {

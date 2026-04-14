@@ -17,7 +17,7 @@ const C = {
 };
 
 const RISK_BG = { CRITICAL: "#FCA5A5", HIGH: "#FECACA", MEDIUM: "#FEF3C7", LOW: "#D1FAE5" };
-const STATUS_BG = { DRAFT: "#FEF3C7", PREPARED: "#DBEAFE", REVIEWED: "#E0E7FF", APPROVED: "#D1FAE5" };
+const STATUS_BG = { DRAFT: "#FEF3C7", PREPARED: "#DBEAFE", REVIEWED: "#E0E7FF", APPROVED: "#D1FAE5", RETURN_FOR_COMMENTS: "#FDE68A" };
 const TYPE_BG = { PREVENTIVE: "#DBEAFE", DETECTIVE: "#FEF3C7", CORRECTIVE: "#FECACA" };
 const AUDIT_BG = { PLANNING: "#DBEAFE", FIELDWORK: "#FEF3C7", REPORTING: "#E0E7FF", COMPLETED: "#D1FAE5", CANCELLED: "#FECACA" };
 
@@ -459,13 +459,15 @@ function ControlTable({ controls }) {
 
 
 // -- Review Queue --
-const ADVANCE = { DRAFT: "PREPARED", PREPARED: "REVIEWED", REVIEWED: "APPROVED" };
-const ADVANCE_LABEL = { DRAFT: "Mark Prepared", PREPARED: "Mark Reviewed", REVIEWED: "Approve" };
-const STATUS_ORDER = ["DRAFT", "PREPARED", "REVIEWED", "APPROVED"];
+const ADVANCE = { DRAFT: "PREPARED", PREPARED: "REVIEWED", REVIEWED: "APPROVED", RETURN_FOR_COMMENTS: "PREPARED" };
+const ADVANCE_LABEL = { DRAFT: "Mark Prepared", PREPARED: "Mark Reviewed", REVIEWED: "Approve", RETURN_FOR_COMMENTS: "Resubmit" };
+const STATUS_ORDER = ["DRAFT", "PREPARED", "REVIEWED", "RETURN_FOR_COMMENTS", "APPROVED"];
 
 function ReviewView({ controls, loading, onRefresh }) {
   const [advancing, setAdvancing] = useState({});
   const [errors, setErrors] = useState({});
+  const [returnModal, setReturnModal] = useState(null); // { ctrl } when open
+  const [returnReason, setReturnReason] = useState("");
 
   if (loading) return <div style={{ padding: 32, color: "#6B7B8D" }}>Loading...</div>;
 
@@ -538,6 +540,14 @@ function ReviewView({ controls, loading, onRefresh }) {
                     <span style={{ fontFamily: "Source Serif 4, serif", fontSize: 13, color: "#6B7B8D", flex: 1, minWidth: 200 }}>{ctrl.description ? ctrl.description.substring(0, 120) + (ctrl.description.length > 120 ? "..." : "") : ""}</span>
                     <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#6B7B8D", minWidth: 80 }}>{ctrl.process?.processArea || ""}</span>
                     {errors[ctrl.id] && <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#B23531" }}>{errors[ctrl.id]}</span>}
+                    {ctrl.reviewStatus === "REVIEWED" && (
+                      <button
+                        onClick={() => { setReturnModal({ ctrl }); setReturnReason(""); }}
+                        style={{ background: "rgba(196,154,60,0.08)", border: "1px solid rgba(196,154,60,0.3)", borderRadius: 6, padding: "6px 12px", fontFamily: "JetBrains Mono, monospace", fontSize: 10, fontWeight: 600, color: "#C49A3C", cursor: "pointer", whiteSpace: "nowrap" }}
+                      >
+                        Return
+                      </button>
+                    )}
                     {ADVANCE[ctrl.reviewStatus] && (
                       <button
                         onClick={() => advance(ctrl)}
@@ -573,6 +583,75 @@ function ReviewView({ controls, loading, onRefresh }) {
           </div>
         )}
       </div>
+      {returnModal && (
+        <div
+          onClick={() => setReturnModal(null)}
+          style={{ position: "fixed", inset: 0, background: "rgba(13,27,42,0.75)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ background: "#10202f", border: "1px solid rgba(196,154,60,0.3)", borderRadius: 10, padding: 28, maxWidth: 540, width: "100%" }}
+          >
+            <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#C49A3C", letterSpacing: "0.1em", marginBottom: 8 }}>RETURN FOR COMMENTS</div>
+            <div style={{ fontFamily: "Space Grotesk, sans-serif", fontSize: 18, fontWeight: 700, color: "#F5F1EB", marginBottom: 4 }}>{returnModal.ctrl.controlId}</div>
+            <div style={{ fontFamily: "Source Serif 4, serif", fontSize: 13, color: "#6B7B8D", marginBottom: 16 }}>{returnModal.ctrl.description?.substring(0, 160)}</div>
+            <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#6B7B8D", marginBottom: 6 }}>REASON (required)</div>
+            <textarea
+              value={returnReason}
+              onChange={(e) => setReturnReason(e.target.value)}
+              rows={5}
+              placeholder="Explain what the preparer needs to address before resubmission..."
+              style={{ width: "100%", background: "#0D1B2A", border: "1px solid rgba(245,241,235,0.1)", borderRadius: 6, padding: 12, color: "#F5F1EB", fontFamily: "Source Serif 4, serif", fontSize: 13, lineHeight: 1.5, resize: "vertical" }}
+            />
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 16 }}>
+              <button
+                onClick={() => setReturnModal(null)}
+                style={{ background: "transparent", border: "1px solid rgba(245,241,235,0.15)", color: "#6B7B8D", padding: "8px 16px", borderRadius: 6, fontFamily: "JetBrains Mono, monospace", fontSize: 11, cursor: "pointer" }}
+              >
+                Cancel
+              </button>
+              <button
+                disabled={!returnReason.trim() || advancing[returnModal.ctrl.id]}
+                onClick={async () => {
+                  const ctrl = returnModal.ctrl;
+                  setAdvancing((p) => ({ ...p, [ctrl.id]: true }));
+                  try {
+                    const res = await fetch("/api/controls/" + ctrl.id + "/transition", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ type: "REVIEW", toStatus: "RETURN_FOR_COMMENTS", userId: "demo-user", comment: returnReason.trim() }),
+                    });
+                    const data = await res.json();
+                    if (!res.ok) {
+                      setErrors((p) => ({ ...p, [ctrl.id]: data.error || "Return failed" }));
+                    } else {
+                      onRefresh && onRefresh();
+                    }
+                  } catch (e) {
+                    setErrors((p) => ({ ...p, [ctrl.id]: e.message }));
+                  } finally {
+                    setAdvancing((p) => ({ ...p, [ctrl.id]: false }));
+                    setReturnModal(null);
+                  }
+                }}
+                style={{
+                  background: !returnReason.trim() ? "rgba(196,154,60,0.15)" : "rgba(196,154,60,0.4)",
+                  border: "1px solid rgba(196,154,60,0.6)",
+                  color: "#F5F1EB",
+                  padding: "8px 18px",
+                  borderRadius: 6,
+                  fontFamily: "JetBrains Mono, monospace",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  cursor: !returnReason.trim() ? "not-allowed" : "pointer",
+                }}
+              >
+                Return for Comments
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

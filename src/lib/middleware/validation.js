@@ -11,7 +11,8 @@ const { PrismaClient } = require("@prisma/client");
 const REVIEW_TRANSITIONS = {
   DRAFT: ["PREPARED"],
   PREPARED: ["REVIEWED"],
-  REVIEWED: ["APPROVED", "DRAFT"], // DRAFT = reopen (requires comment)
+  REVIEWED: ["APPROVED", "DRAFT", "RETURN_FOR_COMMENTS"], // DRAFT = reopen; RFC = return with notes
+  RETURN_FOR_COMMENTS: ["PREPARED"], // preparer addresses comments and resubmits
   APPROVED: [], // immutable — superuser override creates audit entry
 };
 
