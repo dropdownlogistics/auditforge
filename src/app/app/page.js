@@ -255,7 +255,7 @@ export default function AuditForgeApp() {
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: C.slate, lineHeight: 1.6 }}>
             Dropdown Logistics<br />Chaos → Structured → Automated
           </div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: C.copper, marginTop: 8 }}>Dropdown Logistics · Demo · v0.4</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: C.copper, marginTop: 8 }}>Dropdown Logistics · Demo · v0.5</div>
         </div>
       </nav>
 
@@ -478,6 +478,7 @@ function ReviewView({ controls, loading, onRefresh }) {
       const res = await fetch("/api/controls/" + ctrl.id + "/transition", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        // Demo mode — replace with Clerk userId in production
         body: JSON.stringify({ type: "REVIEW", toStatus, userId: "demo-user" })
       });
       const data = await res.json();
