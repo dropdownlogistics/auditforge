@@ -2,6 +2,7 @@
 import TimeAnalyticsDash from "./components/TimeAnalyticsDash";
 import BillingDash from "./components/BillingDash";
 import EffectivenessDash from "./components/EffectivenessDash";
+import HealthScorecard from "./components/HealthScorecard";
 import TimeEntryGrid from "./components/TimeEntryGrid";
 import { LayoutDashboard, BarChart2, Shield, AlertTriangle, Network, BookOpen, FileOutput, Upload, ClipboardCheck, Clock, DollarSign } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -1374,6 +1375,9 @@ function AuditsView({ audits, controls, auditors, loading, onRefresh }) {
                 )}
               </div>
 
+              <div onClick={(e) => e.stopPropagation()} style={{ cursor: "default" }}>
+                <HealthScorecard auditId={audit.auditId} />
+              </div>
 
               {/* Team Roster */}
               {audit.team && audit.team.length > 0 && (
