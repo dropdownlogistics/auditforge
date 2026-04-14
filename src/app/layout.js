@@ -10,14 +10,14 @@ export const metadata = {
     description: "The audit package generates itself. Controls, risks, and processes become governed RCMs, MCLs, and walkthroughs in seconds from a live star schema.",
     url: "https://auditforge.dev",
     siteName: "AuditForge",
-    images: [{ url: "/og-auditforge.svg", width: 1200, height: 630, alt: "AuditForge" }],
+    images: [{ url: "https://auditforge.dev/og-auditforge.svg", width: 1200, height: 630, alt: "AuditForge" }],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "AuditForge — Governed Audit Documentation",
     description: "The audit package generates itself.",
-    images: ["/og-auditforge.png"],
+    images: ["https://auditforge.dev/og-auditforge.png"],
   },
 };
 
