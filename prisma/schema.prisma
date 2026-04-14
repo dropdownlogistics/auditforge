@@ -124,6 +124,9 @@ model Company {
   audits    Audit[]
   users     User[]
   invites   Invite[]
+  billingRates BillingRate[]
+  invoices     Invoice[]
+  arEntries    AREntry[]
 
   @@map("dim_company")
 }
@@ -405,6 +408,7 @@ model Audit {
   controlScope    AuditControlScope[]
   team            AuditAuditor[]
   factTimeEntries TimeEntry[]
+  invoices        Invoice[]
 
   @@index([companyId])
   @@index([periodId])
@@ -771,4 +775,96 @@ model TimeEntry {
   engagement Audit   @relation(fields: [engagementId], references: [id])
 
   @@map("fact_time_entry")
+}
+
+// ============================================================
+// BILLING & REVENUE — Rates, Invoices, Accounts Receivable
+// ============================================================
+
+model BillingRate {
+  id            String          @id @default(cuid())
+  rateId        String          @unique @map("rate_id")
+  companyId     String          @map("company_id")
+  role          String
+  rateType      BillingRateType @default(STANDARD) @map("rate_type")
+  hourlyRate    Float           @map("hourly_rate")
+  effectiveDate DateTime        @map("effective_date")
+  currency      String          @default("USD")
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([role])
+  @@map("dim_billing_rate")
+}
+
+model Invoice {
+  id           String        @id @default(cuid())
+  invoiceId    String        @unique @map("invoice_id")
+  companyId    String        @map("company_id")
+  auditId      String        @map("audit_id")
+  invoiceDate  DateTime      @map("invoice_date")
+  dueDate      DateTime      @map("due_date")
+  totalAmount  Float         @map("total_amount")
+  billedHours  Float         @map("billed_hours")
+  billingRate  Float         @map("billing_rate")
+  currency     String        @default("USD")
+  status       InvoiceStatus @default(DRAFT)
+  notes        String?
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  audit     Audit     @relation(fields: [auditId], references: [id])
+  arEntries AREntry[]
+
+  @@index([companyId])
+  @@index([auditId])
+  @@index([status])
+  @@map("fact_invoice")
+}
+
+model AREntry {
+  id             String   @id @default(cuid())
+  arId           String   @unique @map("ar_id")
+  companyId      String   @map("company_id")
+  invoiceId      String   @map("invoice_id")
+  paymentDate    DateTime? @map("payment_date")
+  amountPaid     Float    @default(0) @map("amount_paid")
+  paymentMethod  String?  @map("payment_method")
+  writeOffAmount Float    @default(0) @map("write_off_amount")
+  status         ARStatus @default(OUTSTANDING)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([invoiceId])
+  @@index([status])
+  @@map("fact_ar_entry")
+}
+
+enum BillingRateType {
+  STANDARD
+  BLENDED
+  CUSTOM
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  WRITTEN_OFF
+}
+
+enum ARStatus {
+  OUTSTANDING
+  PARTIAL
+  PAID
+  WRITTEN_OFF
 }
