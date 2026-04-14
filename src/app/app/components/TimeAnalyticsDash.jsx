@@ -28,7 +28,7 @@ function StatCell({ label, value, color, sub }) {
       <div style={{ width: 20, height: 2, background: color, borderRadius: 1, margin: "0 auto 8px" }} />
       <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 24, fontWeight: 700, color: color, lineHeight: 1 }}>{value}</div>
       {sub && <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: color, opacity: 0.7, marginTop: 2 }}>{sub}</div>}
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: C.steel, letterSpacing: "0.07em", textTransform: "uppercase", marginTop: 4 }}>{label}</div>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: C.steel, letterSpacing: "0.05em", textTransform: "uppercase", marginTop: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</div>
     </div>
   );
 }
@@ -123,7 +123,7 @@ export default function TimeAnalyticsDash() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 1, background: "rgba(196,154,60,0.06)", borderRadius: 8, overflow: "hidden" }}>
         <StatCell label="Total Hours" value={summary.totalHours?.toFixed(1) || "0"} color={C.cream} />
         <StatCell label="Billable" value={summary.billableHours?.toFixed(1) || "0"} color={C.green} />
-        <StatCell label="Non-Billable" value={summary.nonBillableHours?.toFixed(1) || "0"} color={C.copper} />
+        <StatCell label="Non-Bill" value={summary.nonBillableHours?.toFixed(1) || "0"} color={C.copper} />
         <StatCell
           label="Billable %"
           value={`${billablePct}%`}
@@ -164,14 +164,15 @@ export default function TimeAnalyticsDash() {
       {months.length > 0 && (
         <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "16px 20px" }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel, letterSpacing: "0.05em", marginBottom: 14 }}>MONTHLY TREND</div>
-          <div style={{ display: "flex", alignItems: "flex-end", gap: 8, height: 80 }}>
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 8, height: 160, paddingBottom: 4 }}>
             {months.map(([month, hrs]) => {
-              const pct = maxMonth > 0 ? (hrs / maxMonth) * 100 : 0;
+              const barMaxPx = 110;
+              const barPx = maxMonth > 0 ? Math.max((hrs / maxMonth) * barMaxPx, 4) : 4;
               return (
-                <div key={month} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: C.steel }}>{hrs.toFixed(0)}h</div>
-                  <div style={{ width: "100%", height: `${Math.max(pct, 4)}%`, minHeight: 4, background: C.green, borderRadius: "3px 3px 0 0", transition: "height 0.8s ease" }} />
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 7, color: C.steel, textAlign: "center" }}>{month.slice(5)}</div>
+                <div key={month} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 0 }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel }}>{hrs.toFixed(0)}h</div>
+                  <div style={{ width: "100%", height: `${barPx}px`, background: C.green, borderRadius: "3px 3px 0 0", transition: "height 0.8s ease" }} />
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, textAlign: "center", whiteSpace: "nowrap" }}>{month.slice(5)}</div>
                 </div>
               );
             })}
