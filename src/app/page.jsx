@@ -172,7 +172,7 @@ function OrbitalHero() {
 function StatGrid() {
   const stats = [
     { value: "106", label: "Governed Controls", sub: "9 process areas · live" },
-    { value: "45", label: "Auditors", sub: "9 teams · director to staff" },
+    { value: "47", label: "Auditors", sub: "9 teams · director to staff" },
     { value: "4", label: "Engagements", sub: "FY2025 · scoped and staffed" },
     { value: "<30s", label: "To Package", sub: "From live star schema" },
   ];
@@ -260,7 +260,7 @@ function RosterTeaser() {
           margin: "0 0 12px",
           lineHeight: 1.15,
         }}>
-          45 auditors.{" "}
+          47 auditors.{" "}
           <span style={{ color: "#4A9E6B", fontStyle: "italic" }}>9 teams.</span>
         </h2>
         <p style={{
