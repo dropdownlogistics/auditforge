@@ -11,7 +11,7 @@ export async function GET(request) {
   const resolved = await resolveCompanyId(companyId);
   if (!resolved) return NextResponse.json({ error: "Company not found" }, { status: 404 });
 
-  const auditors = await prisma.auditor.findMany({
+  const auditors = await prisma.employee.findMany({
     where: { companyId: resolved, isActive: true },
     orderBy: { auditorName: "asc" },
   });
@@ -31,7 +31,7 @@ export async function POST(request) {
     const resolved = await resolveCompanyId(companyId);
     if (!resolved) return NextResponse.json({ error: "Company not found" }, { status: 404 });
 
-    const auditor = await prisma.auditor.create({
+    const auditor = await prisma.employee.create({
       data: {
         auditorId,
         companyId: resolved,

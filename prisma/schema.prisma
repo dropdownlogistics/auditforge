@@ -37,12 +37,12 @@ datasource db {
 
 // ──── Enums ────
 
-enum UserRole {
-  ADMIN // Company admin — full access, can invite users
-  PREPARER // Can create/edit controls, prepare for review
-  REVIEWER // Can review and advance controls to REVIEWED
-  APPROVER // Can give final APPROVED status
-  VIEWER // Read-only access
+enum PermissionTier {
+  ADMIN
+  PREPARER
+  REVIEWER
+  APPROVER
+  VIEWER
 
   @@map("user_role")
 }
@@ -50,18 +50,20 @@ enum UserRole {
 // ──── User ────
 
 model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
+  id           String         @id @default(cuid())
+  email        String         @unique
   name         String
-  passwordHash String    @map("password_hash")
-  role         UserRole  @default(PREPARER)
-  companyId    String?   @map("company_id")
-  active       Boolean   @default(true)
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
-  lastLoginAt  DateTime? @map("last_login_at")
+  passwordHash String         @map("password_hash")
+  role         PermissionTier @default(PREPARER)
+  companyId    String?        @map("company_id")
+  employeeId   String?        @map("employee_id")
+  active       Boolean        @default(true)
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+  lastLoginAt  DateTime?      @map("last_login_at")
 
   company  Company?  @relation(fields: [companyId], references: [id])
+  employee Employee? @relation(fields: [employeeId], references: [id])
   sessions Session[]
   invites  Invite[]  @relation("InvitedBy")
 
@@ -88,7 +90,7 @@ model Invite {
   id          String    @id @default(cuid())
   email       String
   companyId   String    @map("company_id")
-  role        UserRole  @default(PREPARER)
+  role        PermissionTier @default(PREPARER)
   token       String    @unique @default(cuid())
   invitedById String    @map("invited_by_id")
   expiresAt   DateTime  @map("expires_at")
@@ -120,7 +122,7 @@ model Company {
   owners    Owner[]
   periods   Period[]
   scopes    Scope[]
-  auditors  Auditor[]
+  employees Employee[]
   audits    Audit[]
   users     User[]
   invites   Invite[]
@@ -270,43 +272,65 @@ model ControlTypeDim {
 }
 
 // ============================================================
-// v0.4: Auditor — CR-AUDITFORGE-004 (Unanimous LOCK)
-// Auditors ≠ control owners. Segregation requires separation.
+// Employee — canonical identity dimension (ex-Auditor)
+// Renamed from dim_auditor per Phase A (Path A confirmed).
+// Audit-specific fields retained; HR fields added nullable.
 // ============================================================
 
-model Auditor {
-  id              String    @id @default(cuid())
-  auditorId       String    @unique @map("auditor_id")
-  companyId       String    @map("company_id")
-  auditorName     String    @map("auditor_name")
+model Employee {
+  id              String          @id @default(cuid())
+  auditorId       String          @unique @map("auditor_id")
+  companyId       String          @map("company_id")
+  auditorName     String          @map("auditor_name")
   title           String?
   department      String?
   email           String?
-  role            String    @default("STAFF") // STAFF, SENIOR, MANAGER, DIRECTOR, PARTNER
-  certifications  String? // comma-separated: CPA, CIA, CISA
+  role            String          @default("STAFF")
+  certifications  String?
   specializations String?
   bio             String?
   councilSeat     String?
   strengths       String?
   weaknesses      String?
-  strengthTokens  String?   @map("strength_tokens")
-  weaknessTokens  String?   @map("weakness_tokens")
-  hireDate        DateTime? @map("hire_date")
-  departureDate   DateTime? @map("departure_date")
-  independence    String    @default("INTERNAL") // INTERNAL, EXTERNAL, REGULATORY
+  strengthTokens  String?         @map("strength_tokens")
+  weaknessTokens  String?         @map("weakness_tokens")
+  hireDate        DateTime?       @map("hire_date")
+  departureDate   DateTime?       @map("departure_date")
+  independence    String          @default("INTERNAL")
   firm            String?
-  isActive        Boolean   @default(true) @map("is_active")
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
+  isActive        Boolean         @default(true) @map("is_active")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  // HR fields (Phase A — nullable until backfill)
+  firstName        String?         @map("first_name")
+  lastName         String?         @map("last_name")
+  preferredName    String?         @map("preferred_name")
+  managerId        String?         @map("manager_id")
+  roleId           String?         @map("role_id")
+  departmentId     String?         @map("department_id")
+  statusId         String?         @map("status_id")
+  employmentType   EmploymentType? @map("employment_type")
+  employeeTimeZone String?         @map("employee_time_zone")
+  source           String          @default("internal")
+  externalId       String?         @map("external_id")
+  externalMetadata Json?           @map("external_metadata")
 
   company          Company             @relation(fields: [companyId], references: [id])
+  manager          Employee?           @relation("EmployeeManager", fields: [managerId], references: [id])
+  directReports    Employee[]          @relation("EmployeeManager")
+  dimRole          Role?               @relation(fields: [roleId], references: [id])
+  dimDepartment    Department?         @relation(fields: [departmentId], references: [id])
+  dimStatus        EmployeeStatus?     @relation(fields: [statusId], references: [id])
   ledAudits        Audit[]             @relation("LeadAuditor")
   scopeAssignments AuditControlScope[] @relation("ScopeAssignee")
   teamAssignments  AuditAuditor[]
   factTimeEntries  TimeEntry[]
+  users            User[]
+  ownedControls    Control[]           @relation("ControlOwnerEmployee")
 
   @@index([companyId])
-  @@map("dim_auditor")
+  @@map("dim_employee")
 }
 
 // ============================================================
@@ -320,6 +344,8 @@ model Control {
   processId              String              @map("process_id")
   periodId               String              @map("period_id")
   ownerId                String?             @map("owner_id")
+  ownerEmployeeId        String?             @map("owner_employee_id")
+  ownerRoleId            String?             @map("owner_role_id")
   scopeId                String?             @map("scope_id")
   controlTypeDimId       String?             @map("control_type_dim_id")
   description            String              @map("control_description")
@@ -353,6 +379,8 @@ model Control {
   process        Process         @relation(fields: [processId], references: [id])
   period         Period          @relation(fields: [periodId], references: [id])
   owner          Owner?          @relation(fields: [ownerId], references: [id])
+  ownerEmployee  Employee?       @relation("ControlOwnerEmployee", fields: [ownerEmployeeId], references: [id])
+  ownerRole      Role?           @relation("ControlOwnerRole", fields: [ownerRoleId], references: [id])
   scope          Scope?          @relation(fields: [scopeId], references: [id])
   controlTypeDim ControlTypeDim? @relation(fields: [controlTypeDimId], references: [id])
   supersededBy   Control?        @relation("ControlSupersedes", fields: [supersededById], references: [id])
@@ -410,7 +438,7 @@ model Audit {
 
   company         Company             @relation(fields: [companyId], references: [id])
   period          Period              @relation(fields: [periodId], references: [id])
-  leadAuditor     Auditor             @relation("LeadAuditor", fields: [leadAuditorId], references: [id])
+  leadAuditor     Employee            @relation("LeadAuditor", fields: [leadAuditorId], references: [id])
   controlScope    AuditControlScope[]
   team            AuditAuditor[]
   factTimeEntries TimeEntry[]
@@ -443,7 +471,7 @@ model AuditControlScope {
 
   audit      Audit    @relation(fields: [auditId], references: [id])
   control    Control  @relation(fields: [controlId], references: [id])
-  assignedTo Auditor? @relation("ScopeAssignee", fields: [assignedToId], references: [id])
+  assignedTo Employee? @relation("ScopeAssignee", fields: [assignedToId], references: [id])
 
   @@unique([auditId, controlId, validFrom])
   @@index([auditId])
@@ -760,7 +788,7 @@ model AuditAuditor {
   createdAt     DateTime @default(now()) @map("created_at")
 
   audit   Audit   @relation(fields: [auditId], references: [id])
-  auditor Auditor @relation(fields: [auditorId], references: [id])
+  auditor Employee @relation(fields: [auditorId], references: [id])
 
   @@unique([auditId, auditorId])
   @@map("bridge_audit_auditor")
@@ -779,8 +807,8 @@ model TimeEntry {
   comments     String?
   createdAt    DateTime @default(now())
 
-  auditor    Auditor @relation(fields: [auditorId], references: [id])
-  engagement Audit   @relation(fields: [engagementId], references: [id])
+  auditor    Employee @relation(fields: [auditorId], references: [id])
+  engagement Audit    @relation(fields: [engagementId], references: [id])
 
   @@map("fact_time_entry")
 }
@@ -978,7 +1006,9 @@ model Role {
   level     Int
   createdAt DateTime @default(now()) @map("created_at")
 
-  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company   Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  employees Employee[]
+  controls  Control[]  @relation("ControlOwnerRole")
 
   @@unique([companyId, label])
   @@index([companyId])
@@ -991,7 +1021,8 @@ model Department {
   name      String
   createdAt DateTime @default(now()) @map("created_at")
 
-  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company   Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  employees Employee[]
 
   @@unique([companyId, name])
   @@index([companyId])
@@ -1008,6 +1039,8 @@ model EmployeeStatus {
   onPayroll         Boolean      @default(true)  @map("on_payroll")
   onTimeClock       Boolean      @default(true)  @map("on_time_clock")
   createdAt         DateTime     @default(now()) @map("created_at")
+
+  employees Employee[]
 
   @@unique([parent, childLabel])
   @@map("dim_employee_status")

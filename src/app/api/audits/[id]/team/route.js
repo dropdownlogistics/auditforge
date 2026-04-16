@@ -49,7 +49,7 @@ export async function POST(request, { params }) {
     const results = [];
     for (const m of members) {
       // Resolve auditor
-      const auditor = await prisma.auditor.findFirst({
+      const auditor = await prisma.employee.findFirst({
         where: {
           OR: [
             { id: m.auditorId },
@@ -111,7 +111,7 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: "auditorIds and rationale required" }, { status: 400 });
     }
 
-    const auditors = await prisma.auditor.findMany({
+    const auditors = await prisma.employee.findMany({
       where: { OR: [{ id: { in: auditorIds } }, { auditorId: { in: auditorIds } }] }
     });
 
