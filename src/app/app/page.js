@@ -170,23 +170,34 @@ export default function AuditForgeApp() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function load() {
+    async function fetchJson(url) {
       try {
-        const [ctrlRes, riskRes, procRes, auditRes] = await Promise.all([
-          fetch("/api/controls?companyId=CO-DDL"),
-          fetch("/api/risks?companyId=CO-DDL"),
-          fetch("/api/processes?companyId=CO-DDL"),
-          fetch("/api/audits?companyId=CO-DDL").catch(() => ({ json: async () => ({ audits: [] }) })),
-          fetch("/api/auditors?companyId=CO-DDL").catch(() => ({ json: async () => ({ auditors: [] }) })),
-        ]);
-        const [ctrlData, riskData, procData, auditData, auditorData] = await Promise.all([ctrlRes.json(), riskRes.json(), procRes.json(), auditRes.json(), (await fetch("/api/auditors?companyId=CO-DDL")).json()]);
-        setControls(ctrlData.controls || []);
-        setRisks(riskData.risks || []);
-        setProcesses(procData.processes || []);
-        setAudits(auditData.audits || []);
-        setAuditors(auditorData.auditors || []);
-      } catch (e) { console.error("Load failed:", e); }
-      finally { setLoading(false); }
+        const res = await fetch(url);
+        if (!res.ok) {
+          const body = await res.text().catch(() => "");
+          console.error(`[fetch ${url}] HTTP ${res.status}:`, body.slice(0, 500));
+          return {};
+        }
+        return await res.json();
+      } catch (e) {
+        console.error(`[fetch ${url}] threw:`, e.message);
+        return {};
+      }
+    }
+    async function load() {
+      const [ctrlData, riskData, procData, auditData, auditorData] = await Promise.all([
+        fetchJson("/api/controls?companyId=CO-DDL"),
+        fetchJson("/api/risks?companyId=CO-DDL"),
+        fetchJson("/api/processes?companyId=CO-DDL"),
+        fetchJson("/api/audits?companyId=CO-DDL"),
+        fetchJson("/api/auditors?companyId=CO-DDL"),
+      ]);
+      setControls(ctrlData.controls || []);
+      setRisks(riskData.risks || []);
+      setProcesses(procData.processes || []);
+      setAudits(auditData.audits || []);
+      setAuditors(auditorData.auditors || []);
+      setLoading(false);
     }
     load();
   }, []);
