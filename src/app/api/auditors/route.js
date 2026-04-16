@@ -13,6 +13,20 @@ export async function GET(request) {
 
   const auditors = await prisma.employee.findMany({
     where: { companyId: resolved, isActive: true },
+    include: {
+      auditorProfile: true,
+      dimRole: { select: { label: true, level: true } },
+      dimDepartment: { select: { name: true } },
+      dimStatus: { select: { parent: true, childLabel: true } },
+      tokenAssessments: {
+        include: { token: { select: { code: true, name: true, polarity: true } } },
+      },
+      compChanges: {
+        orderBy: { effectiveDate: "desc" },
+        take: 1,
+        select: { newRate: true, payCadence: true, effectiveDate: true, changeType: true },
+      },
+    },
     orderBy: { auditorName: "asc" },
   });
 

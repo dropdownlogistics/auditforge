@@ -119,7 +119,6 @@ model Company {
   controls  Control[]
   processes Process[]
   risks     Risk[]
-  owners    Owner[]
   periods   Period[]
   scopes    Scope[]
   employees Employee[]
@@ -277,6 +276,8 @@ model Employee {
   email           String?
   role            String          @default("STAFF")
   certifications  String?
+  // Phase B: fields below are deprecated — canonical data in dim_auditor_profile / fact_token_assessment.
+  // Retained for UI compatibility until Phase C updates AuditorsView to read from relations.
   specializations String?
   bio             String?
   councilSeat     String?
@@ -284,10 +285,11 @@ model Employee {
   weaknesses      String?
   strengthTokens  String?         @map("strength_tokens")
   weaknessTokens  String?         @map("weakness_tokens")
-  hireDate        DateTime?       @map("hire_date")
-  departureDate   DateTime?       @map("departure_date")
   independence    String          @default("INTERNAL")
   firm            String?
+  // End deprecated fields
+  hireDate        DateTime?       @map("hire_date")
+  departureDate   DateTime?       @map("departure_date")
   isActive        Boolean         @default(true) @map("is_active")
   createdAt       DateTime        @default(now()) @map("created_at")
   updatedAt       DateTime        @updatedAt @map("updated_at")

@@ -113,17 +113,6 @@ async function resolveProcess(processArea, processName, companyDbId) {
   return created.id;
 }
 
-// ── Resolve or create owner ───────────────────────────────────────────────────
-
-async function resolveOwner(ownerName, companyDbId) {
-  if (!ownerName) return null;
-  const name = ownerName.trim();
-  const existing = await prisma.owner.findFirst({
-    where: { companyId: companyDbId, ownerName: name },
-  });
-  return existing?.id || null;
-}
-
 // ── Resolve period (use latest active or create FY) ──────────────────────────
 
 async function resolvePeriod(companyDbId) {
@@ -196,7 +185,6 @@ export async function POST(request) {
       const ctrl = normalizeControl(controls[result.rowIndex]);
 
       const processId = await resolveProcess(ctrl.processArea, ctrl.processName, companyDbId);
-      const ownerId   = await resolveOwner(ctrl.ownerName, companyDbId);
 
       // Check if control already exists
       const existing = await prisma.control.findFirst({
@@ -208,7 +196,6 @@ export async function POST(request) {
         companyId:              companyDbId,
         processId,
         periodId,
-        ownerId,
         description:            ctrl.description,
         controlType:            ctrl.controlType,
         controlNature:          ctrl.controlNature,

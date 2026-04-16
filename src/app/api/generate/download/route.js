@@ -30,7 +30,6 @@ export async function GET(request) {
       where: { companyId: resolved, periodId: period.id },
       include: {
         process: true,
-        owner: true,
         period: true,
         company: true,
         risks: { where: { validTo: null }, include: { risk: true } },
@@ -61,9 +60,9 @@ export async function GET(request) {
       subprocessName: ctrl.process.subprocessName,
       processOwner: ctrl.process.processOwner,
       processDescription: ctrl.process.description,
-      ownerName: ctrl.owner?.ownerName || "Unassigned",
-      ownerTitle: ctrl.owner?.title || "",
-      ownerDepartment: ctrl.owner?.department || "",
+      ownerName: "Unassigned",
+      ownerTitle: "",
+      ownerDepartment: "",
       periodLabel: ctrl.period.periodLabel,
       companyName: ctrl.company.name,
       companyId: ctrl.company.companyId,
@@ -138,7 +137,6 @@ export async function GET(request) {
             control: {
               include: {
                 process: true,
-                owner: true,
                 risks: { where: { validTo: null }, include: { risk: true } },
               },
             },

@@ -48,7 +48,6 @@ export async function GET(request) {
     where,
     include: {
       process: true,
-      owner: true,
       period: true,
       scope: true,
       controlTypeDim: true,
@@ -104,7 +103,6 @@ export async function POST(request) {
         companyId: data.companyId,
         processId: data.processId,
         periodId: data.periodId,
-        ownerId: data.ownerId || null,
         scopeId: data.scopeId || null,
         controlTypeDimId: data.controlTypeDimId || null,
         description: data.description,
@@ -121,7 +119,6 @@ export async function POST(request) {
       },
       include: {
         process: true,
-        owner: true,
       },
     });
 
@@ -176,7 +173,7 @@ export async function PUT(request) {
         version: existing.version + 1,
         reviewStatus: existing.reviewStatus !== "DRAFT" ? "DRAFT" : existing.reviewStatus,
       },
-      include: { process: true, owner: true },
+      include: { process: true },
     });
 
     for (const diff of diffs) {

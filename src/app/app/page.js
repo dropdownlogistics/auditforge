@@ -5,7 +5,7 @@ import EffectivenessDash from "./components/EffectivenessDash";
 import HealthScorecard from "./components/HealthScorecard";
 import FindingsView from "./components/FindingsView";
 import TimeEntryGrid from "./components/TimeEntryGrid";
-import { LayoutDashboard, BarChart2, Shield, AlertTriangle, Network, BookOpen, FileOutput, Upload, ClipboardCheck, Clock, DollarSign, FileWarning } from "lucide-react";
+import { LayoutDashboard, BarChart2, Shield, AlertTriangle, Network, BookOpen, FileOutput, Upload, ClipboardCheck, Clock, DollarSign, FileWarning, Users } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 
 // ── CottageHumble Tokens ──
@@ -206,11 +206,10 @@ export default function AuditForgeApp() {
     { id: "risks", icon: AlertTriangle, label: "Risks" },
     { id: "processes", icon: Network, label: "Processes" },
     { id: "audits", icon: BookOpen, label: "Audits" },
-    { id: "auditors", icon: AuditorsIcon, label: "Auditors" },
+    { id: "people", icon: Users, label: "People" },
     { id: "review", icon: ClipboardCheck, label: "Review" },
     { id: "generate", icon: FileOutput, label: "Generate" },
     { id: "import", icon: Upload, label: "Import" },
-    { id: "time", icon: Clock, label: "Time" },
     { id: "billing", icon: DollarSign, label: "Billing" },
     { id: "findings", icon: FileWarning, label: "Findings" },
   ];
@@ -247,7 +246,7 @@ export default function AuditForgeApp() {
               <n.icon size={16} style={{ minWidth: 16 }} />
               {n.label}
               {n.id === "audits" && audits.length > 0 && <span className="af-nav-badge" style={{ marginLeft: "auto", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.copper }}>{audits.length}</span>}
-              {n.id === "auditors" && auditors.length > 0 && <span className="af-nav-badge" style={{ marginLeft: "auto", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.copper }}>{auditors.length}</span>}
+              {n.id === "people" && auditors.length > 0 && <span className="af-nav-badge" style={{ marginLeft: "auto", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.copper }}>{auditors.length}</span>}
             </div>
           ))}
         </div>
@@ -321,19 +320,9 @@ export default function AuditForgeApp() {
         {view === "risks" && <RisksView risks={risks} controls={controls} loading={loading} />}
         {view === "processes" && <ProcessesView processes={processes} controls={controls} loading={loading} />}
         {view === "audits" && <AuditsView audits={audits} controls={controls} auditors={auditors} loading={loading} onRefresh={async () => { const r = await fetch("/api/audits?companyId=CO-DDL"); const d = await r.json(); setAudits(d.audits || []); }} />}
-        {view === "auditors" && <AuditorsView auditors={auditors} loading={loading} />}
+        {view === "people" && <PeopleView auditors={auditors} audits={audits} loading={loading} />}
         {view === "review" && <ReviewView controls={controls} loading={loading} onRefresh={refetchControls} />}
         {view === "generate" && <GenerateView controls={controls} />}
-        {view === "time" && (
-          <div style={{ padding: "32px" }}>
-            <div style={{ marginBottom: "24px" }}>
-              <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "10px", fontWeight: "700", letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(196,154,60,0.8)", marginBottom: "6px" }}>Time Tracking</div>
-              <div style={{ fontSize: "22px", fontWeight: "700", color: "#F5F1EB" }}>Weekly Time Entry</div>
-              <div style={{ fontSize: "13px", color: "rgba(245,241,235,0.4)", marginTop: "4px" }}>Log hours by engagement, component, and day.</div>
-            </div>
-            <TimeEntryGrid audits={audits} currentAuditor={auditors?.[0]} />
-          </div>
-        )}
         {view === "billing" && <BillingDash companyId="CO-DDL" />}
         {view === "findings" && <FindingsView companyId="CO-DDL" />}
 
@@ -471,7 +460,7 @@ function ControlTable({ controls }) {
               <td style={{ padding: "12px 16px", fontFamily: "'Source Serif 4', serif", fontSize: 12, color: C.steel, borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}>{c.process?.processArea}</td>
               <td style={{ padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}><Badge bg={TYPE_BG[c.controlType]}>{fmtEnum(c.controlType)}</Badge></td>
               <td style={{ padding: "12px 16px", textAlign: "center", borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}>{c.keyControl ? <span style={{ color: C.green, fontWeight: 700 }}>✔</span> : <span style={{ color: C.slate }}>✗</span>}</td>
-              <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.cream, borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}>{c.owner?.ownerName || "—"}</td>
+              <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.cream, borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}>{c.ownerRole?.label || "—"}</td>
               <td style={{ padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}><Badge bg={STATUS_BG[c.reviewStatus]}>{fmtEnum(c.reviewStatus)}</Badge></td>
               <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.crimson, borderBottom: `1px solid ${C.borderLight}`, background: i % 2 ? "rgba(245,241,235,0.02)" : "transparent" }}>{c.risks?.map(r => r.risk?.riskId).filter(Boolean).join(", ") || "—"}</td>
             </tr>
@@ -2330,6 +2319,224 @@ function AuditorCardModal({ auditor, onClose }) {
           <Badge bg="#DBEAFE">{auditor.independence || "—"}</Badge>
           <Badge bg="#FEF3C7">{teamLabel}</Badge>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ── People View — Phase B: HR & People integration ──
+const PEOPLE_TABS = [
+  { id: "roster", label: "Roster" },
+  { id: "status", label: "Status & Lifecycle" },
+  { id: "time", label: "Time" },
+  { id: "comp", label: "Compensation" },
+];
+
+function PeopleView({ auditors, audits, loading }) {
+  const [tab, setTab] = useState("roster");
+  const [statusData, setStatusData] = useState({});
+  const [selectedForStatus, setSelectedForStatus] = useState(null);
+
+  const loadStatus = useCallback(async (empId) => {
+    if (statusData[empId]) return;
+    try {
+      const res = await fetch(`/api/employees/${empId}/status`);
+      const data = await res.json();
+      setStatusData(prev => ({ ...prev, [empId]: data }));
+    } catch (e) { console.error("Status load failed:", e); }
+  }, [statusData]);
+
+  const tabStyle = (active) => ({
+    padding: "10px 20px",
+    fontFamily: "'Space Grotesk', sans-serif",
+    fontSize: 13,
+    fontWeight: active ? 600 : 400,
+    color: active ? C.cream : C.steel,
+    background: active ? "rgba(196,154,60,0.12)" : "transparent",
+    border: "none",
+    borderBottom: active ? `2px solid ${C.copper}` : "2px solid transparent",
+    cursor: "pointer",
+    transition: "all 120ms ease",
+  });
+
+  return (
+    <>
+      <Header title="People" meta={`Firm roster · ${auditors.length} employees · HR & People`} />
+      <div style={{ borderBottom: `1px solid ${C.border}`, display: "flex", gap: 0, paddingLeft: 32 }}>
+        {PEOPLE_TABS.map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)} style={tabStyle(tab === t.id)}>{t.label}</button>
+        ))}
+      </div>
+      {tab === "roster" && <AuditorsView auditors={auditors} loading={loading} />}
+      {tab === "status" && <StatusLifecycleView auditors={auditors} loading={loading} statusData={statusData} loadStatus={loadStatus} selectedForStatus={selectedForStatus} setSelectedForStatus={setSelectedForStatus} />}
+      {tab === "time" && (
+        <div style={{ padding: "32px" }}>
+          <div style={{ marginBottom: "24px" }}>
+            <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "10px", fontWeight: "700", letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(196,154,60,0.8)", marginBottom: "6px" }}>Time Tracking</div>
+            <div style={{ fontSize: "22px", fontWeight: "700", color: "#F5F1EB" }}>Weekly Time Entry</div>
+            <div style={{ fontSize: "13px", color: "rgba(245,241,235,0.4)", marginTop: "4px" }}>Log hours by engagement, component, and day.</div>
+          </div>
+          <TimeEntryGrid audits={audits} currentAuditor={auditors?.[0]} />
+        </div>
+      )}
+      {tab === "comp" && <CompensationView auditors={auditors} loading={loading} />}
+    </>
+  );
+}
+
+function StatusLifecycleView({ auditors, loading, statusData, loadStatus, selectedForStatus, setSelectedForStatus }) {
+  if (loading) return <div style={{ padding: 32, color: C.steel, fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>Loading...</div>;
+
+  const STATUS_PARENT_BG = { ACTIVE: "#D1FAE5", ON_LEAVE: "#FEF3C7", INACTIVE: "#FECACA", PENDING: "#DBEAFE" };
+  const byStatus = { ACTIVE: 0, ON_LEAVE: 0, INACTIVE: 0, PENDING: 0 };
+  for (const a of auditors) {
+    const p = a.dimStatus?.parent || "ACTIVE";
+    byStatus[p] = (byStatus[p] || 0) + 1;
+  }
+
+  return (
+    <div style={{ padding: "24px 32px 48px" }}>
+      {/* Status summary cards */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 32 }}>
+        {Object.entries(byStatus).map(([parent, count]) => (
+          <div key={parent} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "20px 24px" }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 8 }}>{fmtEnum(parent)}</div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: C.cream, fontFamily: "'Space Grotesk', sans-serif" }}>{count}</div>
+            <Badge bg={STATUS_PARENT_BG[parent]}>{parent}</Badge>
+          </div>
+        ))}
+      </div>
+
+      {/* Employee list with status details */}
+      <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 600, color: C.copper, marginBottom: 16 }}>EMPLOYEE STATUS</div>
+      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, overflow: "hidden" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              {["Name", "Role", "Status", "Hire Date", "Department", "Manager", ""].map(h => (
+                <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600, borderBottom: `1px solid ${C.border}` }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {auditors.map(a => {
+              const name = a.firstName && a.lastName ? `${a.firstName} ${a.lastName}` : a.auditorName;
+              const manager = auditors.find(m => m.id === a.managerId);
+              return (
+                <tr key={a.id} style={{ borderBottom: `1px solid ${C.borderLight}` }}>
+                  <td style={{ padding: "12px 16px", fontFamily: "'Source Serif 4', serif", fontSize: 12, color: C.cream }}>{name}</td>
+                  <td style={{ padding: "12px 16px" }}><Badge bg={ROLE_BG[a.dimRole?.label || a.role] || "#E5E7EB"}>{a.dimRole?.label || a.role}</Badge></td>
+                  <td style={{ padding: "12px 16px" }}><Badge bg={STATUS_PARENT_BG[a.dimStatus?.parent] || "#E5E7EB"}>{a.dimStatus ? `${fmtEnum(a.dimStatus.parent)} · ${a.dimStatus.childLabel}` : "—"}</Badge></td>
+                  <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>{a.hireDate ? new Date(a.hireDate).toLocaleDateString() : "—"}</td>
+                  <td style={{ padding: "12px 16px", fontFamily: "'Source Serif 4', serif", fontSize: 12, color: C.steel }}>{a.dimDepartment?.name || a.department || "—"}</td>
+                  <td style={{ padding: "12px 16px", fontFamily: "'Source Serif 4', serif", fontSize: 12, color: C.steel }}>{manager ? (manager.firstName ? `${manager.firstName} ${manager.lastName}` : manager.auditorName) : "—"}</td>
+                  <td style={{ padding: "12px 16px" }}>
+                    <button
+                      onClick={() => { setSelectedForStatus(a); loadStatus(a.auditorId); }}
+                      style={{ padding: "4px 10px", background: "transparent", border: `1px solid ${C.border}`, borderRadius: 4, color: C.steel, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, cursor: "pointer" }}
+                    >History</button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Status history modal */}
+      {selectedForStatus && (
+        <div onClick={() => setSelectedForStatus(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 999, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 32, width: 560, maxHeight: "80vh", overflow: "auto" }}>
+            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 18, fontWeight: 600, color: C.cream, marginBottom: 4 }}>
+              {selectedForStatus.firstName ? `${selectedForStatus.firstName} ${selectedForStatus.lastName}` : selectedForStatus.auditorName}
+            </div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel, marginBottom: 24 }}>Status History · {selectedForStatus.auditorId}</div>
+            {(() => {
+              const data = statusData[selectedForStatus.auditorId];
+              if (!data) return <div style={{ color: C.steel, fontSize: 12 }}>Loading...</div>;
+              if (data.changes?.length === 0) return <div style={{ color: C.steel, fontSize: 12 }}>No status changes recorded.</div>;
+              return (
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {data.changes.map((ch, i) => (
+                    <div key={ch.id || i} style={{ padding: "12px 16px", background: C.navy, border: `1px solid ${C.border}`, borderRadius: 6, borderLeft: `3px solid ${i === 0 ? C.green : C.steel}` }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                        <Badge bg={STATUS_PARENT_BG[ch.toStatus?.parent] || "#E5E7EB"}>{ch.toStatus ? `${fmtEnum(ch.toStatus.parent)} · ${ch.toStatus.childLabel}` : "—"}</Badge>
+                        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel }}>{new Date(ch.effectiveDate).toLocaleDateString()}</span>
+                      </div>
+                      {ch.fromStatus && <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel }}>From: {fmtEnum(ch.fromStatus.parent)} · {ch.fromStatus.childLabel}</div>}
+                      {ch.reason && <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 11, color: C.steel, marginTop: 4 }}>{ch.reason}</div>}
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
+            <button onClick={() => setSelectedForStatus(null)} style={{ marginTop: 20, padding: "8px 20px", background: C.copper, color: C.navy, border: "none", borderRadius: 6, fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Close</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CompensationView({ auditors, loading }) {
+  if (loading) return <div style={{ padding: 32, color: C.steel, fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>Loading...</div>;
+
+  const withComp = auditors.filter(a => a.compChanges?.length > 0);
+  const totalAnnualized = withComp.reduce((s, a) => {
+    const latest = a.compChanges[0];
+    return s + (latest?.payCadence === "ANNUAL" ? Number(latest.newRate) : Number(latest?.newRate || 0) * 2080);
+  }, 0);
+
+  return (
+    <div style={{ padding: "24px 32px 48px" }}>
+      {/* Summary cards */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 32 }}>
+        <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "20px 24px" }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 8 }}>Employees with Comp</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: C.cream, fontFamily: "'Space Grotesk', sans-serif" }}>{withComp.length}</div>
+        </div>
+        <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "20px 24px" }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 8 }}>Annualized Base (Total)</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: C.cream, fontFamily: "'Space Grotesk', sans-serif" }}>${totalAnnualized.toLocaleString()}</div>
+        </div>
+        <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "20px 24px" }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 8 }}>Avg per Employee</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: C.cream, fontFamily: "'Space Grotesk', sans-serif" }}>${withComp.length > 0 ? Math.round(totalAnnualized / withComp.length).toLocaleString() : "—"}</div>
+        </div>
+      </div>
+
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, letterSpacing: "0.06em", marginBottom: 16, fontStyle: "italic" }}>
+        ⚑ Compensation data is synthetic seed — not real. Flagged per Phase A backfill.
+      </div>
+
+      {/* Comp table */}
+      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, overflow: "hidden" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              {["Name", "Role", "Current Rate", "Cadence", "Last Change", "Change Type", "Effective"].map(h => (
+                <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600, borderBottom: `1px solid ${C.border}` }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {auditors.map(a => {
+              const latest = a.compChanges?.[0];
+              const name = a.firstName && a.lastName ? `${a.firstName} ${a.lastName}` : a.auditorName;
+              return (
+                <tr key={a.id} style={{ borderBottom: `1px solid ${C.borderLight}` }}>
+                  <td style={{ padding: "12px 16px", fontFamily: "'Source Serif 4', serif", fontSize: 12, color: C.cream }}>{name}</td>
+                  <td style={{ padding: "12px 16px" }}><Badge bg={ROLE_BG[a.dimRole?.label || a.role] || "#E5E7EB"}>{a.dimRole?.label || a.role}</Badge></td>
+                  <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.green }}>{latest ? `$${Number(latest.newRate).toLocaleString()}` : "—"}</td>
+                  <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>{latest?.payCadence || "—"}</td>
+                  <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>{latest?.effectiveDate ? new Date(latest.effectiveDate).toLocaleDateString() : "—"}</td>
+                  <td style={{ padding: "12px 16px" }}>{latest ? <Badge bg={latest.changeType === "HIRE" ? "#DBEAFE" : "#D1FAE5"}>{latest.changeType}</Badge> : "—"}</td>
+                  <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>{latest?.effectiveDate ? new Date(latest.effectiveDate).toLocaleDateString() : "—"}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
   );

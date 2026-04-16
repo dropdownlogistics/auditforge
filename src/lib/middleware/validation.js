@@ -219,8 +219,8 @@ async function validateControlReadiness(prisma, controlId) {
   if (!control.objective) {
     warnings.push({ field: "objective", message: "Control objective is not documented" });
   }
-  if (!control.ownerId) {
-    warnings.push({ field: "ownerId", message: "Control owner is not assigned" });
+  if (!control.ownerEmployeeId && !control.ownerRoleId) {
+    warnings.push({ field: "ownerEmployeeId", message: "Control owner is not assigned" });
   }
   if (!control.evidenceDescription) {
     warnings.push({ field: "evidenceDescription", message: "Evidence description is not documented" });
@@ -246,8 +246,8 @@ async function createAuditEntry(prisma, { entityType, entityId, action, field, p
       entityId,
       action,
       field: field || null,
-      previousValue: previousValue != null ? String(previousValue) : null,
-      newValue: newValue != null ? String(newValue) : null,
+      previousValues: previousValue != null ? { value: String(previousValue) } : null,
+      newValues: newValue != null ? { value: String(newValue) } : null,
       userId,
       rationale: rationale || null,
     },
@@ -292,7 +292,7 @@ const TRACKED_FIELDS = {
     "description", "objective", "controlType", "controlNature",
     "controlFrequency", "keyControl", "designEffectiveness",
     "operatingEffectiveness", "evidenceDescription", "testProcedure",
-    "ownerId", "processId", "scopeId",
+    "ownerEmployeeId", "ownerRoleId", "processId", "scopeId",
   ],
   Risk: [
     "description", "category", "likelihood", "impact",
@@ -302,7 +302,6 @@ const TRACKED_FIELDS = {
     "processArea", "processName", "subprocessName",
     "processOwner", "description",
   ],
-  Owner: ["ownerName", "title", "department", "email"],
 };
 
 module.exports = {
@@ -310,7 +309,6 @@ module.exports = {
   validateControl,
   validateRisk,
   validateProcess,
-  validateOwner,
   validateControlReadiness,
 
   // State machine

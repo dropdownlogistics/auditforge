@@ -17,7 +17,6 @@ export async function GET(request, { params }) {
       control: {
         include: {
           process: true,
-          owner: true,
           risks: { where: { validTo: null }, include: { risk: true } },
         },
       },
