@@ -335,6 +335,7 @@ async function main() {
         periodId: period.id, ownerRoleId: owners[c.owner].id, description: c.desc,
         controlNature: c.nature, controlFrequency: c.freq,
         keyControl: c.key, reviewStatus: "DRAFT",
+        effectiveDate: new Date(), recordedDate: new Date(), source: "seed",
       },
     });
 
