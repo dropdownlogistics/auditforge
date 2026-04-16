@@ -209,32 +209,21 @@ model Period {
   @@map("dim_period")
 }
 
-model Assertion {
-  id            String            @id @default(cuid())
-  assertionName String            @unique @map("assertion_name")
-  category      AssertionCategory
-  description   String
+model ControlObjective {
+  id                String            @id @default(cuid())
+  objectiveName     String            @unique @map("objective_name")
+  category          AssertionCategory
+  description       String
+  objectiveCategory String            @default("financial-audit") @map("objective_category")
 
-  controls ControlAssertion[]
+  controls ControlObjectiveMapping[]
 
-  @@map("dim_assertion")
+  @@map("dim_control_objective")
 }
 
-model Owner {
-  id         String   @id @default(cuid())
-  companyId  String   @map("company_id")
-  ownerName  String   @map("owner_name")
-  title      String?
-  department String?
-  email      String?
-  createdAt  DateTime @default(now()) @map("created_at")
-
-  company  Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  controls Control[]
-
-  @@unique([companyId, ownerName])
-  @@map("dim_owner")
-}
+// dim_owner dropped per CR-WB-CONTROLS-001 Step 3.
+// Ownership resolved via ownerRoleId (string) OR ownerEmployeeId (FK)
+// on fact_control. Both-with-mutex: exactly one must be non-null (C2).
 
 model Scope {
   id           String    @id @default(cuid())
@@ -348,15 +337,14 @@ model Control {
   companyId              String              @map("company_id")
   processId              String              @map("process_id")
   periodId               String              @map("period_id")
-  ownerId                String?             @map("owner_id")
   ownerEmployeeId        String?             @map("owner_employee_id")
   ownerRoleId            String?             @map("owner_role_id")
   scopeId                String?             @map("scope_id")
-  controlTypeDimId       String?             @map("control_type_dim_id")
+  controlTypeId          String?             @map("control_type_id")
   description            String              @map("control_description")
   objective              String?             @map("control_objective")
-  // Legacy flat enums retained for backward compat + quick filter
-  controlType            ControlType         @default(PREVENTIVE) @map("control_type")
+  // controlType legacy enum dropped per CR-WB-CONTROLS-001 Step 2.
+  // controlNature retained — cleanup deferred to future CR.
   controlNature          ControlNature       @default(MANUAL) @map("control_nature")
   controlFrequency       ControlFrequency    @default(MONTHLY) @map("control_frequency")
   keyControl             Boolean             @default(false) @map("key_control")
@@ -379,22 +367,28 @@ model Control {
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @updatedAt @map("updated_at")
 
+  // Bitemporal bridge (CR-WB-CONTROLS-001 Step 4, C7)
+  effectiveDate       DateTime @map("effective_date")
+  recordedDate        DateTime @map("recorded_date")
+  previousFactId      String?  @map("previous_fact_id")
+  source              String   @default("migration")
+  sourceRecordId      String?  @map("source_record_id")
+
   // Dimension relations
   company        Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
   process        Process         @relation(fields: [processId], references: [id])
   period         Period          @relation(fields: [periodId], references: [id])
-  owner          Owner?          @relation(fields: [ownerId], references: [id])
   ownerEmployee  Employee?       @relation("ControlOwnerEmployee", fields: [ownerEmployeeId], references: [id])
   ownerRole      Role?           @relation("ControlOwnerRole", fields: [ownerRoleId], references: [id])
   scope          Scope?          @relation(fields: [scopeId], references: [id])
-  controlTypeDim ControlTypeDim? @relation(fields: [controlTypeDimId], references: [id])
+  controlTypeDim ControlTypeDim? @relation(fields: [controlTypeId], references: [id])
   supersededBy   Control?        @relation("ControlSupersedes", fields: [supersededById], references: [id])
   supersedes     Control[]       @relation("ControlSupersedes")
 
   // Bridge relations (M:M)
   risks      ControlRisk[]
   frameworks ControlFramework[]
-  assertions ControlAssertion[]
+  controlObjectives ControlObjectiveMapping[]
 
   // Status log
   statusLogs ControlStatusLog[]
@@ -410,7 +404,7 @@ model Control {
   @@index([processId])
   @@index([reviewStatus])
   @@index([lifecycle])
-  @@index([controlTypeDimId])
+  @@index([controlTypeId])
   @@map("fact_control")
 }
 
@@ -516,18 +510,18 @@ model ControlFramework {
   @@map("bridge_control_framework")
 }
 
-model ControlAssertion {
-  controlId   String    @map("control_id")
-  assertionId String    @map("assertion_id")
-  validFrom   DateTime  @default(now()) @map("valid_from")
-  validTo     DateTime? @map("valid_to")
+model ControlObjectiveMapping {
+  controlId          String    @map("control_id")
+  controlObjectiveId String    @map("control_objective_id")
+  validFrom          DateTime  @default(now()) @map("valid_from")
+  validTo            DateTime? @map("valid_to")
 
-  control   Control   @relation(fields: [controlId], references: [id], onDelete: Cascade)
-  assertion Assertion @relation(fields: [assertionId], references: [id], onDelete: Cascade)
+  control          Control          @relation(fields: [controlId], references: [id], onDelete: Cascade)
+  controlObjective ControlObjective @relation(fields: [controlObjectiveId], references: [id], onDelete: Cascade)
 
-  @@id([controlId, assertionId])
+  @@id([controlId, controlObjectiveId])
   @@index([validTo])
-  @@map("bridge_control_assertion")
+  @@map("bridge_control_objective")
 }
 
 // ============================================================
@@ -542,8 +536,13 @@ model ControlStatusLog {
   toStatus   String   @map("to_status")
   statusType String   @map("status_type") // "REVIEW" or "LIFECYCLE"
   changedBy  String   @map("changed_by")
-  changedAt  DateTime @default(now()) @map("changed_at")
-  comment    String?
+  changedAt       DateTime @default(now()) @map("changed_at")
+  comment         String?
+
+  // Bitemporal bridge (CR-WB-CONTROLS-001 Step 4)
+  effectiveDate   DateTime @map("effective_date")
+  recordedDate    DateTime @map("recorded_date")
+  correctsFactId  String?  @map("corrects_fact_id")
 
   control Control @relation(fields: [controlId], references: [id], onDelete: Cascade)
 
@@ -565,8 +564,6 @@ model AuditTrail {
   field          String?
   previousValues Json?    @map("previous_values")
   newValues      Json?    @map("new_values")
-  previousValue  String?  @map("previous_value")
-  newValue       String?  @map("new_value")
   userId         String   @map("user_id")
   timestamp      DateTime @default(now())
   rationale      String?
@@ -656,11 +653,8 @@ enum RiskRating {
 }
 
 // Legacy flat enums on Fact_Control
-enum ControlType {
-  PREVENTIVE
-  DETECTIVE
-  CORRECTIVE
-}
+// ControlType enum dropped per CR-WB-CONTROLS-001 Step 2.
+// Legacy flat enum replaced by dim_control_type FK (controlTypeId).
 
 enum ControlNature {
   MANUAL
@@ -735,6 +729,7 @@ enum AssertionCategory {
   TRANSACTION
   BALANCE
   DISCLOSURE
+  GENERAL
 }
 
 enum TemplateType {
