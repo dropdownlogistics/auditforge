@@ -105,11 +105,11 @@ WHERE "owner_role_id" IS NULL AND "owner_employee_id" IS NULL AND "owner" IS NOT
 UPDATE "fact_finding" f
 SET "control_objective_id" = sub.objective_id
 FROM (
-  SELECT bco."control_id", bco."control_objective_id" AS objective_id
+  SELECT bco."control_id", MIN(bco."control_objective_id") AS objective_id
   FROM "bridge_control_objective" bco
   WHERE bco."valid_to" IS NULL
-  GROUP BY bco."control_id", bco."control_objective_id"
-  HAVING COUNT(*) OVER (PARTITION BY bco."control_id") = 1
+  GROUP BY bco."control_id"
+  HAVING COUNT(DISTINCT bco."control_objective_id") = 1
 ) sub
 WHERE f."control_id" = sub."control_id"
   AND f."control_objective_id" IS NULL;
@@ -169,13 +169,10 @@ ALTER TABLE "fact_finding"
 ADD CONSTRAINT "fact_finding_severity_id_fkey"
 FOREIGN KEY ("severity_id") REFERENCES "dim_severity"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
-ALTER TABLE "fact_finding"
-ADD CONSTRAINT "fact_finding_owner_employee_id_fkey"
-FOREIGN KEY ("owner_employee_id") REFERENCES "dim_employee"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
-ALTER TABLE "fact_finding"
-ADD CONSTRAINT "fact_finding_owner_role_id_fkey"
-FOREIGN KEY ("owner_role_id") REFERENCES "dim_role"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+-- ownerRoleId and ownerEmployeeId are string-keyed in V1 per council mandate.
+-- "Do NOT create Dim_Role as a table. Role-based ownership uses string keys in V1."
+-- No FK constraints on these columns. Future V2 may add FK relations after
+-- owner data is normalized to match dim_employee/dim_role IDs.
 
 ALTER TABLE "fact_finding"
 ADD CONSTRAINT "fact_finding_control_objective_id_fkey"
@@ -208,12 +205,8 @@ ALTER TABLE "fact_finding" DROP COLUMN IF EXISTS "owner";
 -- Drop the FindingSeverity enum type (no longer referenced)
 DROP TYPE IF EXISTS "FindingSeverity";
 
--- Drop old control_id FK constraint (was ON DELETE SET NULL, now non-null)
--- Re-add as RESTRICT since controlId is now required (F1)
-ALTER TABLE "fact_finding" DROP CONSTRAINT IF EXISTS "fact_finding_control_id_fkey";
-ALTER TABLE "fact_finding"
-ADD CONSTRAINT "fact_finding_control_id_fkey"
-FOREIGN KEY ("control_id") REFERENCES "fact_control"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+-- controlId FK stays as SET NULL — F1 NOT NULL deferred pending backfill of 8 existing findings.
+-- Once all findings have controlId assigned, promote to RESTRICT via follow-up migration.
 
 -- ═══════════════════════════════════════════════════════════
 -- Rollback notes:

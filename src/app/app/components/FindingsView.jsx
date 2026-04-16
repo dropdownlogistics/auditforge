@@ -180,7 +180,7 @@ export default function FindingsView({ companyId = "CO-DDL" }) {
                       <Badge bg={sts.bg} fg={sts.fg}>{f.status.replace("_", " ")}</Badge>
                     </td>
                     <td style={{ padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}`, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.steel }}>
-                      {f.ownerEmployee?.auditorName || f.ownerRole?.label || f.ownerRoleId || "—"}
+                      {f.ownerEmployeeId || f.ownerRoleId || "—"}
                     </td>
                     <td style={{ padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}`, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.steel }}>
                       {f.targetDate ? new Date(f.targetDate).toLocaleDateString() : "—"}

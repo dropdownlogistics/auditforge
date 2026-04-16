@@ -310,7 +310,7 @@ model Employee {
   factTimeEntries  TimeEntry[]
   users            User[]
   ownedControls    Control[]           @relation("ControlOwnerEmployee")
-  ownedFindings    Finding[]           @relation("FindingOwnerEmployee")
+  // ownedFindings: Finding ownerEmployeeId is string-keyed in V1 (no FK relation)
   auditorProfile   AuditorProfile?
   statusChanges    StatusChange[]
   compChanges      CompChange[]
@@ -930,7 +930,7 @@ model Finding {
   findingId          String        @unique @map("finding_id")
   companyId          String        @map("company_id")
   auditId            String        @map("audit_id")
-  controlId          String        @map("control_id")
+  controlId          String?       @map("control_id")  // nullable until F1 backfill — 8 existing findings lack controlId
   title              String
   description        String
   severityId         String        @map("severity_id")
@@ -960,10 +960,10 @@ model Finding {
 
   company          Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
   audit            Audit             @relation(fields: [auditId], references: [id])
-  control          Control           @relation(fields: [controlId], references: [id])
+  control          Control?          @relation(fields: [controlId], references: [id])
   severity         Severity          @relation(fields: [severityId], references: [id])
-  ownerEmployee    Employee?         @relation("FindingOwnerEmployee", fields: [ownerEmployeeId], references: [id])
-  ownerRole        Role?             @relation("FindingOwnerRole", fields: [ownerRoleId], references: [id])
+  // ownerRoleId and ownerEmployeeId are string-keyed in V1 (no FK).
+  // Future V2 may add FK relations after owner data normalization.
   controlObjective ControlObjective? @relation(fields: [controlObjectiveId], references: [id])
   priorFinding     Finding?          @relation("FindingSupersedes", fields: [priorFindingId], references: [id])
   supersededBy     Finding[]         @relation("FindingSupersedes")
@@ -1071,7 +1071,7 @@ model Role {
   company   Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
   employees    Employee[]
   controls     Control[]     @relation("ControlOwnerRole")
-  findings     Finding[]     @relation("FindingOwnerRole")
+  // findings: Finding ownerRoleId is string-keyed in V1 (no FK relation)
   billingRates BillingRate[]
 
   @@unique([companyId, label])
@@ -1144,6 +1144,7 @@ model AuditorProfile {
   specializations String[]
   bio             String?
   councilSeat     String?          @map("council_seat")
+  photoUrl        String?          @map("photo_url")
   createdAt       DateTime         @default(now()) @map("created_at")
   updatedAt       DateTime         @updatedAt @map("updated_at")
 

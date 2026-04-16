@@ -22,8 +22,6 @@ export async function GET(request) {
       audit: { select: { auditId: true, auditName: true, status: true } },
       control: { select: { controlId: true, description: true } },
       severity: { select: { level: true, rank: true, label: true } },
-      ownerEmployee: { select: { auditorName: true } },
-      ownerRole: { select: { label: true } },
     },
     orderBy: [{ severity: { rank: "desc" } }, { status: "asc" }, { createdAt: "desc" }],
   });
