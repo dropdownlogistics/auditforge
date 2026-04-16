@@ -58,6 +58,18 @@ function parseTokens(str) {
   if (!str) return [];
   return str.split(",").map(t => t.trim()).filter(Boolean);
 }
+// Derive legacy STR-0x/WKS-0x token strings from tokenAssessments relation
+function deriveTokenStrings(tokenAssessments) {
+  if (!tokenAssessments || tokenAssessments.length === 0) return { strengthTokens: "", weaknessTokens: "" };
+  const strs = [];
+  const wks = [];
+  for (const ta of tokenAssessments) {
+    const code = ta.token?.code || "";
+    if (code.startsWith("USTR-")) strs.push("STR-" + code.slice(5));
+    else if (code.startsWith("UWKS-")) wks.push("WKS-" + code.slice(5));
+  }
+  return { strengthTokens: strs.join(","), weaknessTokens: wks.join(",") };
+}
 function AuditorsIcon({ size = 16 }) {
   return <span style={{ fontSize: size, lineHeight: 1, display: "inline-block", fontFamily: "'JetBrains Mono', monospace", width: size, textAlign: "center" }}>◈</span>;
 }
@@ -221,7 +233,7 @@ export default function AuditForgeApp() {
     { id: "review", icon: ClipboardCheck, label: "Review" },
     { id: "generate", icon: FileOutput, label: "Generate" },
     { id: "import", icon: Upload, label: "Import" },
-    { id: "billing", icon: DollarSign, label: "Billing" },
+    { id: "finance", icon: DollarSign, label: "Finance" },
     { id: "findings", icon: FileWarning, label: "Findings" },
   ];
 
@@ -334,7 +346,7 @@ export default function AuditForgeApp() {
         {view === "people" && <PeopleView auditors={auditors} audits={audits} loading={loading} />}
         {view === "review" && <ReviewView controls={controls} loading={loading} onRefresh={refetchControls} />}
         {view === "generate" && <GenerateView controls={controls} />}
-        {view === "billing" && <BillingDash companyId="CO-DDL" />}
+        {view === "finance" && <FinanceView companyId="CO-DDL" />}
         {view === "findings" && <FindingsView companyId="CO-DDL" />}
 
       </main>
@@ -2189,8 +2201,9 @@ function StrengthRadar({ strengthTokens, weaknessTokens }) {
 }
 
 function AuditorCardModal({ auditor, onClose }) {
-  const strTokens = parseTokens(auditor.strengthTokens);
-  const wksTokens = parseTokens(auditor.weaknessTokens);
+  const derived = deriveTokenStrings(auditor.tokenAssessments);
+  const strTokens = parseTokens(derived.strengthTokens);
+  const wksTokens = parseTokens(derived.weaknessTokens);
   // STR wins: filter gaps whose STR counterpart is already flagged as a strength
   const strDimIds = new Set(strTokens.map((t) => parseInt(t.replace("STR-", ""), 10)));
   const activeGaps = wksTokens.filter((t) => !strDimIds.has(parseInt(t.replace("WKS-", ""), 10)));
@@ -2260,7 +2273,7 @@ function AuditorCardModal({ auditor, onClose }) {
           </div>
           <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>
-              {auditor.firm || "—"}
+              {auditor.auditorProfile?.firm || "—"}
             </span>
             {auditor.certifications && (
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, padding: "3px 10px", borderRadius: 4, background: "rgba(196,154,60,0.15)", color: C.copper, fontWeight: 600, letterSpacing: "0.04em" }}>
@@ -2275,7 +2288,7 @@ function AuditorCardModal({ auditor, onClose }) {
           <div style={{ textAlign: "center", fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 12 }}>
             Competency Profile · How am I getting better?
           </div>
-          <StrengthRadar strengthTokens={auditor.strengthTokens} weaknessTokens={auditor.weaknessTokens} />
+          <StrengthRadar strengthTokens={derived.strengthTokens} weaknessTokens={derived.weaknessTokens} />
         </div>
 
         {/* Strengths + Gaps */}
@@ -2327,7 +2340,7 @@ function AuditorCardModal({ auditor, onClose }) {
         {/* Footer */}
         <div style={{ display: "flex", gap: 8, paddingTop: 16, borderTop: `1px solid ${C.border}`, flexWrap: "wrap" }}>
           <Badge bg={ROLE_BG[auditor.role] || "#E5E7EB"}>{auditor.role || "—"}</Badge>
-          <Badge bg="#DBEAFE">{auditor.independence || "—"}</Badge>
+          <Badge bg="#DBEAFE">{auditor.auditorProfile?.independence || "—"}</Badge>
           <Badge bg="#FEF3C7">{teamLabel}</Badge>
         </div>
       </div>
@@ -2490,6 +2503,21 @@ function StatusLifecycleView({ auditors, loading, statusData, loadStatus, select
 }
 
 function CompensationView({ auditors, loading }) {
+  const [selectedEmp, setSelectedEmp] = useState(null);
+  const [empHistory, setEmpHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
+  const loadHistory = useCallback(async (emp) => {
+    setSelectedEmp(emp);
+    setHistoryLoading(true);
+    try {
+      const res = await fetch(`/api/payroll/comp-history?companyId=CO-DDL&employeeId=${emp.id}`);
+      const data = await res.json();
+      setEmpHistory(data.history || []);
+    } catch (e) { console.error("Comp history load failed:", e); setEmpHistory([]); }
+    setHistoryLoading(false);
+  }, []);
+
   if (loading) return <div style={{ padding: 32, color: C.steel, fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>Loading...</div>;
 
   const withComp = auditors.filter(a => a.compChanges?.length > 0);
@@ -2497,6 +2525,7 @@ function CompensationView({ auditors, loading }) {
     const latest = a.compChanges[0];
     return s + (latest?.payCadence === "ANNUAL" ? Number(latest.newRate) : Number(latest?.newRate || 0) * 2080);
   }, 0);
+  const fmt = (n) => "$" + Math.round(n).toLocaleString();
 
   return (
     <div style={{ padding: "24px 32px 48px" }}>
@@ -2517,7 +2546,7 @@ function CompensationView({ auditors, loading }) {
       </div>
 
       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, letterSpacing: "0.06em", marginBottom: 16, fontStyle: "italic" }}>
-        ⚑ Compensation data is synthetic seed — not real. Flagged per Phase A backfill.
+        ⚑ Compensation data is synthetic seed — not real. Flagged per Phase A backfill. Click any row for full history.
       </div>
 
       {/* Comp table */}
@@ -2525,7 +2554,7 @@ function CompensationView({ auditors, loading }) {
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
-              {["Name", "Role", "Current Rate", "Cadence", "Last Change", "Change Type", "Effective"].map(h => (
+              {["Name", "Role", "Current Rate", "Cadence", "Change Type", "Effective", ""].map(h => (
                 <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600, borderBottom: `1px solid ${C.border}` }}>{h}</th>
               ))}
             </tr>
@@ -2535,20 +2564,63 @@ function CompensationView({ auditors, loading }) {
               const latest = a.compChanges?.[0];
               const name = a.firstName && a.lastName ? `${a.firstName} ${a.lastName}` : a.auditorName;
               return (
-                <tr key={a.id} style={{ borderBottom: `1px solid ${C.borderLight}` }}>
+                <tr key={a.id} onClick={() => loadHistory(a)} style={{ borderBottom: `1px solid ${C.borderLight}`, cursor: "pointer", transition: "background 120ms ease" }} onMouseEnter={e => e.currentTarget.style.background = "rgba(245,241,235,0.03)"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
                   <td style={{ padding: "12px 16px", fontFamily: "'Source Serif 4', serif", fontSize: 12, color: C.cream }}>{name}</td>
                   <td style={{ padding: "12px 16px" }}><Badge bg={ROLE_BG[a.dimRole?.label || a.role] || "#E5E7EB"}>{a.dimRole?.label || a.role}</Badge></td>
                   <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.green }}>{latest ? `$${Number(latest.newRate).toLocaleString()}` : "—"}</td>
                   <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>{latest?.payCadence || "—"}</td>
-                  <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>{latest?.effectiveDate ? new Date(latest.effectiveDate).toLocaleDateString() : "—"}</td>
                   <td style={{ padding: "12px 16px" }}>{latest ? <Badge bg={latest.changeType === "HIRE" ? "#DBEAFE" : "#D1FAE5"}>{latest.changeType}</Badge> : "—"}</td>
                   <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>{latest?.effectiveDate ? new Date(latest.effectiveDate).toLocaleDateString() : "—"}</td>
+                  <td style={{ padding: "12px 16px" }}>
+                    <button style={{ padding: "4px 10px", background: "transparent", border: `1px solid ${C.border}`, borderRadius: 4, color: C.steel, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, cursor: "pointer" }}>History</button>
+                  </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
       </div>
+
+      {/* Comp History Modal */}
+      {selectedEmp && (
+        <div onClick={() => setSelectedEmp(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 999, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 32, width: 600, maxHeight: "80vh", overflow: "auto" }}>
+            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 18, fontWeight: 600, color: C.cream, marginBottom: 4 }}>
+              {selectedEmp.firstName ? `${selectedEmp.firstName} ${selectedEmp.lastName}` : selectedEmp.auditorName}
+            </div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel, marginBottom: 24 }}>Compensation History · {selectedEmp.auditorId}</div>
+            {historyLoading ? (
+              <div style={{ padding: 20, color: C.steel, fontFamily: "'JetBrains Mono', monospace", fontSize: 11 }}>Loading history...</div>
+            ) : (
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    {["Date", "Type", "Prior Rate", "New Rate", "Cadence", "Reason"].map(h => (
+                      <th key={h} style={{ padding: "10px 12px", textAlign: "left", fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600, borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {empHistory.map(c => (
+                    <tr key={c.id} style={{ borderBottom: `1px solid ${C.borderLight}` }}>
+                      <td style={{ padding: "10px 12px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.cream }}>{new Date(c.effectiveDate).toLocaleDateString()}</td>
+                      <td style={{ padding: "10px 12px" }}><Badge bg={c.changeType === "HIRE" ? "#DBEAFE" : c.changeType === "RAISE" ? "#D1FAE5" : "#FEF3C7"}>{c.changeType}</Badge></td>
+                      <td style={{ padding: "10px 12px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>{c.priorRate ? fmt(Number(c.priorRate)) : "—"}</td>
+                      <td style={{ padding: "10px 12px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.green }}>{fmt(Number(c.newRate))}</td>
+                      <td style={{ padding: "10px 12px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>{c.payCadence || "—"}</td>
+                      <td style={{ padding: "10px 12px", fontFamily: "'Source Serif 4', serif", fontSize: 11, color: C.steel }}>{c.reason || "—"}</td>
+                    </tr>
+                  ))}
+                  {empHistory.length === 0 && (
+                    <tr><td colSpan={6} style={{ padding: 20, textAlign: "center", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.steel }}>No compensation events found</td></tr>
+                  )}
+                </tbody>
+              </table>
+            )}
+            <button onClick={() => setSelectedEmp(null)} style={{ marginTop: 20, padding: "8px 20px", background: "transparent", border: `1px solid ${C.border}`, borderRadius: 6, color: C.steel, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, cursor: "pointer" }}>Close</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -2557,7 +2629,7 @@ function AuditorsView({ auditors, loading }) {
   const [selected, setSelected] = useState(null);
   const [hovered, setHovered] = useState(null); // { auditor, top }
   const hoveredTop2 = hovered
-    ? parseTokens(hovered.auditor.strengthTokens).slice(0, 2).map((t) => {
+    ? parseTokens(deriveTokenStrings(hovered.auditor.tokenAssessments).strengthTokens).slice(0, 2).map((t) => {
         const dimId = parseInt(t.replace("STR-", ""), 10);
         return STR_DIMS.find((d) => d.id === dimId)?.label || t;
       })
@@ -2662,8 +2734,8 @@ function AuditorsView({ auditors, loading }) {
                     <td style={{ ...tdBase, color: C.steel, fontSize: 11 }}>{a.title || "—"}</td>
                     <td style={{ ...tdBase, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.copper }}>{a.certifications || "—"}</td>
                     <td style={tdBase}><Badge bg={ROLE_BG[a.role] || "#E5E7EB"}>{a.role || "—"}</Badge></td>
-                    <td style={{ ...tdBase, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>{a.independence || "—"}</td>
-                    <td style={{ ...tdBase, textAlign: "center" }}><StrengthDots tokens={a.strengthTokens} /></td>
+                    <td style={{ ...tdBase, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>{a.auditorProfile?.independence || "—"}</td>
+                    <td style={{ ...tdBase, textAlign: "center" }}><StrengthDots tokens={deriveTokenStrings(a.tokenAssessments).strengthTokens} /></td>
                   </tr>
                 )),
               ])}
@@ -3203,6 +3275,252 @@ function useGlobalSearch(controls, risks, processes) {
   }, []);
 
   return { open, setOpen, query, setQuery };
+}
+
+// ── Finance View — Phase C: Billing + Payroll ──
+const FINANCE_TABS = [
+  { id: "billing", label: "Billing" },
+  { id: "payroll", label: "Payroll Runs" },
+];
+
+function FinanceView({ companyId }) {
+  const [tab, setTab] = useState("billing");
+
+  const tabStyle = (active) => ({
+    padding: "10px 20px",
+    fontFamily: "'Space Grotesk', sans-serif",
+    fontSize: 13,
+    fontWeight: active ? 600 : 400,
+    color: active ? C.cream : C.steel,
+    background: active ? "rgba(196,154,60,0.12)" : "transparent",
+    border: "none",
+    borderBottom: active ? `2px solid ${C.copper}` : "2px solid transparent",
+    cursor: "pointer",
+    transition: "all 120ms ease",
+  });
+
+  return (
+    <>
+      <Header title="Finance" meta="Billing · Payroll · Burn Rate" />
+      <div style={{ borderBottom: `1px solid ${C.border}`, display: "flex", gap: 0, paddingLeft: 32 }}>
+        {FINANCE_TABS.map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)} style={tabStyle(tab === t.id)}>{t.label}</button>
+        ))}
+      </div>
+      {tab === "billing" && <BillingDash companyId={companyId} />}
+      {tab === "payroll" && <PayrollRunsView companyId={companyId} />}
+    </>
+  );
+}
+
+function PayrollRunsView({ companyId }) {
+  const [runs, setRuns] = useState([]);
+  const [compHistory, setCompHistory] = useState([]);
+  const [invoices, setInvoices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedEmp, setSelectedEmp] = useState(null);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const [runsRes, compRes, invRes] = await Promise.all([
+          fetch(`/api/payroll/runs?companyId=${companyId}`),
+          fetch(`/api/payroll/comp-history?companyId=${companyId}`),
+          fetch(`/api/billing/invoices?companyId=${companyId}`),
+        ]);
+        const [runsData, compData, invData] = await Promise.all([runsRes.json(), compRes.json(), invRes.json()]);
+        setRuns(runsData.runs || []);
+        setCompHistory(compData.history || []);
+        setInvoices(invData.invoices || []);
+      } catch (e) { console.error("Payroll load failed:", e); }
+      setLoading(false);
+    }
+    load();
+  }, [companyId]);
+
+  if (loading) return <div style={{ padding: 32, color: C.steel, fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>Loading...</div>;
+
+  // ── Burn Rate Calculation ──
+  // Annualized comp from latest comp change per employee
+  const latestByEmp = {};
+  for (const c of compHistory) {
+    if (!latestByEmp[c.employeeId] || new Date(c.effectiveDate) > new Date(latestByEmp[c.employeeId].effectiveDate)) {
+      latestByEmp[c.employeeId] = c;
+    }
+  }
+  const latestComps = Object.values(latestByEmp);
+  const totalAnnualComp = latestComps.reduce((s, c) => {
+    const rate = Number(c.newRate);
+    return s + (c.payCadence === "ANNUAL" ? rate : rate * 2080);
+  }, 0);
+
+  // Billing revenue from invoices (non-DRAFT)
+  const billingRevenue = invoices.filter(i => i.status !== "DRAFT").reduce((s, i) => s + (i.totalAmount || 0), 0);
+  const burnRatio = billingRevenue > 0 ? totalAnnualComp / billingRevenue : 0;
+
+  // ── Variance Explainer ──
+  // Per employee: billing rate × hours vs comp rate
+  const varianceRows = latestComps.map(c => {
+    const name = c.employee?.firstName && c.employee?.lastName
+      ? `${c.employee.firstName} ${c.employee.lastName}` : c.employee?.auditorName || "—";
+    const annualComp = c.payCadence === "ANNUAL" ? Number(c.newRate) : Number(c.newRate) * 2080;
+    // Effective hourly comp = annual / 2080
+    const hourlyComp = annualComp / 2080;
+    // Use average billing rate from invoices as proxy
+    const avgBillingRate = invoices.length > 0
+      ? invoices.reduce((s, i) => s + (i.billingRate || 0), 0) / invoices.length : 0;
+    const delta = avgBillingRate - hourlyComp;
+    return { name, auditorId: c.employee?.auditorId, hourlyComp, avgBillingRate, delta, annualComp };
+  }).sort((a, b) => a.delta - b.delta);
+
+  // Group comp history by employee for the detail modal
+  const empHistory = selectedEmp
+    ? compHistory.filter(c => c.employeeId === selectedEmp.employeeId).sort((a, b) => new Date(b.effectiveDate) - new Date(a.effectiveDate))
+    : [];
+
+  const fmt = (n) => "$" + Math.round(n).toLocaleString();
+  const fmtDec = (n) => "$" + n.toFixed(2);
+
+  return (
+    <div style={{ padding: "24px 32px 48px" }}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, letterSpacing: "0.06em", marginBottom: 16, fontStyle: "italic" }}>
+        ⚑ Payroll data is synthetic seed — not real. Flagged per Phase A backfill (Mulberry32 seed=20260415).
+      </div>
+
+      {/* ── KPI Cards ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 32 }}>
+        {[
+          { label: "ANNUALIZED COMP", value: fmt(totalAnnualComp), accent: C.copper },
+          { label: "BILLING REVENUE", value: fmt(billingRevenue), accent: C.green },
+          { label: "BURN RATIO", value: burnRatio.toFixed(2) + "×", accent: burnRatio > 1 ? C.crimson : C.green },
+          { label: "PAY RUNS", value: runs.length, accent: C.blue },
+        ].map(s => (
+          <div key={s.label} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "20px 24px" }}>
+            <div style={{ width: 32, height: 3, background: s.accent, borderRadius: 2, marginBottom: 12 }} />
+            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 28, fontWeight: 700, color: C.cream }}>{s.value}</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, letterSpacing: "0.05em", marginTop: 4 }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Sibling Mandate Proof ── */}
+      <div style={{ background: "rgba(74,158,107,0.08)", border: "1px solid rgba(74,158,107,0.25)", borderRadius: 8, padding: "16px 20px", marginBottom: 32, display: "flex", alignItems: "center", gap: 12 }}>
+        <span style={{ fontSize: 16 }}>◈</span>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.green }}>
+          <strong>Sibling Mandate:</strong> Payroll reads from dim_employee with zero parallel identity. Comp data sourced from fact_comp_change. Billing from fact_invoice. No duplicate employee tables.
+        </div>
+      </div>
+
+      {/* ── Pay Run Table ─�� */}
+      <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 600, color: C.copper, marginBottom: 16 }}>PAY RUNS</div>
+      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, overflow: "hidden", marginBottom: 32 }}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              {["Period", "Run Date", "Type", "Gross", "Net", "Status"].map(h => (
+                <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600, borderBottom: `1px solid ${C.border}` }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {runs.map(r => (
+              <tr key={r.id} style={{ borderBottom: `1px solid ${C.borderLight}` }}>
+                <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.cream }}>
+                  {new Date(r.periodStart).toLocaleDateString()} — {new Date(r.periodEnd).toLocaleDateString()}
+                </td>
+                <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>
+                  {new Date(r.runDate).toLocaleDateString()}
+                </td>
+                <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>
+                  {r.runType.replace(" [SYNTHETIC]", "")}
+                </td>
+                <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.cream }}>
+                  {fmt(Number(r.totalGross))}
+                </td>
+                <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: C.green }}>
+                  {r.totalNet ? fmt(Number(r.totalNet)) : "—"}
+                </td>
+                <td style={{ padding: "12px 16px" }}>
+                  <Badge bg={r.status === "COMPLETED" ? "#D1FAE5" : r.status === "PENDING" ? "#FEF3C7" : "#DBEAFE"}>{r.status}</Badge>
+                </td>
+              </tr>
+            ))}
+            {runs.length === 0 && (
+              <tr><td colSpan={6} style={{ padding: "24px 16px", textAlign: "center", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.steel }}>No pay runs found</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* ── Variance Explainer ── */}
+      <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 600, color: C.copper, marginBottom: 8 }}>VARIANCE EXPLAINER</div>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, letterSpacing: "0.06em", marginBottom: 16 }}>
+        Billing rate × hours vs. compensation rate — simple delta, not tax math.
+      </div>
+      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, overflow: "hidden" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              {["Employee", "Hourly Comp", "Avg Billing Rate", "Delta", "Flag"].map(h => (
+                <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600, borderBottom: `1px solid ${C.border}` }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {varianceRows.map((v, i) => {
+              const flagged = v.delta < 0;
+              return (
+                <tr key={i} onClick={() => {
+                  const match = compHistory.find(c => c.employee?.auditorId === v.auditorId);
+                  if (match) setSelectedEmp(match);
+                }} style={{ borderBottom: `1px solid ${C.borderLight}`, cursor: "pointer", background: flagged ? "rgba(178,53,49,0.06)" : "transparent" }}>
+                  <td style={{ padding: "12px 16px", fontFamily: "'Source Serif 4', serif", fontSize: 12, color: C.cream }}>{v.name}</td>
+                  <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.cream }}>{fmtDec(v.hourlyComp)}</td>
+                  <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.steel }}>{fmtDec(v.avgBillingRate)}</td>
+                  <td style={{ padding: "12px 16px", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: flagged ? C.crimson : C.green }}>{(v.delta >= 0 ? "+" : "") + fmtDec(v.delta)}</td>
+                  <td style={{ padding: "12px 16px" }}>{flagged ? <Badge bg="#FECACA">OVER COST</Badge> : <Badge bg="#D1FAE5">OK</Badge>}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* ── Comp History Modal ── */}
+      {selectedEmp && (
+        <div onClick={() => setSelectedEmp(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 999, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 32, width: 600, maxHeight: "80vh", overflow: "auto" }}>
+            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 18, fontWeight: 600, color: C.cream, marginBottom: 4 }}>
+              {selectedEmp.employee?.firstName ? `${selectedEmp.employee.firstName} ${selectedEmp.employee.lastName}` : selectedEmp.employee?.auditorName || "—"}
+            </div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel, marginBottom: 24 }}>Compensation History · {selectedEmp.employee?.auditorId}</div>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr>
+                  {["Date", "Type", "Prior Rate", "New Rate", "Cadence", "Reason"].map(h => (
+                    <th key={h} style={{ padding: "10px 12px", textAlign: "left", fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600, borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {empHistory.map(c => (
+                  <tr key={c.id} style={{ borderBottom: `1px solid ${C.borderLight}` }}>
+                    <td style={{ padding: "10px 12px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.cream }}>{new Date(c.effectiveDate).toLocaleDateString()}</td>
+                    <td style={{ padding: "10px 12px" }}><Badge bg={c.changeType === "HIRE" ? "#DBEAFE" : c.changeType === "RAISE" ? "#D1FAE5" : "#FEF3C7"}>{c.changeType}</Badge></td>
+                    <td style={{ padding: "10px 12px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>{c.priorRate ? fmt(Number(c.priorRate)) : "��"}</td>
+                    <td style={{ padding: "10px 12px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.green }}>{fmt(Number(c.newRate))}</td>
+                    <td style={{ padding: "10px 12px", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel }}>{c.payCadence || "—"}</td>
+                    <td style={{ padding: "10px 12px", fontFamily: "'Source Serif 4', serif", fontSize: 11, color: C.steel }}>{c.reason || "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button onClick={() => setSelectedEmp(null)} style={{ marginTop: 20, padding: "8px 20px", background: "transparent", border: `1px solid ${C.border}`, borderRadius: 6, color: C.steel, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, cursor: "pointer" }}>Close</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function GlobalSearch({ controls, risks, processes, open, setOpen, query, setQuery, onNavigate }) {

@@ -69,10 +69,19 @@ export async function POST(request) {
         department,
         email,
         certifications,
-        independence: independence || "INTERNAL",
-        firm,
       },
     });
+
+    // Create auditor profile with independence/firm (moved from deprecated Employee columns)
+    if (independence || firm) {
+      await prisma.auditorProfile.create({
+        data: {
+          employeeId: auditor.id,
+          independence: independence || "INTERNAL",
+          firm: firm || null,
+        },
+      });
+    }
 
     return NextResponse.json(auditor, { status: 201 });
   } catch (e) {

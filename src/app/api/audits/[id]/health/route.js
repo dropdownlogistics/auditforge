@@ -22,7 +22,7 @@ export async function GET(_request, context) {
     }),
     prisma.auditAuditor.findMany({
       where: { auditId: audit.id },
-      include: { auditor: { select: { role: true, strengthTokens: true } } },
+      include: { auditor: { include: { tokenAssessments: { include: { token: { select: { code: true, polarity: true } } } } } } },
     }),
     prisma.auditControlScope.findMany({
       where: { auditId: audit.id },
@@ -70,9 +70,9 @@ export async function GET(_request, context) {
   const headcount = team.length;
   const allTokens = new Set();
   for (const t of team) {
-    if (t.auditor.strengthTokens) {
-      for (const tok of t.auditor.strengthTokens.split(",").map((s) => s.trim()).filter(Boolean)) {
-        allTokens.add(tok);
+    if (t.auditor?.tokenAssessments) {
+      for (const ta of t.auditor.tokenAssessments) {
+        if (ta.token?.polarity === "STRENGTH") allTokens.add(ta.token.code);
       }
     }
   }
