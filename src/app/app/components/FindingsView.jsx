@@ -16,10 +16,10 @@ const C = {
 };
 
 const SEVERITY = {
-  MATERIAL_WEAKNESS:      { bg: "rgba(178,53,49,0.3)",  fg: C.crimson, label: "MATERIAL" },
-  SIGNIFICANT_DEFICIENCY: { bg: "rgba(196,154,60,0.3)", fg: C.copper,  label: "SIGNIFICANT" },
-  CONTROL_DEFICIENCY:     { bg: "rgba(107,157,194,0.3)",fg: C.blue,    label: "DEFICIENCY" },
-  OBSERVATION:            { bg: "rgba(107,123,141,0.3)",fg: C.steel,   label: "OBSERVATION" },
+  CRITICAL: { bg: "rgba(178,53,49,0.3)",  fg: C.crimson, label: "CRITICAL" },
+  HIGH:     { bg: "rgba(196,154,60,0.3)", fg: C.copper,  label: "HIGH" },
+  MEDIUM:   { bg: "rgba(107,157,194,0.3)",fg: C.blue,    label: "MEDIUM" },
+  LOW:      { bg: "rgba(107,123,141,0.3)",fg: C.steel,   label: "LOW" },
 };
 
 const STATUS = {
@@ -94,7 +94,7 @@ export default function FindingsView({ companyId = "CO-DDL" }) {
 
   const total = findings.length;
   const byStatus = findings.reduce((m, f) => ((m[f.status] = (m[f.status] || 0) + 1), m), {});
-  const bySeverity = findings.reduce((m, f) => ((m[f.severity] = (m[f.severity] || 0) + 1), m), {});
+  const bySeverity = findings.reduce((m, f) => ((m[f.severity?.level] = (m[f.severity?.level] || 0) + 1), m), {});
 
   return (
     <div style={{ padding: 32 }}>
@@ -158,7 +158,7 @@ export default function FindingsView({ companyId = "CO-DDL" }) {
           </thead>
           <tbody>
             {findings.map((f, i) => {
-              const sev = SEVERITY[f.severity] || SEVERITY.OBSERVATION;
+              const sev = SEVERITY[f.severity?.level] || SEVERITY.LOW;
               const sts = STATUS[f.status] || STATUS.OPEN;
               const isOpen = expanded === f.id;
               return (
@@ -180,7 +180,7 @@ export default function FindingsView({ companyId = "CO-DDL" }) {
                       <Badge bg={sts.bg} fg={sts.fg}>{f.status.replace("_", " ")}</Badge>
                     </td>
                     <td style={{ padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}`, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.steel }}>
-                      {f.owner}
+                      {f.ownerEmployee?.auditorName || f.ownerRole?.label || f.ownerRoleId || "—"}
                     </td>
                     <td style={{ padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}`, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: C.steel }}>
                       {f.targetDate ? new Date(f.targetDate).toLocaleDateString() : "—"}
