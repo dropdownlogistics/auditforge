@@ -132,6 +132,7 @@ model Company {
   findings     Finding[]
   roles        Role[]
   departments  Department[]
+  payrollRuns  PayrollRun[]
 
   @@map("dim_company")
 }
@@ -328,6 +329,10 @@ model Employee {
   factTimeEntries  TimeEntry[]
   users            User[]
   ownedControls    Control[]           @relation("ControlOwnerEmployee")
+  auditorProfile   AuditorProfile?
+  statusChanges    StatusChange[]
+  compChanges      CompChange[]
+  tokenAssessments TokenAssessment[]
 
   @@index([companyId])
   @@map("dim_employee")
@@ -804,8 +809,10 @@ model TimeEntry {
   timeType     String
   component    String
   category     String
-  comments     String?
-  createdAt    DateTime @default(now())
+  comments      String?
+  createdAt     DateTime  @default(now())
+  recordedDate  DateTime? @map("recorded_date")
+  entryTimeZone String?   @map("entry_time_zone")
 
   auditor    Employee @relation(fields: [auditorId], references: [id])
   engagement Audit    @relation(fields: [engagementId], references: [id])
@@ -829,7 +836,10 @@ model BillingRate {
   createdAt     DateTime        @default(now()) @map("created_at")
   updatedAt     DateTime        @updatedAt @map("updated_at")
 
+  roleId        String?         @map("role_id")
+
   company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  dimRole Role?   @relation(fields: [roleId], references: [id])
 
   @@index([companyId])
   @@index([role])
@@ -1007,8 +1017,9 @@ model Role {
   createdAt DateTime @default(now()) @map("created_at")
 
   company   Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  employees Employee[]
-  controls  Control[]  @relation("ControlOwnerRole")
+  employees    Employee[]
+  controls     Control[]     @relation("ControlOwnerRole")
+  billingRates BillingRate[]
 
   @@unique([companyId, label])
   @@index([companyId])
@@ -1040,7 +1051,9 @@ model EmployeeStatus {
   onTimeClock       Boolean      @default(true)  @map("on_time_clock")
   createdAt         DateTime     @default(now()) @map("created_at")
 
-  employees Employee[]
+  employees        Employee[]
+  statusChangesFrom StatusChange[] @relation("StatusChangeFrom")
+  statusChangesTo   StatusChange[] @relation("StatusChangeTo")
 
   @@unique([parent, childLabel])
   @@map("dim_employee_status")
@@ -1054,6 +1067,113 @@ model Token {
   layer     TokenLayer
   createdAt DateTime      @default(now()) @map("created_at")
 
+  assessments TokenAssessment[]
+
   @@map("dim_token")
+}
+
+// ============================================================
+// PHASE A MIGRATION 3 — Payroll Facts, Audit Profile, Tokens
+// CR-WB-PAYROLL-001, CR-WB-HRPEOPLE-001
+// ============================================================
+
+enum IndependenceType {
+  INTERNAL
+  EXTERNAL
+  REGULATORY
+}
+
+model AuditorProfile {
+  id              String           @id @default(cuid())
+  employeeId      String           @unique @map("employee_id")
+  independence    IndependenceType?
+  firm            String?
+  specializations String[]
+  bio             String?
+  councilSeat     String?          @map("council_seat")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@map("dim_auditor_profile")
+}
+
+model StatusChange {
+  id            String   @id @default(cuid())
+  employeeId    String   @map("employee_id")
+  effectiveDate DateTime @map("effective_date")
+  recordedDate  DateTime @default(now()) @map("recorded_date")
+  fromStatusId  String?  @map("from_status_id")
+  toStatusId    String   @map("to_status_id")
+  reason        String?
+  authoredBy    String?  @map("authored_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  employee   Employee        @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  fromStatus EmployeeStatus? @relation("StatusChangeFrom", fields: [fromStatusId], references: [id])
+  toStatus   EmployeeStatus  @relation("StatusChangeTo", fields: [toStatusId], references: [id])
+
+  @@index([employeeId])
+  @@index([effectiveDate])
+  @@map("fact_status_change")
+}
+
+model CompChange {
+  id            String     @id @default(cuid())
+  employeeId    String     @map("employee_id")
+  changeType    ChangeType @map("change_type")
+  effectiveDate DateTime   @map("effective_date")
+  recordedDate  DateTime   @default(now()) @map("recorded_date")
+  priorRate     Decimal?   @map("prior_rate")
+  newRate       Decimal    @map("new_rate")
+  payType       String?    @map("pay_type")
+  payCadence    PayCadence? @map("pay_cadence")
+  reason        String?
+  authoredBy    String?    @map("authored_by")
+  createdAt     DateTime   @default(now()) @map("created_at")
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([effectiveDate])
+  @@map("fact_comp_change")
+}
+
+model PayrollRun {
+  id           String   @id @default(cuid())
+  companyId    String   @map("company_id")
+  periodStart  DateTime @map("period_start")
+  periodEnd    DateTime @map("period_end")
+  runDate      DateTime @map("run_date")
+  recordedDate DateTime @default(now()) @map("recorded_date")
+  runType      String   @map("run_type")
+  totalGross   Decimal  @map("total_gross")
+  totalNet     Decimal? @map("total_net")
+  status       String   @default("DRAFT")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([periodStart, periodEnd])
+  @@map("fact_payroll_run")
+}
+
+model TokenAssessment {
+  id         String   @id @default(cuid())
+  employeeId String   @map("employee_id")
+  tokenId    String   @map("token_id")
+  score      Int
+  assessedAt DateTime @map("assessed_at")
+  assessedBy String?  @map("assessed_by")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  token    Token    @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([tokenId])
+  @@map("fact_token_assessment")
 }
 
