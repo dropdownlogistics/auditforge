@@ -128,6 +128,8 @@ model Company {
   invoices     Invoice[]
   arEntries    AREntry[]
   findings     Finding[]
+  roles        Role[]
+  departments  Department[]
 
   @@map("dim_company")
 }
@@ -919,3 +921,106 @@ enum FindingStatus {
   CLOSED
   ACCEPTED
 }
+
+// ============================================================
+// HR & PEOPLE — Phase A Migration 1 (additive)
+// CR-WB-HRPEOPLE-001, CR-WB-HRPEOPLE-002
+// ============================================================
+
+enum StatusParent {
+  ACTIVE
+  ON_LEAVE
+  INACTIVE
+  PENDING
+}
+
+enum TokenPolarity {
+  STRENGTH
+  GAP
+}
+
+enum TokenLayer {
+  UNIVERSAL
+  ROLE_SPECIFIC
+}
+
+enum EmploymentType {
+  FT
+  PT
+  CONTRACTOR
+  INTERN
+}
+
+enum PayCadence {
+  HOURLY
+  WEEKLY
+  BIWEEKLY
+  SEMIMONTHLY
+  MONTHLY
+  ANNUAL
+}
+
+enum ChangeType {
+  HIRE
+  RAISE
+  PROMOTION
+  DEMOTION
+  STRUCTURE_CHANGE
+  BONUS_ADJ
+  TERMINATION_PAY
+  CORRECTION
+}
+
+model Role {
+  id        String   @id @default(cuid())
+  companyId String   @map("company_id")
+  label     String
+  level     Int
+  createdAt DateTime @default(now()) @map("created_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, label])
+  @@index([companyId])
+  @@map("dim_role")
+}
+
+model Department {
+  id        String   @id @default(cuid())
+  companyId String   @map("company_id")
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, name])
+  @@index([companyId])
+  @@map("dim_department")
+}
+
+model EmployeeStatus {
+  id                String       @id @default(cuid())
+  parent            StatusParent
+  childLabel        String       @map("child_label")
+  rehireEligible    Boolean      @default(false) @map("rehire_eligible")
+  countsAsHeadcount Boolean      @default(true)  @map("counts_as_headcount")
+  accruesPto        Boolean      @default(true)  @map("accrues_pto")
+  onPayroll         Boolean      @default(true)  @map("on_payroll")
+  onTimeClock       Boolean      @default(true)  @map("on_time_clock")
+  createdAt         DateTime     @default(now()) @map("created_at")
+
+  @@unique([parent, childLabel])
+  @@map("dim_employee_status")
+}
+
+model Token {
+  id        String        @id @default(cuid())
+  code      String        @unique
+  name      String
+  polarity  TokenPolarity
+  layer     TokenLayer
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  @@map("dim_token")
+}
+
