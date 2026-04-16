@@ -1,5 +1,13 @@
 // AuditForge — Owners API Route
 // app/api/owners/route.js
+//
+// DEPRECATED — dim_owner was dropped per CR-WB-CONTROLS-001 Step 3.
+// Ownership is now represented on Control directly via ownerRoleId
+// (free-form string) OR ownerEmployeeId (FK to dim_employee), with a
+// both-with-mutex invariant (exactly one must be non-null).
+//
+// Every prisma.owner.* call in this file will fail against the current
+// schema. File retained pending operator decision on deletion vs. repurpose.
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";

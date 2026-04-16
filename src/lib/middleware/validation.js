@@ -289,7 +289,7 @@ function computeDiffs(oldData, newData, trackedFields) {
 // Tracked fields per entity type
 const TRACKED_FIELDS = {
   Control: [
-    "description", "objective", "controlType", "controlNature",
+    "description", "objective", "controlTypeId", "controlNature",
     "controlFrequency", "keyControl", "designEffectiveness",
     "operatingEffectiveness", "evidenceDescription", "testProcedure",
     "ownerEmployeeId", "ownerRoleId", "processId", "scopeId",

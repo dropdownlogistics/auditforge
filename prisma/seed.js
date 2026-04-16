@@ -23,17 +23,17 @@ async function main() {
   // ASSERTIONS (PCAOB / COSO)
   // ============================================================
   const assertions = await Promise.all([
-    prisma.assertion.upsert({ where: { assertionName: "Occurrence" }, update: {}, create: { assertionName: "Occurrence", category: "TRANSACTION", description: "Transactions and events that have been recorded have occurred and pertain to the entity." } }),
-    prisma.assertion.upsert({ where: { assertionName: "Completeness" }, update: {}, create: { assertionName: "Completeness", category: "TRANSACTION", description: "All transactions and events that should have been recorded have been recorded." } }),
-    prisma.assertion.upsert({ where: { assertionName: "Accuracy" }, update: {}, create: { assertionName: "Accuracy", category: "TRANSACTION", description: "Amounts and other data relating to recorded transactions and events have been recorded appropriately." } }),
-    prisma.assertion.upsert({ where: { assertionName: "Cutoff" }, update: {}, create: { assertionName: "Cutoff", category: "TRANSACTION", description: "Transactions and events have been recorded in the correct accounting period." } }),
-    prisma.assertion.upsert({ where: { assertionName: "Classification" }, update: {}, create: { assertionName: "Classification", category: "TRANSACTION", description: "Transactions and events have been recorded in the proper accounts." } }),
-    prisma.assertion.upsert({ where: { assertionName: "Existence" }, update: {}, create: { assertionName: "Existence", category: "BALANCE", description: "Assets, liabilities, and equity interests exist at the period end." } }),
-    prisma.assertion.upsert({ where: { assertionName: "Rights and Obligations" }, update: {}, create: { assertionName: "Rights and Obligations", category: "BALANCE", description: "The entity holds or controls the rights to assets, and liabilities are the obligations of the entity." } }),
-    prisma.assertion.upsert({ where: { assertionName: "Valuation and Allocation" }, update: {}, create: { assertionName: "Valuation and Allocation", category: "BALANCE", description: "Assets, liabilities, and equity interests are included at appropriate amounts." } }),
-    prisma.assertion.upsert({ where: { assertionName: "Presentation and Disclosure" }, update: {}, create: { assertionName: "Presentation and Disclosure", category: "DISCLOSURE", description: "Financial information is appropriately presented and described, and disclosures are clearly expressed." } }),
+    prisma.controlObjective.upsert({ where: { objectiveName: "Occurrence" }, update: {}, create: { objectiveName: "Occurrence", category: "TRANSACTION", description: "Transactions and events that have been recorded have occurred and pertain to the entity.", objectiveCategory: "financial-audit" } }),
+    prisma.controlObjective.upsert({ where: { objectiveName: "Completeness" }, update: {}, create: { objectiveName: "Completeness", category: "TRANSACTION", description: "All transactions and events that should have been recorded have been recorded.", objectiveCategory: "financial-audit" } }),
+    prisma.controlObjective.upsert({ where: { objectiveName: "Accuracy" }, update: {}, create: { objectiveName: "Accuracy", category: "TRANSACTION", description: "Amounts and other data relating to recorded transactions and events have been recorded appropriately.", objectiveCategory: "financial-audit" } }),
+    prisma.controlObjective.upsert({ where: { objectiveName: "Cutoff" }, update: {}, create: { objectiveName: "Cutoff", category: "TRANSACTION", description: "Transactions and events have been recorded in the correct accounting period.", objectiveCategory: "financial-audit" } }),
+    prisma.controlObjective.upsert({ where: { objectiveName: "Classification" }, update: {}, create: { objectiveName: "Classification", category: "TRANSACTION", description: "Transactions and events have been recorded in the proper accounts.", objectiveCategory: "financial-audit" } }),
+    prisma.controlObjective.upsert({ where: { objectiveName: "Existence" }, update: {}, create: { objectiveName: "Existence", category: "BALANCE", description: "Assets, liabilities, and equity interests exist at the period end.", objectiveCategory: "financial-audit" } }),
+    prisma.controlObjective.upsert({ where: { objectiveName: "Rights and Obligations" }, update: {}, create: { objectiveName: "Rights and Obligations", category: "BALANCE", description: "The entity holds or controls the rights to assets, and liabilities are the obligations of the entity.", objectiveCategory: "financial-audit" } }),
+    prisma.controlObjective.upsert({ where: { objectiveName: "Valuation and Allocation" }, update: {}, create: { objectiveName: "Valuation and Allocation", category: "BALANCE", description: "Assets, liabilities, and equity interests are included at appropriate amounts.", objectiveCategory: "financial-audit" } }),
+    prisma.controlObjective.upsert({ where: { objectiveName: "Presentation and Disclosure" }, update: {}, create: { objectiveName: "Presentation and Disclosure", category: "DISCLOSURE", description: "Financial information is appropriately presented and described, and disclosures are clearly expressed.", objectiveCategory: "financial-audit" } }),
   ]);
-  console.log(`Seeded ${assertions.length} assertions`);
+  console.log(`Seeded ${assertions.length} control objectives`);
 
   // ============================================================
   // COSO 2013
@@ -157,21 +157,26 @@ async function main() {
   });
 
   // ============================================================
-  // OWNERS (role-based per CAE)
+  // OWNER ROLES (role-based per CAE)
+  // dim_owner was dropped per CR-WB-CONTROLS-001 Step 3. Ownership is now
+  // expressed on Control via ownerRoleId (FK to dim_role) or
+  // ownerEmployeeId (FK to dim_employee). This block upserts the three
+  // DDL leadership roles into dim_role so the control seed can reference
+  // them below.
   // ============================================================
   const owners = {};
   const ownerData = [
-    { name: "CSO", title: "Chief Standards Officer", department: "Governance" },
-    { name: "CEO", title: "Chief Executive Officer", department: "Executive" },
-    { name: "CTO", title: "Chief Technology Officer", department: "Technology" },
+    { name: "CSO", title: "Chief Standards Officer", department: "Governance", level: 1 },
+    { name: "CEO", title: "Chief Executive Officer", department: "Executive",  level: 1 },
+    { name: "CTO", title: "Chief Technology Officer", department: "Technology", level: 1 },
   ];
   for (const o of ownerData) {
-    owners[o.name] = await prisma.owner.upsert({
-      where: { companyId_ownerName: { companyId: company.id, ownerName: o.name } },
-      update: {}, create: { companyId: company.id, ownerName: o.name, title: o.title, department: o.department },
+    owners[o.name] = await prisma.role.upsert({
+      where: { companyId_label: { companyId: company.id, label: o.name } },
+      update: {}, create: { companyId: company.id, label: o.name, level: o.level },
     });
   }
-  console.log(`Seeded ${ownerData.length} owners`);
+  console.log(`Seeded ${ownerData.length} owner roles`);
 
   // ============================================================
   // PROCESSES (mapped from CAE domains)
@@ -327,8 +332,8 @@ async function main() {
       update: {},
       create: {
         companyId: company.id, controlId: c.id, processId: processes[c.processId].id,
-        periodId: period.id, ownerId: owners[c.owner].id, description: c.desc,
-        controlType: c.type, controlNature: c.nature, controlFrequency: c.freq,
+        periodId: period.id, ownerRoleId: owners[c.owner].id, description: c.desc,
+        controlNature: c.nature, controlFrequency: c.freq,
         keyControl: c.key, reviewStatus: "DRAFT",
       },
     });
@@ -343,13 +348,13 @@ async function main() {
       }
     }
 
-    // Bridge: Control → Assertions
+    // Bridge: Control → ControlObjectives
     for (const aName of c.assertions) {
-      const assertion = assertions.find((a) => a.assertionName === aName);
-      if (assertion) {
-        await prisma.controlAssertion.upsert({
-          where: { controlId_assertionId: { controlId: control.id, assertionId: assertion.id } },
-          update: {}, create: { controlId: control.id, assertionId: assertion.id },
+      const objective = assertions.find((a) => a.objectiveName === aName);
+      if (objective) {
+        await prisma.controlObjectiveMapping.upsert({
+          where: { controlId_controlObjectiveId: { controlId: control.id, controlObjectiveId: objective.id } },
+          update: {}, create: { controlId: control.id, controlObjectiveId: objective.id },
         });
       }
     }
@@ -427,7 +432,7 @@ async function main() {
     if (typeDim) {
       await prisma.control.updateMany({
         where: { companyId: company.id, controlId },
-        data: { controlTypeDimId: typeDim.id },
+        data: { controlTypeId: typeDim.id },
       });
     }
   }

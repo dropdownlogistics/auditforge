@@ -15,7 +15,7 @@ export async function GET(request, { params }) {
     include: {
       risks: { where: { validTo: null }, include: { risk: true } },
       frameworks: { where: { validTo: null }, include: { framework: true } },
-      assertions: { where: { validTo: null }, include: { assertion: true } },
+      controlObjectives: { where: { validTo: null }, include: { controlObjective: true } },
     },
   });
 
@@ -26,7 +26,7 @@ export async function GET(request, { params }) {
   return NextResponse.json({
     risks: control.risks.map((cr) => ({ ...cr.risk, validFrom: cr.validFrom })),
     frameworks: control.frameworks.map((cf) => ({ ...cf.framework, validFrom: cf.validFrom })),
-    assertions: control.assertions.map((ca) => ({ ...ca.assertion, validFrom: ca.validFrom })),
+    controlObjectives: control.controlObjectives.map((ca) => ({ ...ca.controlObjective, validFrom: ca.validFrom })),
   });
 }
 
@@ -112,22 +112,22 @@ async function handleAdd(controlId, type, targetId, userId) {
       break;
     }
     case "assertion": {
-      const assertion = await prisma.assertion.findUnique({ where: { id: targetId } });
-      if (!assertion) return NextResponse.json({ error: "Assertion not found" }, { status: 404 });
+      const objective = await prisma.controlObjective.findUnique({ where: { id: targetId } });
+      if (!objective) return NextResponse.json({ error: "Control objective not found" }, { status: 404 });
 
-      const existing = await prisma.controlAssertion.findFirst({
-        where: { controlId, assertionId: targetId, validTo: null },
+      const existing = await prisma.controlObjectiveMapping.findFirst({
+        where: { controlId, controlObjectiveId: targetId, validTo: null },
       });
       if (existing) return NextResponse.json({ error: "Mapping already active" }, { status: 409 });
 
-      await prisma.controlAssertion.create({
-        data: { controlId, assertionId: targetId, validFrom: now },
+      await prisma.controlObjectiveMapping.create({
+        data: { controlId, controlObjectiveId: targetId, validFrom: now },
       });
 
       await createAuditEntry(prisma, {
         entityType: "Control", entityId: controlId, action: "EDIT",
-        field: "assertions", newValue: assertion.assertionName, userId,
-        rationale: `Added assertion mapping: ${assertion.assertionName}`,
+        field: "controlObjectives", newValue: objective.objectiveName, userId,
+        rationale: `Added control objective mapping: ${objective.objectiveName}`,
       });
       break;
     }
@@ -188,23 +188,23 @@ async function handleRemove(controlId, type, targetId, userId) {
       break;
     }
     case "assertion": {
-      const mapping = await prisma.controlAssertion.findFirst({
-        where: { controlId, assertionId: targetId, validTo: null },
+      const mapping = await prisma.controlObjectiveMapping.findFirst({
+        where: { controlId, controlObjectiveId: targetId, validTo: null },
       });
       if (!mapping) return NextResponse.json({ error: "Active mapping not found" }, { status: 404 });
 
-      await prisma.controlAssertion.delete({
-        where: { controlId_assertionId: { controlId, assertionId: targetId } },
+      await prisma.controlObjectiveMapping.delete({
+        where: { controlId_controlObjectiveId: { controlId, controlObjectiveId: targetId } },
       });
-      await prisma.controlAssertion.create({
-        data: { controlId, assertionId: targetId, validFrom: mapping.validFrom, validTo: now },
+      await prisma.controlObjectiveMapping.create({
+        data: { controlId, controlObjectiveId: targetId, validFrom: mapping.validFrom, validTo: now },
       });
 
-      const a = await prisma.assertion.findUnique({ where: { id: targetId } });
+      const a = await prisma.controlObjective.findUnique({ where: { id: targetId } });
       await createAuditEntry(prisma, {
         entityType: "Control", entityId: controlId, action: "EDIT",
-        field: "assertions", previousValue: a?.assertionName, userId,
-        rationale: `Removed assertion mapping: ${a?.assertionName}`,
+        field: "controlObjectives", previousValue: a?.objectiveName, userId,
+        rationale: `Removed control objective mapping: ${a?.objectiveName}`,
       });
       break;
     }

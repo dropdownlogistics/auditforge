@@ -36,7 +36,7 @@ export async function GET(request) {
   }
 
   const type = searchParams.get("type");
-  if (type && type !== "ALL") where.controlType = type;
+  if (type && type !== "ALL") where.controlTypeDim = { nature: type };
 
   const status = searchParams.get("status");
   if (status && status !== "ALL") where.reviewStatus = status;
@@ -50,14 +50,14 @@ export async function GET(request) {
       process: true,
       period: true,
       scope: true,
-      controlTypeDim: true,
+      controlTypeDim: { select: { nature: true, automation: true, domain: true, label: true } },
       risks: {
         where: { validTo: null },
         include: { risk: true },
       },
-      assertions: {
+      controlObjectives: {
         where: { validTo: null },
-        include: { assertion: true },
+        include: { controlObjective: true },
       },
       frameworks: {
         where: { validTo: null },
@@ -104,10 +104,11 @@ export async function POST(request) {
         processId: data.processId,
         periodId: data.periodId,
         scopeId: data.scopeId || null,
-        controlTypeDimId: data.controlTypeDimId || null,
+        controlTypeId: data.controlTypeId || data.controlTypeDimId || null,
+        ownerEmployeeId: data.ownerEmployeeId || null,
+        ownerRoleId: data.ownerRoleId || null,
         description: data.description,
         objective: data.objective || null,
-        controlType: data.controlType || "PREVENTIVE",
         controlNature: data.controlNature || "MANUAL",
         controlFrequency: data.controlFrequency || "MONTHLY",
         keyControl: data.keyControl || false,

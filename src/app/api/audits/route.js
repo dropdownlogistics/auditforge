@@ -41,7 +41,7 @@ export async function GET(request) {
             select: {
               controlId: true,
               description: true,
-              controlType: true,
+              controlTypeDim: { select: { nature: true, automation: true, domain: true, label: true } },
               keyControl: true,
               reviewStatus: true,
               process: { select: { processArea: true, processName: true } },

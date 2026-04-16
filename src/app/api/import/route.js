@@ -191,13 +191,19 @@ export async function POST(request) {
         where: { companyId: companyDbId, controlId: ctrl.controlId },
       });
 
+      // controlType (legacy enum) dropped per CR-WB-CONTROLS-001 Step 2.
+      // Nature is still validated above for informational purposes but no
+      // longer written; controls are classified via controlTypeDim FK which
+      // this importer does not currently set. ownerName (if present) is
+      // written as ownerRoleId (free-form role label) per the dim_owner
+      // removal — employee-level ownership requires a separate lookup path.
       const controlData = {
         controlId:              ctrl.controlId,
         companyId:              companyDbId,
         processId,
         periodId,
+        ownerRoleId:            ctrl.ownerName || null,
         description:            ctrl.description,
-        controlType:            ctrl.controlType,
         controlNature:          ctrl.controlNature,
         controlFrequency:       ctrl.controlFrequency,
         keyControl:             ctrl.keyControl,

@@ -29,7 +29,7 @@ export async function GET(request) {
     include: {
       controls: {
         where: { validTo: null },
-        include: { control: { select: { controlId: true, controlType: true, keyControl: true, lifecycle: true } } },
+        include: { control: { select: { controlId: true, controlTypeDim: { select: { nature: true, automation: true, domain: true, label: true } }, keyControl: true, lifecycle: true } } },
       },
     },
     orderBy: [{ category: "asc" }, { riskId: "asc" }],
