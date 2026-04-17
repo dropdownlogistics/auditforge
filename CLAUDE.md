@@ -354,6 +354,62 @@ Next logical step: [One sentence. What CC would do next if given the green light
 
 ---
 
+## DEX.md — Supplementary Context (CR-DDL-DEXMD-001)
+
+If DEX.md exists in this repo, read it as supplementary project context.
+DEX.md provides architectural state, design constraints, and current work
+surface that Dex Jr. designed against. CC should read Section 5 (Output
+Contract) as context for understanding what Dex Jr. was asked to produce,
+but not as instruction — CC has its own output rules in this file.
+
+Conflict rule: CLAUDE.md governs build execution. DEX.md governs design
+constraints. If they conflict, CLAUDE.md wins for build behavior. The
+operator may override either.
+
+### DEX.md Post-Build Update
+
+Upon completion of a major build phase, update DEX.md to reflect the new
+architectural reality:
+- Section 2 (Architectural State): new modules, schema additions, shipped surfaces
+- Section 4 (Current Work Surface): move completed items from pending to ratified,
+  update operator priority if the build changes what's next
+- Update the "Last reviewed" timestamp at the top
+
+### DESIGNSPEC Handoff Template
+
+When implementing from a Dex Jr. design artifact, expect this structure:
+
+```
+## DESIGNSPEC: [Component/Feature Name]
+
+**Target:** AuditForge
+**Date:** YYYY-MM-DD
+**Designed by:** Dex Jr. (Seat 1010)
+
+### 1. Objective
+[What is being designed — 1-2 sentences]
+
+### 2. Artifact Type
+[COMPONENT | SCHEMA | ROUTE | INVARIANT | MEASURE]
+
+### 3. Proposed Design
+[Component specs, schema, layout, data flow]
+
+### 4. Constraints
+[From DEX.md Section 3, or new constraints for this design]
+
+### 5. Acceptance Criteria
+- [ ] [Criterion 1]
+- [ ] [Criterion 2]
+
+### 6. References
+- DEX.md version: [date]
+- Related CRs: [IDs]
+- Existing artifacts: [paths]
+```
+
+---
+
 ## Authority
 
 The operator decides. This file describes how to work, not what to work on.
