@@ -371,7 +371,7 @@ function RosterTeaser() {
 
       {/* CTA */}
       <div style={{ display: "flex", gap: 12 }}>
-        <a href="/app" style={{
+        <a href="/app?view=people" style={{
           display: "inline-flex",
           alignItems: "center",
           gap: 8,
@@ -706,7 +706,67 @@ export default function LandingPage() {
         </FadeSection>
       </section>
 
-      {/* Canon Term */}
+      {/* What It Manages */}
+      <section style={{ padding: "0 48px 72px", maxWidth: 1200, margin: "0 auto" }}>
+        <FadeSection>
+          <div style={{
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: 10, color: C.steel,
+            letterSpacing: "0.12em", textTransform: "uppercase",
+            marginBottom: 8,
+            display: "flex", alignItems: "center", gap: 12,
+          }}>
+            <span style={{ width: 20, height: 1, background: C.steel, display: "inline-block" }} />
+            What It Manages
+          </div>
+          <h2 style={{
+            fontFamily: "'Space Grotesk', sans-serif",
+            fontSize: 32, fontWeight: 800, color: C.cream, marginBottom: 32,
+          }}>
+            Beyond the documents.
+          </h2>
+        </FadeSection>
+        <FadeSection delay={100}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }} className="af-feature-grid">
+            {[
+              {
+                accent: C.copper,
+                headline: "47-Person Roster",
+                body: "Governed HR profiles, status lifecycle, token assessments, and personal dashboards. Every auditor\u2019s credential, live.",
+              },
+              {
+                accent: "#4A9E6B",
+                headline: "Billing & Payroll",
+                body: "Client billing, AR aging, pay runs, and live burn rate. The firm\u2019s financial substrate in one surface.",
+              },
+              {
+                accent: C.crimson,
+                headline: "8 Active Findings",
+                body: "Findings linked to controls, severity tracked, remediation in motion. The closed loop from control gap to resolution.",
+              },
+            ].map((tile) => (
+              <div key={tile.headline} style={{
+                background: C.card,
+                border: `1px solid ${C.border}`,
+                borderRadius: 10,
+                padding: "28px 28px 24px",
+                borderTop: `2px solid ${tile.accent}`,
+              }}>
+                <div style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: 15, fontWeight: 700, color: C.cream,
+                  marginBottom: 10, lineHeight: 1.3,
+                }}>{tile.headline}</div>
+                <div style={{
+                  fontFamily: "'Source Serif 4', serif",
+                  fontSize: 13, color: C.steel, lineHeight: 1.6,
+                }}>{tile.body}</div>
+              </div>
+            ))}
+          </div>
+        </FadeSection>
+      </section>
+
       {/* Firm Roster Teaser */}
       <section style={{ padding: "0 48px 80px", maxWidth: 1200, margin: "0 auto" }}>
         <FadeSection>

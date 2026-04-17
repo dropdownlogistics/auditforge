@@ -172,7 +172,13 @@ function MobileStyles() {
 }
 
 export default function AuditForgeApp() {
-  const [view, setView] = useState("dashboard");
+  const [view, setView] = useState(() => {
+    if (typeof window !== "undefined") {
+      const v = new URLSearchParams(window.location.search).get("view");
+      if (v) return v;
+    }
+    return "dashboard";
+  });
   const [controls, setControls] = useState([]);
   const [risks, setRisks] = useState([]);
   const [processes, setProcesses] = useState([]);
