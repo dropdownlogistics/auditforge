@@ -101,46 +101,50 @@ export default function PersonalDashboard() {
       <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 32px 64px" }}>
 
         {/* ═══ SECTION 1 — IDENTITY HEADER ═══ */}
-        <div style={{ padding: "40px 0 32px", display: "flex", gap: 24, alignItems: "center" }}>
+        <div style={{ padding: "48px 0", display: "flex", gap: 28, alignItems: "center", position: "relative" }}>
+          {/* Lockup — top right */}
+          <div style={{ position: "absolute", top: 48, right: 0, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, textAlign: "right" }}>
+            AuditForge · Dropdown Logistics
+          </div>
           {/* Photo / Monogram */}
           {profile?.photoUrl ? (
             <img
               src={profile.photoUrl}
               alt={name}
               style={{
-                width: 80, height: 80, borderRadius: "50%",
-                border: `3px solid ${C.crimson}`, objectFit: "cover",
+                width: 120, height: 120, borderRadius: "50%",
+                border: `2.5px solid ${C.crimson}`, objectFit: "cover",
               }}
             />
           ) : (
             <div style={{
-              width: 80, height: 80, borderRadius: "50%",
-              border: `3px solid ${C.crimson}`,
+              width: 120, height: 120, borderRadius: "50%",
+              border: `2.5px solid ${C.crimson}`,
               background: C.crimson, display: "flex", alignItems: "center", justifyContent: "center",
-              fontFamily: "'Space Grotesk', sans-serif", fontSize: 28, fontWeight: 700, color: C.cream,
+              fontFamily: "'Space Grotesk', sans-serif", fontSize: 40, fontWeight: 700, color: C.cream,
             }}>
               {initials}
             </div>
           )}
           <div>
-            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 28, fontWeight: 700, color: C.cream }}>
+            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 34, fontWeight: 700, color: C.cream, lineHeight: 1.15 }}>
               {name}
             </div>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel, marginTop: 4, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel, marginTop: 8, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
               <span>{employee.auditorId}</span>
               {dimRole && <Badge bg={ROLE_BG[dimRole.label] || "#E5E7EB"}>{dimRole.label}</Badge>}
               {profile?.independence && <Badge bg="#DBEAFE">{profile.independence}</Badge>}
               {employee.hireDate && (
                 <span>
-                  Hired {new Date(employee.hireDate).toLocaleDateString()} {yearsAtFirm !== null && `· ${yearsAtFirm}y`}
+                  Hired {new Date(employee.hireDate).toLocaleDateString()} {yearsAtFirm !== null && yearsAtFirm > 0 ? `· ${yearsAtFirm}y` : yearsAtFirm === 0 ? "· <1y" : ""}
                 </span>
               )}
             </div>
             {employee.title && (
-              <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 13, color: C.steel, marginTop: 6 }}>{employee.title}</div>
+              <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 14, color: C.steel, marginTop: 8 }}>{employee.title}</div>
             )}
             {employee.certifications && (
-              <div style={{ marginTop: 8 }}>
+              <div style={{ marginTop: 10 }}>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, padding: "3px 10px", borderRadius: 4, background: "rgba(196,154,60,0.15)", color: C.copper, fontWeight: 600 }}>
                   {employee.certifications}
                 </span>
@@ -157,9 +161,9 @@ export default function PersonalDashboard() {
             { label: "HOURS LOGGED", value: Math.round(totalHours * 10) / 10 },
             { label: "YEARS AT FIRM", value: yearsAtFirm ?? "—" },
           ].map(s => (
-            <div key={s.label} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "20px 24px" }}>
-              <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 28, fontWeight: 700, color: C.copper }}>{s.value}</div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, letterSpacing: "0.05em", marginTop: 4 }}>{s.label}</div>
+            <div key={s.label} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "28px 24px" }}>
+              <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 36, fontWeight: 700, color: C.copper }}>{s.value}</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.steel, letterSpacing: "0.05em", marginTop: 6 }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -271,23 +275,25 @@ export default function PersonalDashboard() {
             ) : (
               <>
                 {strTokens.map(t => (
-                  <div key={t.id} style={{ marginBottom: 6 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2 }}>
-                      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.cream }}>{t.token.name}</span>
-                      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.green }}>{t.score}</span>
+                  <div key={t.id} style={{ marginBottom: 8 }}>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 3 }}>
+                      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, minWidth: 52 }}>{t.token.code}</span>
+                      <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: C.cream, flex: 1 }}>{t.token.name}</span>
+                      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.copper }}>{t.score}</span>
                     </div>
-                    <div style={{ height: 3, background: "rgba(245,241,235,0.06)", borderRadius: 2 }}>
+                    <div style={{ height: 3, background: "rgba(245,241,235,0.06)", borderRadius: 2, marginLeft: 60 }}>
                       <div style={{ height: 3, background: C.green, borderRadius: 2, width: `${(t.score / maxScore) * 100}%` }} />
                     </div>
                   </div>
                 ))}
                 {gapTokens.map(t => (
-                  <div key={t.id} style={{ marginBottom: 6 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2 }}>
-                      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.cream }}>{t.token.name}</span>
-                      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.crimson }}>{t.score}</span>
+                  <div key={t.id} style={{ marginBottom: 8 }}>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 3 }}>
+                      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: C.steel, minWidth: 52 }}>{t.token.code}</span>
+                      <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: C.cream, flex: 1 }}>{t.token.name}</span>
+                      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: C.copper }}>{t.score}</span>
                     </div>
-                    <div style={{ height: 3, background: "rgba(245,241,235,0.06)", borderRadius: 2 }}>
+                    <div style={{ height: 3, background: "rgba(245,241,235,0.06)", borderRadius: 2, marginLeft: 60 }}>
                       <div style={{ height: 3, background: C.crimson, borderRadius: 2, width: `${(t.score / maxScore) * 100}%` }} />
                     </div>
                   </div>
@@ -314,6 +320,8 @@ export default function PersonalDashboard() {
                 ? { label: "In Progress", bg: "#FEF3C7" }
                 : { label: "Upcoming", bg: "#DBEAFE" };
 
+              const STATUS_ACCENT = { COMPLETED: C.crimson, REPORTING: C.copper, FIELDWORK: C.blue, PLANNING: C.steel, CANCELLED: C.steel };
+
               return (
                 <div
                   key={audit.auditId}
@@ -321,7 +329,7 @@ export default function PersonalDashboard() {
                   style={{
                     background: C.card, border: `1px solid ${C.border}`, borderRadius: 8,
                     padding: "20px 24px", cursor: "pointer",
-                    borderLeft: `3px solid ${isLead ? C.copper : C.blue}`,
+                    borderLeft: `3px solid ${STATUS_ACCENT[audit.status] || C.steel}`,
                     transition: "background 120ms ease",
                   }}
                   onMouseEnter={e => e.currentTarget.style.background = "rgba(245,241,235,0.03)"}
