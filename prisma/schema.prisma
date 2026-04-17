@@ -930,7 +930,7 @@ model Finding {
   findingId          String        @unique @map("finding_id")
   companyId          String        @map("company_id")
   auditId            String        @map("audit_id")
-  controlId          String?       @map("control_id")  // nullable until F1 backfill — 8 existing findings lack controlId
+  controlId          String        @map("control_id")
   title              String
   description        String
   severityId         String        @map("severity_id")
@@ -960,7 +960,7 @@ model Finding {
 
   company          Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
   audit            Audit             @relation(fields: [auditId], references: [id])
-  control          Control?          @relation(fields: [controlId], references: [id])
+  control          Control           @relation(fields: [controlId], references: [id])
   severity         Severity          @relation(fields: [severityId], references: [id])
   // ownerRoleId and ownerEmployeeId are string-keyed in V1 (no FK).
   // Future V2 may add FK relations after owner data normalization.
