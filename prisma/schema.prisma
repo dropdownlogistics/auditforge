@@ -155,25 +155,143 @@ model Process {
   @@map("dim_process")
 }
 
-model Risk {
-  id                 String       @id @default(cuid())
-  riskId             String       @map("risk_id")
-  companyId          String       @map("company_id")
-  description        String
-  category           RiskCategory @default(OPERATIONAL)
-  likelihood         RiskRating   @default(MEDIUM)
-  impact             RiskRating   @default(MEDIUM)
-  inherentRiskRating RiskRating   @default(MEDIUM) @map("inherent_risk_rating")
-  residualRiskRating RiskRating?  @map("residual_risk_rating")
-  riskResponse       String?      @map("risk_response")
-  createdAt          DateTime     @default(now()) @map("created_at")
-  updatedAt          DateTime     @updatedAt @map("updated_at")
+// ============================================================
+// Dim_Risk — Slowly changing dimension (identity only)
+// CR-WB-RISK-001: maturation split from overwrite-style dim_risk
+// ============================================================
 
-  company  Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  controls ControlRisk[]
+model Risk {
+  id                 String    @id @default(cuid())
+  riskId             String    @map("risk_id")
+  companyId          String    @map("company_id")
+  description        String
+  categoryId         String?   @map("category_id")
+  riskResponse       String?   @map("risk_response")
+  ownerRoleId        String?   @map("owner_role_id")
+  ownerEmployeeId    String?   @map("owner_employee_id")
+  effectiveDate      DateTime  @map("effective_date")
+  recordedDate       DateTime  @map("recorded_date")
+  previousVersionId  String?   @map("previous_version_id")
+  isCurrentVersion   Boolean   @default(true) @map("is_current_version")
+  source             String    @default("migration")
+  sourceRecordId     String?   @map("source_record_id")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  company          Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  riskCategory     RiskCategoryDim?   @relation(fields: [categoryId], references: [id])
+  previousVersion  Risk?              @relation("RiskVersions", fields: [previousVersionId], references: [id])
+  nextVersions     Risk[]             @relation("RiskVersions")
+  controls         ControlRisk[]
+  assessments      RiskAssessment[]
+  statusChanges    RiskStatusChange[]
+  bridgeControls   BridgeRiskControl[]
 
   @@unique([companyId, riskId])
   @@map("dim_risk")
+}
+
+model RiskCategoryDim {
+  id           String   @id @default(cuid())
+  categoryName String   @unique @map("category_name")
+  description  String?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  risks Risk[]
+
+  @@map("dim_risk_category")
+}
+
+model Likelihood {
+  id          String   @id @default(cuid())
+  level       String   @unique
+  rank        Int      @unique
+  label       String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  assessments RiskAssessment[]
+
+  @@map("dim_likelihood")
+}
+
+model Impact {
+  id          String   @id @default(cuid())
+  level       String   @unique
+  rank        Int      @unique
+  label       String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  assessments RiskAssessment[]
+
+  @@map("dim_impact")
+}
+
+model RiskAssessment {
+  id                    String    @id @default(cuid())
+  factType              String    @default("Fact_RiskAssessment") @map("fact_type")
+  riskId                String    @map("risk_id")
+  assessmentDate        DateTime  @map("assessment_date")
+  assessorEmployeeId    String?   @map("assessor_employee_id")
+  assessorRoleId        String?   @map("assessor_role_id")
+  likelihoodId          String    @map("likelihood_id")
+  impactId              String    @map("impact_id")
+  inherentRiskScore     Int       @map("inherent_risk_score")
+  residualRiskScore     Int?      @map("residual_risk_score")
+  severityId            String?   @map("severity_id")
+  assessmentType        String    @map("assessment_type")
+  rationale             String?
+  effectiveDate         DateTime  @map("effective_date")
+  recordedDate          DateTime  @map("recorded_date")
+  previousAssessmentId  String?   @map("previous_assessment_id")
+  migrationProvenance   String    @default("CLEAN") @map("migration_provenance")
+  source                String?
+  sourceRecordId        String?   @map("source_record_id")
+  createdAt             DateTime  @default(now()) @map("created_at")
+
+  risk               Risk        @relation(fields: [riskId], references: [id], onDelete: Restrict)
+  likelihood         Likelihood  @relation(fields: [likelihoodId], references: [id])
+  impact             Impact      @relation(fields: [impactId], references: [id])
+  severity           Severity?   @relation(fields: [severityId], references: [id])
+  previousAssessment RiskAssessment?  @relation("AssessmentChain", fields: [previousAssessmentId], references: [id])
+  nextAssessments    RiskAssessment[] @relation("AssessmentChain")
+
+  @@index([riskId])
+  @@map("fact_risk_assessment")
+}
+
+model RiskStatusChange {
+  id             String    @id @default(cuid())
+  riskId         String    @map("risk_id")
+  fromStatus     String?   @map("from_status")
+  toStatus       String    @map("to_status")
+  changedBy      String?   @map("changed_by")
+  reason         String
+  effectiveDate  DateTime  @map("effective_date")
+  recordedDate   DateTime  @map("recorded_date")
+  correctsFactId String?   @map("corrects_fact_id")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  risk Risk @relation(fields: [riskId], references: [id], onDelete: Restrict)
+
+  @@index([riskId])
+  @@map("fact_risk_status_change")
+}
+
+model BridgeRiskControl {
+  id             String    @id @default(cuid())
+  riskId         String    @map("risk_id")
+  controlId      String    @map("control_id")
+  mitigationType String    @default("PRIMARY") @map("mitigation_type")
+  effectiveFrom  DateTime  @map("effective_from")
+  effectiveTo    DateTime? @map("effective_to")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  risk Risk @relation(fields: [riskId], references: [id], onDelete: Restrict)
+
+  @@unique([riskId, controlId, effectiveTo])
+  @@map("bridge_risk_control")
 }
 
 model Framework {
@@ -915,7 +1033,8 @@ model Severity {
   label     String
   createdAt DateTime @default(now()) @map("created_at")
 
-  findings Finding[]
+  findings    Finding[]
+  assessments RiskAssessment[]
 
   @@map("dim_severity")
 }
