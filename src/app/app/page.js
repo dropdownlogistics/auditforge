@@ -2718,7 +2718,7 @@ function AuditorsView({ auditors, loading }) {
                 ...byTeam[key].map((a) => (
                   <tr
                     key={a.id}
-                    onClick={() => setSelected(a)}
+                    onClick={() => window.location.href = `/app/people/${a.auditorId}`}
                     style={{ cursor: "pointer", transition: "background 120ms ease" }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background = "rgba(245,241,235,0.03)";
