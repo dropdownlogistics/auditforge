@@ -1,52 +1,23 @@
-# auditforge.dev
-# AuditForge OperatorManifest v0.3
-# Last updated: 2026-03-17
-# Classification: ProductManifest
-# Parent: dropdownlogistics.com/llms.txt (OperatorManifest v1.7)
-# For full DDL operating context: dropdownlogistics.com/llms.txt
+# AuditForge — llms.txt
+# Parent: https://dropdownlogistics.com/llms.txt
+# Generated: 2026-07-23 · registry 08d44c6 · generator v1.0.0
 
-## WHAT CHANGED IN v0.3
-
-v0.2 -> v0.3 (2026-03-17):
-- Control universe: 15 seed controls -> 106 governed controls across 9 process areas
-- Process areas: 4 legacy domains -> 9 real audit domains (collapsed from 124 to 9 processes)
-- Auditor roster: 9 council directors -> 45 auditors (9 directors + 36 staff across 9 teams)
-- Engagements: 1 seed audit -> 4 FY2025 engagements (35-106 controls each, 15-28 team members)
-- STD-AUDITOR-001 ratified (DCR-012 LOCK) — 8-token strength/weakness taxonomy
-- Auditor tokens backfilled: 46 auditors, all profiles tokenized
-- Schema: strengthTokens, weaknessTokens added to Dim_Auditor
-- Landing page redesigned: ticker strip, orbital hero animation, stat grid, SystemOfStructure canon block
-- Review queue (Step 4) live: DRAFT -> PREPARED -> REVIEWED -> APPROVED
-- DCR-010 LOCK: Auditor Personal Card — 3 privacy guardrails, role-based defaults, export gate
-- DCR-011 LOCK: Build-a-Dash Metric Registry pattern ratified
-- DCR-012 LOCK: STD-AUDITOR-001 — Auditor Competency Token Taxonomy
-- postinstall prisma generate added — fixed DB zeros on Vercel cold starts
-- ANNUAL enum mismatch found and patched (validator said ANNUAL, Prisma said ANNUALLY)
-- Batch import chunking implemented (20 controls per request, timeout prevention)
-- Stack: Next.js 16.1.6, Prisma 6.19.2, Node 24.14
-
-
-## IDENTITY
-
-product:        AuditForge
-operator:       Dave Kitchens
-studio:         Dropdown Logistics (DDL)
-url:            https://auditforge.dev
-repo:           github.com/dropdownlogistics/auditforge
-version:        0.3 (v0.4 in build)
-status:         Live. Production. Auto-deploy from GitHub main.
-purpose:        Governed audit document generation from structured control and risk data.
-tagline:        The system audits the company that built the system.
-
-one sentence:
-  AuditForge takes structured control, risk, process, and framework data
-  and produces governed audit deliverables — RCMs, MCLs, walkthroughs,
-  and audit plans — as XLSX and DOCX files.
-
+## IDENTITY (generated from the DDL product registry — do not hand-edit)
+product:  AuditForge
+wing:     Professional Systems
+status:   live
+url:      https://auditforge.dev
+auth:     none
+stack:    Next.js, Prisma, Neon Postgres, Vercel
+count:    controls = 106  (source: metrics.AF_CONTROLS)
+count:    auditors = 47  (source: metrics.AF_AUDITORS)
+count:    engagements = 4  (source: metrics.AF_ENGAGEMENTS)
 
 ## WHAT THIS PRODUCT IS
 
-AuditForge is a SYSTEM OF STRUCTURE.
+AuditForge is a SYSTEM OF STRUCTURE. It takes structured control, risk, process,
+and framework data and produces governed audit deliverables — RCMs, MCLs,
+walkthroughs, and audit plans — as XLSX and DOCX files.
 
 It does:
 - Define what controls ARE
@@ -54,497 +25,62 @@ It does:
 - Enforce review workflows and lifecycle state machines
 - Log every mutation to an immutable audit trail (Silent Fix Prevention)
 - Map controls to risks, frameworks, and assertions
-- Produce client-ready deliverables from live data
-- Import controls, risks, and processes via API with preview/execute validation
-- Provide analytics on control coverage, risk exposure, and program health
-- Staff audit engagements with governed teams and hour budgets
-- Surface team composition gaps and warning flags (STD-AUDITOR-001)
+- Staff engagements with governed teams and hour budgets
+- Surface team-composition gaps and warning flags (STD-AUDITOR-001)
 
 It does NOT:
 - Test whether controls WORK
 - Issue audit opinions
 - Store evidence artifacts
 - Replace the auditor's judgment
-- Make assertions about control effectiveness without human input
 
-The auditor issues the opinion.
-AuditForge produces the evidence package.
+The auditor issues the opinion. AuditForge produces the evidence package.
 That line does not move.
-
-architectural_identity: System of Structure
-target_market: Internal audit teams, consulting firms, SOX compliance departments
-commercial_context: Beth Epperson (Legacy Purpose / IntegrityOS) — first commercial prospect
-  IntegrityOS framing: define domain + buy URL + provide data access = DDL builds governance skin
-
-
-## METHODOLOGY
-
-built_with: Chaos -> Structured -> Automated
-philosophy: CottageHumble — humble surface, cathedral underneath
-
-build_sequence (executed, not planned):
-  Schema -> Middleware -> CRUD -> Generators -> Import -> UI -> Analytics -> Search -> Mobile
-
-governance_philosophy:
-  Silent Fix Prevention — every mutation requires rationale
-  AuditTrail — every mutation logged, field-level diffs
-  State machine — controls move through lifecycle via explicit transitions
-  Snapshot integrity — generated documents capture data state at generation time
-
-The product demos itself governing itself.
-Seed data is DDL's own Control Audit Engine (CAE) — AI-native governance domains.
-AcceptableArrogance: the system's first client is the company that built it.
-
-
-## TECH STACK
-
-framework:      Next.js 16.1.6 (App Router, Turbopack)
-database:       PostgreSQL 17 on Neon (AWS US-East-1)
-orm:            Prisma 6.19.2
-auth:           Clerk
-generators:     ExcelJS (XLSX), docx npm (DOCX)
-icons:          Lucide React
-deployment:     Vercel (auto-deploy from GitHub main)
-runtime:        Node 24.14
-dns:            Cloudflare
-domain:         auditforge.dev (registered March 2026, expires March 2029)
-
 
 ## DATA MODEL
 
-Star schema. Fact_Control at center.
-Grain: One control instance per company per period.
-
-DIMENSION TABLES:
-  Dim_Company        — multi-company scoping, indexed
-  Dim_Process        — 3-level hierarchy (Area -> Process -> Subprocess)
-  Dim_Risk           — risk inventory with ratings
-  Dim_Owner          — first-class dimension
-  Dim_Framework      — 3-level (Framework -> Domain -> Requirement)
-  Dim_Assertion      — PCAOB assertions
-  Dim_Auditor        — 45 auditors, strength/weakness tokens, STD-AUDITOR-001
-
-BRIDGE TABLES (all M:M with effective dating):
-  Bridge_ControlRisk
-  Bridge_ControlFramework
-  Bridge_ControlAssertion
-  Bridge_AuditControl (scope assignments)
-  Bridge_AuditAuditor (team assignments with hours and phase)
-
-WORKFLOW TABLES:
-  ControlStatusLog   — state machine, full lifecycle
-  AuditTrail         — every mutation logged (Silent Fix Prevention)
-  Template           — versioned document templates
-  GeneratedDocument  — immutable snapshot at generation time
-
-ENUMS (all typed):
-  ControlLifecycle:  DRAFT -> ACTIVE -> DEPRECATED -> ARCHIVED
-  ReviewStatus:      DRAFT -> PREPARED -> REVIEWED -> APPROVED
-  ControlType:       PREVENTIVE | DETECTIVE | CORRECTIVE
-  ControlNature:     MANUAL | AUTOMATED | IT_DEPENDENT_MANUAL
-  ControlFrequency:  DAILY | WEEKLY | MONTHLY | QUARTERLY | ANNUALLY | AD_HOC
-  RiskRating:        CRITICAL | HIGH | MEDIUM | LOW
-  RiskCategory:      OPERATIONAL | FINANCIAL | COMPLIANCE | STRATEGIC | TECHNOLOGY
-  AuditStatus:       PLANNING | FIELDWORK | REPORTING | COMPLETE | CANCELLED
-  TeamRole:          ENGAGEMENT_LEAD | DIRECTOR | MANAGER | SENIOR | STAFF
-
-NATURAL IDs:
-  All entities use human-readable natural IDs (CO-ITGC-001, AUD-2025-002)
-  resolveCompanyId() resolves natural IDs to internal cuids
-  All API routes accept either format
-
-
-## LIVE SEED DATA (Neon — as of 2026-03-17)
-
-company:        Dropdown Logistics Inc. (CO-DDL) · FY2025
-
-CONTROL UNIVERSE:
-  106 controls across 9 process areas
-  9 process records (one per area)
-  Control ID format: CO-[AREA]-[NUM]
-
-PROCESS AREAS (9):
-  IT General Controls              12 controls
-  Governance and Oversight         12 controls
-  Financial Reporting and Revenue  12 controls
-  Vendor and Third-Party Mgmt      12 controls
-  HR and Workforce Governance      12 controls
-  Communications and Ethics        11 controls
-  Operations and Change Mgmt       11 controls
-  Revenue Integrity and Commissions 12 controls
-  Data Governance and AI Integrity  12 controls
-
-COUNCIL / DIRECTORS (9 + CAE):
-  AUD-001  Archer Hawthorne    IT General Controls
-  AUD-002  Marcus Caldwell     Governance and Oversight
-  AUD-003  Elias Mercer        Financial Reporting and Revenue
-  AUD-004  Max Sullivan        Vendor and Third-Party Management
-  AUD-005  Rowan Bennett       HR and Workforce Governance
-  AUD-006  Ava Sinclair        Communications and Ethics
-  AUD-007  Leo Prescott        Operations and Change Management
-  AUD-008  Marcus Grey         Revenue Integrity and Commissions
-  AUD-009  Kai Langford        Data Governance and AI Integrity
-  AUD-011  Dave Kitchens       CAE / Engagement Lead
-
-STAFF ROSTER (36 across 9 teams):
-  4 per team: 1 Manager, 1 Senior, 2 Staff
-  All profiles include: bio, certifications, specializations, strengths, weaknesses
-  All profiles tokenized per STD-AUDITOR-001
-
-ENGAGEMENTS (4 FY2025):
-  AUD-2025-001  Annual CAE Review          106 controls  28 team members
-  AUD-2025-002  Technology & Infrastructure  35 controls  15 team members
-  AUD-2025-003  Governance & Compliance      35 controls  15 team members
-  AUD-2025-004  Financial Integrity          36 controls  15 team members
-
-
-## STD-AUDITOR-001 — AUDITOR COMPETENCY TOKEN TAXONOMY
-
-Ratified: DCR-012 LOCK (2026-03-17)
-Applied to all 46 auditors.
-
-STRENGTH TOKENS (8):
-  STR-01  Evidence Discipline      Produces complete, organized, traceable workpapers without prompting
-  STR-02  Technical Depth          Understands systems at implementation level, not just documentation level
-  STR-03  Communication Bridge     Translates technical findings into language non-technical stakeholders can act on
-  STR-04  Execution Speed          Processes high volume of testing without quality degradation
-  STR-05  Pattern Recognition      Identifies anomalies, trends, and systemic issues others dismiss as noise
-  STR-06  Professional Skepticism  Challenges control owner explanations with appropriate persistence
-  STR-07  Methodology Design       Builds reusable frameworks, test procedures, and programs others adopt
-  STR-08  Judgment Calibration     Distinguishes material from interesting, prioritizes risk appropriately
-
-WEAKNESS TOKENS (8):
-  WKS-01  Over-Documentation      Spends disproportionate time perfecting workpapers, slowing review cycles
-  WKS-02  Escalation Avoidance    Absorbs blockers and problems rather than surfacing them to senior staff
-  WKS-03  Automation Over-Reliance  Reaches for scripts before confirming the manual baseline works
-  WKS-04  Scope Creep             Tests beyond defined objectives when something looks interesting
-  WKS-05  Technical Jargon        Communicates findings in language that requires translation for reviewers
-  WKS-06  Deference               Backs down from correct observations when senior staff push back
-  WKS-07  Completion Bias         Resists moving to next test area before fully closing current one
-  WKS-08  Rigidity                Prioritizes process adherence over pragmatic sequencing under pressure
-
-ASSIGNMENT RULES:
-  Each auditor: 2-3 strength tokens, 1-2 weakness tokens
-  Directors and staff follow identical rules — profiles apply to all roles
-
-TEAM COMPOSITION WARNING FLAGS:
-  3+ WKS-01 on engagement    -> documentation bottleneck risk
-  3+ WKS-02 on engagement    -> escalation gap risk
-  No STR-06 on engagement    -> skepticism gap
-  No STR-03 (client-facing)  -> communication gap
-  No STR-01 on engagement    -> workpaper quality risk
-
-UI GOVERNANCE:
-  Weakness tokens are role-based visibility. Not public display.
-  Tokens are governed assessments, not performance ratings.
-
-
-## API ROUTES
-
-All routes live at auditforge.dev/api/
-
-CONTROLS:
-  GET    /api/controls?companyId=      — list with full star schema joins
-  POST   /api/controls                 — create with validation
-  PUT    /api/controls/[id]            — update with AuditTrail
-  DELETE /api/controls/[id]            — soft delete
-  POST   /api/controls/[id]/transition — lifecycle state machine
-
-AUDITS:
-  GET    /api/audits?companyId=        — list with scope and team
-  POST   /api/audits                   — create engagement
-  PUT    /api/audits/[id]              — update engagement
-  POST   /api/audits/[id]/scope        — add controls to scope
-  POST   /api/audits/[id]/team         — add team members
-
-AUDITORS:
-  GET    /api/auditors?companyId=      — list with token fields
-  POST   /api/auditors                 — create auditor profile
-
-IMPORT:
-  POST   /api/import                   — bulk control import (preview/execute)
-  POST   /api/import/risks             — bulk risk import
-  POST   /api/import/processes         — bulk process import
-
-GENERATION:
-  POST   /api/generate                 — generate document by type
-  GET    /api/generate?companyId=      — list last 50 generated
-  GET    /api/generate/download        — stream file download
-
-All import routes: { companyId, [entities], mode: "preview" | "execute" }
-Preview validates without writing. Execute upserts valid rows, logs to AuditTrail.
-
-KNOWN ENUM GOTCHA:
-  Prisma schema uses ANNUALLY. Import validator accepts ANNUAL.
-  Map ANNUAL -> AD_HOC or ANNUALLY before Prisma writes.
-  Batch imports at 20 records per request to avoid Neon timeout.
-
-
-## GENERATORS
-
-RCM (XLSX):
-  Cover sheet, matrix tab, summary tab
-  Conditional formatting: risk ratings, effectiveness, key controls
-  DDL standards: 6px frame, grid lines off, frozen panes, sheet protection (pw: auditforge)
-  Footer: Dropdown Logistics / Chaos->Structured->Automated / Page X of N
-  Branded cover with DDL logo
-
-MCL (XLSX):
-  Full control catalog, alternating rows, status and effectiveness color coding
-
-Walkthrough Narrative (DOCX):
-  Process overview, numbered control points, risk summary table,
-  gap analysis section, sign-off block — one per process area
-
-Audit Plan (XLSX):
-  Cover, scope matrix, timeline, assignments, target dates
-
-All generators: buffer-based delivery (no disk writes), streamed via download route
-
-
-## UI VIEWS
-
-Landing:    Ticker strip, orbital hero animation (rotating rings, pulsing nodes),
-            stat grid, feature cards, SystemOfStructure canon block, ReceiptLine CTAs
-
-Dashboard:  Live stats (106 controls / 76 key / 9 processes / 4 active audits),
-            type breakdown, process area breakdown, review status funnel,
-            risk heat map, DRAFT governance warning banner
-
-Analytics:  Unmitigated Critical/High risks (crimson action card),
-            Risk Coverage Rate, Key Controls Not Tested, Awaiting Review count,
-            Control Health Heatmap (risk x effectiveness), Workflow Status Funnel,
-            Key Control Effectiveness, Control Mix Nature x Type matrix,
-            Process Area Density, Unmapped Risks table
-
-Controls:   Live table, search, type/status filters, full star schema joins
-
-Risks:      Live table, rating filter, control count per risk
-
-Processes:  Grouped by area, control counts per process
-
-Audits:     Scope matrix, lead auditor, methodology, status, team roster
-
-Review:     Step 4 — DRAFT -> PREPARED -> REVIEWED -> APPROVED per control
-            Coverage bar, status counts, grouped controls by status
-            Mark Prepared / Mark Reviewed / Approve per control, in-place state update
-
-Generate:   Document type selector, walkthrough per process area,
-            DDL standards checklist, all downloads wired to live API
-
-Import:     Bulk import with preview/execute modes, per-row validation,
-            upsert logic, warnings surfaced before execute
-
-Search:     Cmd+K / Ctrl+K modal, searches controls/risks/processes simultaneously
-
-
-## GOVERNANCE
-
-COUNCIL REVIEWS (DCR SERIES):
-  DCR-010  LOCK  Auditor Personal Card
-                 3 privacy guardrails, Section 6 JUDGMENT added,
-                 role-based defaults, export gate (2+ engagements, 50+ controls)
-
-  DCR-011  LOCK  Build-a-Dash Metric Registry
-                 Metric versioning, metric sprawl guardrail,
-                 tiered feature structure confirmed
-
-  DCR-012  LOCK  STD-AUDITOR-001 — Auditor Competency Token Taxonomy
-                 8 strength tokens, 8 weakness tokens
-                 5 LOCK / 3 REVISE / 0 REJECT
-                 Amendments applied: STR-08 Coaching -> Judgment Calibration,
-                 WKS-07 Perfectionism -> Completion Bias,
-                 No-STR-01 warning flag added, UI governance note added
-
-PRIOR REVIEWS:
-  CR-AUDITFORGE-001  10 seats + adjunct. Unanimous on architectural boundary.
-  CR-AUDITFORGE-002  Status update. Informational.
-  CR-AUDITFORGE-003  Analytics dashboard. Unanimous LOCK.
-  CR-AUDITFORGE-004  Schema expansion. System of Engagement (v0.4 ratified).
-  CR-AUDITFORGE-005  Audit Teams, Roster, Time Tracking.
-
-RATIFIED BOUNDARIES (do not move):
-  AuditForge is a System of Structure. Not execution.
-  The auditor issues the opinion. AuditForge produces the evidence package.
-  AI layer is a premium accelerator. Core product must function without it.
-  Evidence vault is deferred. References only, no storage.
-
-MIDDLEWARE RULES (enforced, not advisory):
-  Silent Fix Prevention — EDIT requires documented rationale
-  Segregation of duties — prepared_by != reviewed_by
-  Lifecycle validation — controls can only move forward in lifecycle
-  Review status gate — APPROVED blocks certain mutations
-  Key control protection — elevated rationale required to modify
-  Company scoping — all queries are company-scoped, no cross-company leaks
-  Template versioning — semver enforced on all templates
-  Audit trail — every mutation logged with actor, timestamp, field diffs
-
-
-## COLLABORATORS
-
-Dave Kitchens   CPA, 10+ years internal audit. Commission Analyst II, UMB Bank.
-                Operator. Builds AuditForge as DDL commercial product.
-
-Clayton Hotze   Engineering partner, co-founder level.
-                Built full-stack multi-agent knowledge management platform independently.
-                AuditForge is forward-compatible with his platform by design.
-                Emergency access contact for DDL infrastructure.
-
-Beth Epperson   CEO, Legacy Purpose. First commercial prospect.
-                IntegrityOS framing: governance engine, not just audit tool.
-                Adjunct ADJ-B. Commercial filter. First AuditForge paying customer candidate.
-
-
-## DEFERRED (council-ratified — do not build yet)
-
-  PDF export
-  AI layer (control description drafting, gap detection)
-  Multi-tenant UI
-  Automated testing suite
-  Evidence vault
-  Predictive analytics
-  Custom framework builder
-  Real-time collaboration
-  Clayton's platform integration
-
-
-## QUEUED (next build sessions)
-
-  Audit Planning and Scoping UI — Create Audit wizard
-    Pick period, pick controls by area or individual checkbox,
-    assign staff, set budget hours, launch
-
-  Review workflow v2
-    NOT STARTED -> IN PROGRESS -> READY FOR REVIEW -> COMMENTS PENDING
-    -> COMMENTS CLEARED -> FINALIZED -> REASSIGNED
-    Return for Comments — demotion flow with required comment
-
-  Auditor profiles — basketball card model
-    STD-AUDITOR-001 tokens wired to UI
-    Radar chart (8 strength axes), weakness tokens as warning badges
-    Role-based weakness visibility
-
-  Build-a-Dash — metric registry UI (DCR-011 ratified)
-
-  Control mapping tool
-    Upload Excel/CSV, identify columns, map to AuditForge schema,
-    preview validation, execute import
-    First real test: this session's council control universe
-
-  Team comp radar on engagement staffing wizard
-    Aggregate token coverage per engagement
-    Gap detection and warning flags inline
-    Complementary pair suggestions
-
-
-## DESIGN SYSTEM
-
-CottageHumble: "Humble surface. Cathedral underneath."
-
-colors:
-  navy:    #0D1B2A  (background)
-  card:    #10202f  (surface)
-  cream:   #F5F1EB  (text)
-  crimson: #B23531  (brand primary, risk alerts)
-  amber:   #C49A3C  (accent, interactive)
-  green:   #4A9E6B  (positive, effective)
-  blue:    #6B9DC2  (info, processes)
-  warn:    #F59E0B  (draft state warnings)
-
-typography:
-  Space Grotesk   — display, UI labels, headings
-  JetBrains Mono  — data, IDs, badges, monospace
-  Source Serif 4  — body, descriptions, narrative
-
-rules:
-  No white backgrounds. No Inter. No light mode.
-  Grid lines off in all generated XLSX files.
-  6px frame (Row 1 / Col A) in all spreadsheets.
-  DDL footer on every generated page.
-
-logo:
-  Crimson AF stamp on navy. Circular seal, AF monogram, cream outline ring.
-  CrimsonAF — AccidentalInsight. Now canon.
-
-
-## RULES FOR AI COLLABORATORS
-
-TONE:
-  Professional. Technical. Direct. No hedging.
-  This is a commercial audit product — treat it as one.
-  Users are CPAs, auditors, compliance leads. Write for them.
-
-ARCHITECTURAL RULES:
-  The data model is locked. Do not propose schema changes without council review.
-  The architectural boundary is ratified. Do not suggest AuditForge issue opinions.
-  Silent Fix Prevention is not optional. Every mutation needs rationale.
-  AuditTrail is not optional. Do not suggest bypassing it.
-  Company scoping is mandatory. Never write queries without companyId scope.
-  Star schema thinking always. Facts, dimensions, bridges.
-
-WHEN BUILDING:
-  Generators produce output from query layer — never touch Prisma directly.
-  Natural IDs resolve via resolveCompanyId() — use it.
-  Validation middleware runs on every POST/PUT — respect it.
-  Batch imports at 20 records max per request (Neon timeout prevention).
-  Always write JS scripts via Python to avoid PowerShell encoding issues.
-
-WHAT NOT TO DO:
-  Do not suggest the product store evidence artifacts (deferred, council decision).
-  Do not add AI to the core product (deferred, council decision).
-  Do not break company data isolation.
-  Do not bypass the audit trail.
-  Do not issue verdicts or opinions from generated documents.
-  Do not add features that blur the System of Structure boundary.
-
-DEVELOPMENT CONTEXT:
-  Local: localhost:3000
-  Production: auditforge.dev
-  DB: Neon PostgreSQL — connection string in .env (not committed)
-  postinstall: prisma generate (required — prevents DB zeros on cold start)
-  Seed: node prisma/seed.js && node prisma/seed-v03.js
-  Note: page.js and page.jsx cannot coexist — use page.jsx for root
-
+Star schema. Fact_Control at center. Grain: one control instance per company
+per period. Dimensions: Company, Process (3-level), Risk, Owner, Framework
+(3-level), Assertion, Auditor. Bridges (M:M, effective-dated): ControlRisk,
+ControlFramework, ControlAssertion, AuditControl, AuditAuditor. Workflow tables:
+ControlStatusLog, AuditTrail, Template, GeneratedDocument. All entities use
+human-readable natural IDs (CO-ITGC-001, AUD-2025-002).
+
+## GOVERNANCE (ratified boundaries — do not move)
+
+- AuditForge is a System of Structure, not execution.
+- Silent Fix Prevention: every mutation requires documented rationale.
+- AuditTrail: every mutation logged with actor, timestamp, field-level diffs.
+- Segregation of duties: prepared_by != reviewed_by.
+- Lifecycle validation: controls move forward only, via explicit transitions.
+- Company scoping: all queries are company-scoped; no cross-company leaks.
+- The AI layer is a premium accelerator; the core must function without it.
+- Evidence vault is deferred — references only, no storage.
+
+## STD-AUDITOR-001 — COMPETENCY TOKEN TAXONOMY
+
+8 strength tokens, 8 weakness tokens. Each auditor: 2–3 strengths, 1–2
+weaknesses. Team-composition warning flags detect documentation bottlenecks,
+escalation gaps, and skepticism gaps on an engagement. Weakness tokens are
+role-based visibility — governed assessments, not performance ratings.
 
 ## CANON TERMS
 
-SystemOfStructure:    AuditForge's ratified architectural identity.
-                      Defines what controls ARE. Does not test if they WORK.
+SystemOfStructure — AuditForge's ratified architectural identity. Defines what
+  controls ARE; does not test whether they WORK.
+SilentFixPrevention — unacknowledged corrections are the most dangerous kind;
+  every edit requires rationale.
+AccidentalIntelligence — when a governed, hallucination-free system produces
+  output so unexpected it reads as insight.
+TrustANDVerify — verification is not a check on trust; it is the infrastructure
+  that makes trust possible.
 
-SilentFixPrevention:  Core governance principle. Unacknowledged corrections
-                      are the most dangerous kind. Every edit requires rationale.
+## FOR AI COLLABORATORS
 
-CrimsonAF:            AccidentalInsight. Logo review produced a brand term
-                      that also means "extremely good." Now DDL canon.
+Professional, technical, direct — users are CPAs, auditors, compliance leads.
+The data model is locked; do not propose schema changes without council review.
+Do not suggest AuditForge issue opinions or store evidence. Generators produce
+output from the query layer; never touch the ORM directly. Company scoping is
+mandatory.
 
-CoherentVelocity:     Complete auditable systems built at speed.
-                      The control universe, staff roster, and 4 engagements
-                      in one session. This is what it looks like.
-
-AcceptableArrogance:  Knowing what you built, letting the work prove it.
-                      The product governs its creator. That is the demo.
-
-AccidentalIntelligence: When a governed, hallucination-free system produces
-                      output so unexpected it reads as insight.
-                      AuditForge pitch line: "If it ever looked like it was
-                      reasoning beyond the data — that wouldn't be AI.
-                      That would be Accidental Intelligence."
-
-ExpertiseInvisibility: The output looks easy because the operator knows
-                      exactly what he is doing. The star schema is invisible.
-                      The RCM is obvious. That is the point.
-
-TrustANDVerify:       Verification is not a check on trust.
-                      It is the infrastructure that makes trust possible.
-
-STD-AUDITOR-001:      Auditor Competency Token Taxonomy. DCR-012 LOCK.
-                      8 strength tokens. 8 weakness tokens.
-                      The basketball card runs on this.
-
-
-## EOF
-
-AuditForge v0.3 | auditforge.dev
-Dropdown Logistics — Chaos -> Structured -> Automated
-Dave Kitchens | March 2026
-106 controls. 45 auditors. 4 engagements. The universe is live.
+# For full DDL context see the base: https://dropdownlogistics.com/llms.txt
