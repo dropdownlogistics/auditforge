@@ -18,7 +18,7 @@ function GateModal({ onClose }) {
         <svg width="48" height="48" viewBox="0 0 200 200" style={{marginBottom:20}}>
           <circle cx="100" cy="100" r="90" fill="none" stroke="#F5F1EB" strokeWidth="2"/>
           <circle cx="100" cy="100" r="78" fill="#0D1B2A"/>
-          <text x="100" y="88" textAnchor="middle" fontFamily="Space Grotesk,sans-serif" fontWeight="900" fontSize="52" fill="#9B111E">AF</text>
+          <text x="100" y="88" textAnchor="middle" fontFamily="Space Grotesk,sans-serif" fontWeight="900" fontSize="52" fill="#B23531">AF</text>
           <circle cx="30" cy="100" r="2" fill="#C49A3C"/>
           <circle cx="170" cy="100" r="2" fill="#C49A3C"/>
         </svg>
@@ -71,7 +71,7 @@ export default function DemoPage() {
           <svg width="28" height="28" viewBox="0 0 200 200">
             <circle cx="100" cy="100" r="90" fill="none" stroke="#F5F1EB" strokeWidth="2"/>
             <circle cx="100" cy="100" r="78" fill="#0D1B2A"/>
-            <text x="100" y="88" textAnchor="middle" fontFamily="Space Grotesk,sans-serif" fontWeight="900" fontSize="52" fill="#9B111E">AF</text>
+            <text x="100" y="88" textAnchor="middle" fontFamily="Space Grotesk,sans-serif" fontWeight="900" fontSize="52" fill="#B23531">AF</text>
             <circle cx="30" cy="100" r="2" fill="#C49A3C"/>
             <circle cx="170" cy="100" r="2" fill="#C49A3C"/>
           </svg>
