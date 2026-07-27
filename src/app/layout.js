@@ -4,6 +4,7 @@ export const metadata = {
   metadataBase: new URL("https://auditforge.dev"),
   title: "AuditForge — Governed Documentation",
   description: "Structured data in. Governed documents out.",
+  icons: { icon: '/favicon.svg' },
   openGraph: {
     title: "AuditForge — Governed Audit Documentation",
     description: "The audit package generates itself. Controls, risks, and processes become governed RCMs, MCLs, and walkthroughs in seconds from a live star schema.",
